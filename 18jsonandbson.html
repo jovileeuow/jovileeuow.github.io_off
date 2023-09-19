@@ -1,0 +1,589 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/xbU2C3QN11H8AWQlFqgFQB?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>18 JSON and BSON Data Models</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>JSON and BSON Data Models</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON and BSON Data Models</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a class="red" href="#3">JSON ? What is it ?</a></li>
+        <li><a href="#7">BSON ? What is it ?</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+   <aside class="note">
+      <section>
+    <p>This presentation shows how JSON  notation is used as a formal specification of a logical data model based on a concept of nested/hierachical type of data structures.</p>
+    <br/>
+	<p>JSON is an acronym formed from the initial letters of Java Script Object Notation (JSON).</p>
+	<br/>
+	<p>JSON is is a light–weight data interchange format.</p>
+	<br/>
+	<p>JSON is based on a subset of the JavaScript Programming Language Standard ECMA-262 3rd Edition - December 1999. It is why JSON is a perfect solution for elimination of "impedance mismatch" problem. Impedance mismatch occurs when a notation use for representation of a logical schema and DDL/DML statements on the instances of logical schema are incompatible with  a notation of a programming language that hosts DDL/DML statements. For example SQL statement versus a hot programming language like Java or Python or C++.</p>
+	<br/>
+	<p>JSON data model is built on two data structures:</p>
+	<p>(1)a collection of name:value pairs called as an object,</p>
+	<p>2)an ordered list of values called an array.</p>
+	<br/>
+	<p>In JSON notation an object is an unordered set of name:value pairs and an array is a sequence of values. A value is either an atomic value like number, string or boolean value or it can be an object or array itself. In this way the values associated with the names can be nested in JSON notation to any possible level.</p>
+	<br/>
+	<p>Below are the simple examples of flat objects, i.e. name:value pairs where a value is atomic.</p>
+    <p>{"first name": "James"} -> an object represent information about the first name of a person.</p>
+	<p>{"city":"Sydney", "street":"Victoria", "building number":25} -> An object represents an address that consists of city name, street name and building number.</p>
+	<p>{"number":"25", "isOdd ?":true, "nothing":null} An object represent a variety of  values: a number (floating point number), a Boolean value, and no value at all.</p>
+	<p>{ } -> An object is empty, it contains no name:value pairs.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">JSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Java Script Object Notation (JSON)</strong> is a light–weight data interchange format</li>
+        <li>It is based on a subset of the JavaScript Programming</li>
+        <li>Language Standard ECMA-262 3rd Edition - December 1999 JSON is built on two structures:
+          <ul class="build">
+            <li>A <strong class="red">collection</strong> of <strong class="red">name:value </strong>pairs - <strong class="red">object</strong></li>
+            <li>An <strong class="red">ordered list of values - array</strong></li>
+          </ul>
+        </li>
+		  <li><strong class="red">Object </strong>is an unordered set of <strong class="red">name:value</strong> pairs
+          <ul class="build">
+            <pre class="prettyprint" data-lang="JSON objects">
+
+{"first name": "James"}</pre>
+			<pre class="prettyprint">{"city":"Sydney", "street":"Victoria", "building number":25}</pre>
+			<pre class="prettyprint">{"number":"25", "isOdd ?":true, "nothing":null}</pre>
+			<pre class="prettyprint" data-lang="Empty JSON object">
+
+{ }</pre>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In JSON a value associated with a name can be either a string or a number or true or false or null or an object or an array.</p>
+    <br/>
+	<p>Below we provide few examples of "exotic" values being string of control characters.</p>
+	<p>{"single quote": "\'", "back slash":"\\", "forward slash":"\/", "line feed":"\u000A" }</p>
+	<br/>
+	<p>The first value associated with a name "single quote" is a string that consists of a single quotation. A back slash (\) escapes interpretation of a single quotation as a string delimiter.</p>
+	<br/>
+	<p>The second value associated with a name " back slash" is a string that consists of a single back slash character. Like before the first back slash escapes interpretation of the second back slash as a character that escapes from a functional role played by a character.</p>
+    <br/>
+	<p>The third value associated with a name "forward slash" is a string that consists of a single forward slash character. Like before the first back slash escapes a functional interpretation of the second forward slash.</p>
+	<br/>
+	<p>The fourth value associated with a name "line feed" is a string that consists of a single line feed character expressed is Unicode system of characters.</p>
+	<br/>
+	<p>The next object</p>
+	<p>{"fraction":0.25, "true":true, "false":false, "nothing": null}</p>
+	<p>consists of four name:value pairs. The fist pair associates a floating point number with a name "fraction". The second and third pairs associate Boolean values with the names "true" and "false". The fourth pair associates nothing represented by a null symbol with a name "nothing".</p>
+	<br/>
+	<p>The next object</p>
+	<p>{"full name": {"first name":"James",</p>
+	<p>"initials":null,</p>
+	<p>"last name":"Bond"},</p>
+	<p>"number":"007"}</p>
+	<p>is an example of a nested object where a value associated with a name "full name" is an object itself. A nested object consists of three name:value pairs that represent the first name, initials and last name of a person. An outer object consists of two name:value pairs. A name "full name" is associated with an object and a name "number" is associated with a string "007".</p>
+	<br/>
+	<p>The next object</p>
+	<p>{"colours":["red", "green", "blue"]}</p>
+	<p>consists of one name: value pair where a name "colours" as associated with an array of strings. In this case a value associated with a name is not an atomic value and instead it is an array of atomic values.</p>
+	<br/>
+	<p>The last object</p>
+	<br/>
+	<p>{"numbers":[10, 20, 30, 40, 50]}</p>
+    <br/>
+	<p>also consists of one name:value pair. A name "number" is associated with an array of integer numbers [10, 20, 30, 40 50]. In this case a value associated with a name is an array.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">JSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Value</strong> is either <strong class="red">a string </strong>or <strong class="red">a number</strong> or <strong class="blue">true</strong> or <strong class="blue">false</strong> or <strong class="blue">null</strong> or <strong class="red">an object</strong> or <strong class="red">an array</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="JSON object with the special characters">
+
+{"single quote": "\'", "back slash":"\\",
+ "forward slash":"\/", "line feed":"\u000A" }</pre>
+	    <pre class="prettyprint" data-lang="JSON object with a number, true, false, and nothing values">
+
+{"fraction":0.25, "true":true, "false":false, "nothing": null}</pre>
+	    <pre class="prettyprint" data-lang="Nested JSON object">
+
+{"full name": {"first name":"James",
+               "initials":null,
+               "last name":"Bond"},
+ "number":"007"}</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an array of strings">
+
+{"colours":["red", "green", "blue"]}</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an array of numbers">
+
+{"numbers":[10, 20, 30, 40, 50]}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The present slide shows more examples of arrays associated with the names. In a general case an array is a sequence of values. Hence a value in an array can be an atomic value like string, number, Boolean value or it can be an object or it can be an array,
+</p>
+    <br/>
+	<p>In the first example a name "2dim array" is associated with an array such that each one of its values is an array of four numbers. An outer array has 3 values being arrays of four numbers. </p>
+	<p>m array":[ [11,12,13,14],</p>
+	<p>[21,22,23,24],</p>
+	<p>[31,32,33,34] ]}</p>
+	<p>In such a way it is possible to represent multidimensional arrays. An example above represents a two-dimensional array of 3 rows and 4 columns.</p>
+	<br/>
+	<p>In the next example, a name "array of objects" is associated with a value that is an array of objects.</p>
+	<p>{"array of objects": [ {"name":"James Bond"},</p>
+	<p>{"name":"Harry Potter"},</p>
+	<p>{"name":"Robin Hood"} ] }</p>
+	<p>Each object consist of one name: value pair where the names "name" are associated with the names of people.</p>
+	<br/>
+	<p>In the next example a name "array of truth" is associated with an array of four Boolean values.</p>
+	<p>{"array of truth":[true, false, true, true]}</p>
+    <br/>
+	<p>In the next example a name "array of nothing" is associated with an array of four null(s).</p>
+	<p>{"array of nothing":[null, null, null, null, null]}</p>
+	<p>Note that an array is not empty, it consists of 4 elements each one being nothing i.e. null.</p>
+    <br/>
+	<p>The next example associates a name "empty array" with an empty array.</p>
+	<p>{"empty array":[ ]}</p>
+	<p>In this case an array has no elements.</p>
+	<br/>
+	<p>The final example shows that the values included in an array can be of different types. A name "array of varieties" is associated with an array that conatins a number, a string, a Boolean value and an array of strings each one being a single character.</p>
+	<p>{"array of varieties":[1, "one", true, ["a", "b", "c"]]}</p>
+	<p>The last example shows that it is possible to create an array with the elements of different atomic  and complex (array, object) types.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">JSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Array</strong> is a sequence of <strong class="red">values</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="JSON object with two dimensional array">
+
+{"2dim array":[ [11,12,13,14],
+                [21,22,23,24],
+                [31,32,33,34] ]}</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an array of objects">
+
+{"array of objects": [ {"name":"James Bond"},
+                       {"name":"Harry Potter"},
+                       {"name":"Robin Hood"} ] }</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an array of Boolean values">
+
+{"array of truth":[true, false, true, true]}</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an array of nulls">
+
+{"array of nothing":[null, null, null, null, null]}</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an empty array">
+
+{"empty array":[ ]}</pre>
+	    <pre class="prettyprint" data-lang="JSON object with an array of different values">
+
+{"array of varieties":[1, "one", true, ["a", "b", "c"]]}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON and BSON Data Models</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a  href="#3">JSON ? What is it ?</a></li>
+        <li><a class="red" href="#7">BSON ? What is it ?</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 07 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>BSON is an abbreviation of Binary JSON.</p>
+    <br/>
+	<p>BSON is a computer data interchange format used mainly as a data storage and network transfer format in the MongoDB database system.</p>
+	<br/>
+	<p>BSON is a is a binary encoded serialization of JSON-like documents (objects). In BSON JSON objects are called as documents and name:value pairs are called as key:value pairs.</p>
+	<br/>
+	<p>The main difference between BSON and JSON is inclusion of the extensions not in JSON that allow for representation of more data types. For example BSON has a Date type and a BinData type</p>
+	<br/>
+	<p>The common data types for BSON and JSON include: null, boolean, number, string, array, embedded document(object)</p>
+    <br/>
+	<p>The new data types include: date, regular expression, object id, binary data and code.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">BSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Binary JSON (BSON)</strong> is a computer data interchange format used mainly as a data storage and network transfer format 
+in the MongoDB database system</li>
+        <li><strong class="red">BSON</strong> is a is a binary encoded serialization of <strong class="blue">JSON</strong>-like
+documents (objects)</li>
+		<li><strong class="red">BSON</strong> includes the extensions not in <strong class="blue">JSON</strong> that allow for
+representation of data types</li>
+        <li><strong class="red">For example BSON</strong> has a <strong class="green prettyprint28">Date</strong> type and a <strong class="green prettyprint28">BinData</strong> type</li>
+		<li>The common data types include: <strong class="green prettyprint28">null, boolean, number,
+string, array, embedded document(object)</strong></li>
+        <li>The new data types include: <strong class="green prettyprint28">date, regular expression,
+object id, binary data, code</strong></li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>This slide contains the examples of valid BSON documents.</p>
+    <br/>
+	<p>A document</p>
+	<p>{"nothing":null}</p>
+	<p>associates a key "nothing" with a symbol representing a lack of value.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"truth":false}</p>
+	<p>associates a key "truth with a Boolean value fasle.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"pi":3.14}</p>
+	<p>associates a key "pi" with a floating point value 3.14.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"int":NumberInt("345")}</p>
+	<p>associates a key "int" with an integer number 345. Note that in BSON a number 345 is always converted to a floating point format. To create an integer number we must use a method Numberint().</p>
+	<br/>
+	<p>A document</p>
+	<p>{"long":NumberLong("1234567890987654321")}</p>
+	<p>associates a key "long" with a long integer number 1234567890987654321. Like with integer numbers to create a long integer number we must use a method Numberlong().</p>
+	<br/>
+	<p>A document</p>
+	<p>{"greeting":"Hello !"}</p>
+	<p>associates a key "greeting' with a string "Hello !".</p>
+	<br/>
+	<p>A document</p>
+	<p>{"pattern":/(Hi|Hello)!/}</p>
+	<p>associates a key "pattern" with a regular expression /(Hi|Hello)!/.</p>
+	<br/>
+	<p>A dcoument</p>
+	<p>{"date":new Date("2016-10-17")}</p>
+	<p>associates a key "date" with a date 17 October 2016. Note that a method Date() must be used to create a value of type date.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"array of varieties":[1, "one", true, ["a", "b", "c"]]}</p>
+	<p>associates a key "array of varieties" with an array [1, "one", true, ["a", "b", "c"]].</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">BSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="BSON document with a null">
+{"nothing":null}</pre>
+	    <pre class="prettyprint" data-lang= "BSON document with a Boolean value">
+
+{"truth":false}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with a floating point value">
+
+{"pi":3.14}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with an integer value">
+
+{"int":NumberInt("345")}</pre>
+			<pre class="prettyprint" data-lang="Long integer value in BSON document with long integer value">
+
+{"long":NumberLong("1234567890987654321")}</pre>
+			<pre class="prettyprint" data-lang="BSON document with a string value">
+
+{"greeting":"Hello !"}</pre>
+			<pre class="prettyprint" data-lang="BSON document with a regular expression">
+
+{"pattern":/(Hi|Hello)!/}</pre>
+			<pre class="prettyprint" data-lang="BSON document with a date">
+
+{"date":new Date("2016-10-17")}</pre>
+			<pre class="prettyprint" data-lang="BSON document with an array of different values">
+
+{"array of varieties":[1, "one", true, ["a", "b", "c"]]}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>This slide also presents more valid BSON documents.</p>
+    <br/>
+	<p>A document</p>
+	<p>{"_id":ObjectId()}</p>
+	<p>associates a key "_id" with an automatically generated document identifier. A method ObjectId() is used to generate a unique document identifier.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"code":function(){ /* ... */ }}</p>
+	<p>associates a key "code" with JavaScript function function(){ /* ... */ }.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"Double":124.56}</p>
+	<p>associates a key "Double" with a double real number 124.56</p>
+	<br/>
+	<p>A dcoument</p>
+	<p>{"timestamp":Timestamp(1234567,0)}</p>
+	<p>associates a key "timestamp" with a timestamp 1234567,0. A method Timestamp is used to create a timestamp.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"timestamp":Timestamp()}</p>
+	<p>associates a key "timestamp" with the current date and time timestamp created by a method Timestamp().</p>
+	<br/>
+	<p>A document</p>
+	<p>{"maxkey":{"$maxKey": 1} }</p>
+	<p>associates a key "maxkey" with a value greater than any value independently of its type.</p>
+	<br/>
+	<p>A document</p>
+	<p>{"minkey":{"$minKey" : 1} }</p>
+	<p>associates a key "minkey" with a value less than any value independently of its type.</p>
+	<br/>
+	<p>Their purpose of $maxKey and $minKey is to represent the theoretical extremes.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">BSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="BSON document with an object identifier">
+
+{"_id":ObjectId()}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with a functions">
+
+{"code":function(){ /* ... */ }}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with a timestamp">
+
+{"Double":124.56}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with a timestamp">
+
+{"timestamp":Timestamp(1234567,0)}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with a timestamp">
+
+{"timestamp":Timestamp()}</pre>
+	    <pre class="prettyprint" data-lang="BSON with the largest possible value">
+
+{"maxkey":{"$maxKey": 1} }</pre>
+	    <pre class="prettyprint" data-lang="BSON with the smallest possible value">
+
+{"minkey":{"$minKey" : 1} }</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "_id" play a very important role in each BSON document.</p>
+    <br/>
+	<p>First, every document (object) in BSON must have an "_id" key and "_id" key cannot be associated with no value (null symbol) !</p>
+	<p>If a new document does not have information about a value associated with "_id" key then a database system implementing a data model of BSON documents automatically generates a value unique within a collection and assigns such value to '_id" key.</p>
+	<br/>
+	<p>A value associated with "_id" key's can be of any type</p>
+	<p>A method ObjectId() is used to provide a default value associated with "_id" key when such value is not provide in BSON document.</p>
+	<p>In a collection of documents (objects) every document (object) must have a unique value for "_id", If a value is generated automatically then a database system must generate a unique value.  If a value is provided within a document then a database system must verify the uniqueness of the value. To spped this process up the values associated with a ket "_id" are indexed.</p>
+	<br/>
+	<p>If a document has no "_id" key then when it is inserted into a collection "_id" key is automatically added to the document</p>
+	<br/>
+	<p>In the following BSON document a value associated with "_id" key is automatically generated by a method ObjectId().</p>
+	<p>{"_id":ObjectId()}</p>
+    <br/>
+	<p>In the following BSON document a value associated with "_id" is generated by a method ObjectId() from a string ""507f191e810c19729de860ea".</p>
+	<p>{"_id":ObjectId("507f191e810c19729de860ea") }</p>
+	<br/>
+	<p>In the following BSON document a value associated with "_id" is an integer number 1234567.</p>
+	<p>{"_id": NumberInt(1234567) }</p>
+    <br/>
+	<p>In the following BSON document a value associated with "_id" is a string "1234567 CSCI235 01-AUG-2021". A string is created through concatenation of student number 1234567, subject code CSCI235 and enrolment date 01-AUG-2021.</p>
+	<p> {"_id": "1234567 CSCI235 01-AUG-2021"}</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">BSON ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Every document (object) in BSON must have an <strong class="green prettyprint28">"_id"</strong>
+key !</li>
+        <li><strong class="green prettyprint28">"_id"</strong> key's value can be of any type</li>
+		<li>A default value of <strong class="green prettyprint28">"_id"</strong> key is <strong class="green prettyprint28"> ObjectId()</strong></li>
+        <li>In a collection of documents (objects) every document
+(object) must have a unique value for <strong class="green prettyprint28">"_id"</strong></li>
+        <li>If a document has no <strong class="green prettyprint28">"_id"</strong> key then when it is inserted
+into a collection <strong class="green prettyprint28">"_id"</strong> key is automatically added to the
+document
+          <ul class="build">
+            <pre class="prettyprint" data-lang="BSON document with an automatically generated object identifier"> 
+{"_id":ObjectId()}</pre>
+	    <pre class="prettyprint" data-lang="BSON document with an object identifier"> 
+{"_id":ObjectId("507f191e810c19729de860ea") }</pre>
+	    <pre class="prettyprint" data-lang="BSON document with an object identifier, student number"> 
+{"_id": NumberInt(1234567) }</pre>
+	    <pre class="prettyprint" data-lang="BSON document with an object identifier, enrolment"> 
+{"_id": "1234567 CSCI235 01-AUG-2021" }</pre> 
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><a href="https://protect-au.mimecast.com/s/70VOC4QOxxHj0R1OFBqh5N?domain=json.org">Introducing JSON</a></li>
+	<li><a href="https://protect-au.mimecast.com/s/wazRC5QPyyHnjwG7h28DRK?domain=bsonspec.org">BSON</a></li>
+	<li><a href="https://protect-au.mimecast.com/s/KGXRC6XQ88i3OZKvfx19dF?domain=docs.mongodb.com">MongoDB, Document Data Format: BSON</a></li>			
+        <li>Banker K., Bakkum P., Verch S., Garret D., Hawkins T., MongoDB in Action, 2nd ed., Manning Publishers, 2016</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+
+  <slide class="backdrop"></slide>
+
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/IS9PC71R33TPpnkKCRbIuR?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

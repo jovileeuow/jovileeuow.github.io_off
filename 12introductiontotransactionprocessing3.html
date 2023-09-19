@@ -1,0 +1,754 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/sDGHClx1YYtDKQxMU9cIJA?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>12IntroductionToTransactionProcessing(3)</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Introduction To TransactionProcessing(3)</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#2">Serialization graph</a></li>
+	<li><a href="#7">Serialization graph testing protocol</a></li>
+	<li><a href="#9">Two phase locking protocol (2PL)</a></li>
+	<li><a href="#14">Timestamp ordering protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+    <aside class="note">
+      <section>
+	<p>In this presentation we explain three standard solution to a problem of correct concurrent processing of database transactions.nThe solutions include: serialization graph testing protocol, two phase locking protocol and timestamp ordering protocol.</p><br/>
+	<p>We start from a concept of serialization graph. Serialization graph is a binary directed graph where the nodes represent the concurrently running database transactions and the edges represent the orders in which transactions access data items in conflicting modes.</p><br/>
+	<p>Serialization graph is constructed in the following way.</p>
+	<p>When a transaction T starts its concurrent processing with the other transactions we add a node labeled with T to a serialization graph.</p>
+	<p>If the transactions Ti and Tj process conflicting operations such that Ti processes its operation first then we add an edge directed from a node labelled with Ti to a node labeled with Tj.</p>
+     <br/>
+	<p>A sample concurrent processing of the database transactions T1, T2 and T3 together with a simultaneous construction of a conflict serialization graph is visualized at the bottom of the present slide.</p>
+    <br/>
+	<p>A transaction T1 starts and it processes an operation write(x,10). We add a node labeled with T1 to a serialization graph.</p>
+	<br/>
+	<p>A transaction T2 starts and it processes an operation write(x, 20). We add a node labelled with T2 to a serialization graph. An operation write(x,20) processed by a transaction T2 conflicts with an operation write(x, 10) processed by operation T1. T1 processed a conflicting operation first. This is why we add an edge from a node T1 to a node T2.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Serialization graph</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li><strong class="red">Serialization graph</strong> is constructed in the following way
+	  <ul class="build">
+	      <li>If a transaction  <strong class="green prettyprint28">T</strong> participates in a concurrent execution then we add a node labeled with <strong class="green prettyprint28">T</strong> to a <strong class="red">serialization graph</strong></li>
+	      <li>If the transactions <strong class="green prettyprint28">T<sub class="subscript">i</sub></strong> and <strong class="green prettyprint28">T<sub class="subscript">j</sub></strong> process conflicting operations such that <strong class="green prettyprint28">T<sub class="subscript">i</sub></strong> processes its operation first then we add an edge directed from <strong class="green prettyprint28">T<sub class="subscript">i</sub></strong> to <strong class="green prettyprint28">T<sub class="subscript">j</sub></strong></li>
+	  </ul>
+	</li>
+	<li>Sample construction of a <strong class="red">serialization graph</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions">
+
+T1                             T2                             T3</pre>
+	    <pre class="prettyprint">write(x, 10)</pre>
+	  </ul>
+	</li>
+	<li>Create a node <strong class="green prettyprint28">T1</strong>
+	  <ul class="build">
+	    <pre class="prettyprint">                               write(x, 20)</pre>
+	  </ul>
+	</li>
+	<li>Create a node <strong class="green prettyprint28">T2</strong> and add an edge from <strong class="green prettyprint28">T1 </strong> to <strong class="green prettyprint28">T2</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A transaction T3 starts and it processes an operation write(x,30). We add a node labelled with T3 to a serialization graph. An operation write(x,30) conflicts with operation write(x,20) processed by a transaction T2. Hence, we add an edge from a node T2 to a node T3. An operation write(x,10) conflicts with an operation write(x,30). it is why we add an edge from a node labelled with T1 to a node labelled with T3.</p>
+	<br/>
+	<p>Next, a transaction T2 processes an operation write(y,10). A data item y has not been accessed by any transaction before processing of the operation does not contribute to any conflict. No new edge is added to a conflict graph.</p>
+	<br/>
+	<p>Next, a transaction T1 processes an operation a=read(y). The operation conflicts with an operation write(y,10) earlier (a moment ago) processed by a transaction T2. We add an edge from T2 to T1 because a transaction T1 processed a conflict operation after a transaction T2 processed a conflicting operation.</p>
+	<br/>
+	<p>A serialization graph is visualized in the middle of the present slide. Note that a cycle T1 -> T2 -> T1 make serialization of the concurrently processed transactions impossible. A transaction T1 cannot be processed before a transaction T2 and in the same moment after a transaction T2.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Serialization graph</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>
+	  <ul class="build">
+	    <pre class="prettyprint">                                                             write(x,30)</pre>
+	  </ul>
+	</li>
+	<li>Create a node <strong class="green prettyprint28">T3</strong> and add the edges from <strong class="green prettyprint28">T1</strong> to <strong class="green prettyprint28">T3</strong> and from <strong class="green prettyprint28">T2</strong> to <strong class="green prettyprint28">T3</strong>
+	  <ul class="build">
+	    <pre class="prettyprint">                               write(y,10)</pre>
+	    <pre class="prettyprint">a=read(y)</pre>
+	  </ul>
+	</li>
+	<li>Add an edge from <strong class="green prettyprint28">T2</strong> to <strong class="green prettyprint28">T1</strong></li>
+	<p style="text-align:center;"><img src="images/graph-3.png" width="600" alt="ORM" title="ORM"></p>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>In the present slide we show another concurrent not conflict serializable processing of database transactions.</p>
+	<br/>
+	<p>A transaction T1 starts processing from a=read(x). We create a node labelled with T1. </p>
+	<br/>
+	<p>Next, a transaction T2 processes an operation b=read(x). We create a new node labelled with T2. The operations processed by T1 and T2 use the same item x but the operations do not conflict because both operations are "read" operations.</p>
+	<br/>
+	<p>Next a transaction T1 processes an operation write(x,a-10). The operation conflicts with an operation b=read(x) earlier processed by a transaction T2. Hence we add an edge from a node T2 to a node T1.</p>
+	<br/>
+	<p>Next, a transaction T2 processes an operation write(x,b+20). The operation conflicts with the operations a=read(x) and write(x,a-10) earlier processed by a transaction T1. Hence we add an edge from a node T1 to a node T2. </p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Serialization graph</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>A serialization graph of <strong class="red">not conflict serializable</strong> execution of database transactions
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Not conflict serializable execution of database transactions">
+
+T1                                              T2</pre>
+	    <pre class="prettyprint">a=read(x)</pre>
+	  </ul>
+	</li>
+	<li>Create a node <strong class="green prettyprint28">T1</strong>
+	  <ul class="build">
+	    <pre class="prettyprint">                                               b=read(x)</pre>
+	  </ul>
+	</li>
+	<li>Create a node <strong class="green prettyprint28">T2</strong>
+	  <ul class="build">
+	    <pre class="prettyprint">write(x,a-10)</pre>
+	  </ul>
+	</li>
+	<li>Add an edge from <strong class="green prettyprint28">T2</strong> to <strong class="green prettyprint28">T1</strong>
+	<ul class="build">
+	  <pre class="prettyprint">                                               write(x,b+20)</pre>
+	</ul>
+	</li>
+	<li>Add an edge from <strong class="green prettyprint28">T1</strong> to <strong class="green prettyprint28">T2</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>A conflict serialization graph created while concurrently processing the transactions T1 and T2 is given at the bottom of the present slide. The graph contains a cycle created by the edges T1 to T2 and T2 to T1. Due to a cycle, it is impossible to serialize the the transactions T1 and T2. It is impossible to find a serial order where a transaction T1 is processed before T2 and after T2. Hence a sample concurrent execution given in the present slide is not conflict serializable.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Serialization graph</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>A serialization graph for <strong class="red">not conflict serializable</strong> execution of database transactions
+	  <ul>
+	    <pre class="prettyprint" data-lang="Not conflict serializable execution of database transactions">
+
+T1                                              T2
+a=read(x)
+                                                b=read(x)
+write(x,a-10)
+                                                write(x,b+20)</pre>
+	  </ul>
+	</li>
+	<ul class="build">
+	  <p style="text-align:center;"><img src="images/graph-2.png" width="300" alt="ORM" title="ORM"></p>
+	</ul>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Serialization graph</a></li>
+	<li><a class="red" href="#7">Serialization graph testing protocol</a></li>
+	<li><a href="#9">Two phase locking protocol (2PL)</a></li>
+	<li><a href="#14">Timestamp ordering protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+  <slide>
+  <aside class="note">
+      <section>
+	<p>A serialization graph testing protocol is directly based on a concept of conflict serializability. All requests to access a data item in either read or write mode are submitted to a serialization graph testing scheduler. A serialization graph testing scheduler is responsible for creation and maintenance of serialization graph.</p>
+	<br/>
+	<p>Each time a new transaction starts the scheduler creates a new node and labels the node with a unique transaction identifier. Then when a transactions would like to process either read or write  operation such operation is send to the scheduler and the scheduler tries to find if such operation conflicts with one or more operations processed by already running and not committed transactions. If the scheduler detects a conflict then an edge is added to a conflict serialization graph. Then, the scheduler tests a conflict serialization graph for acyclicity. In the other words the scheduler checks if a new added edge closes a cycle somewhere in a conflict serialization graph. If the scheduler cannot detect a cycle then positive confirmation is sent to a transaction and an operation submitted by a transaction is processed.</p>
+	<br/>
+	<p>When a new edge closes a cycle then the scheduler terminates processing of a transaction whose operation requires the addition of a new edge. The transaction is rolled back, a node labelled with its identifier is removed from the graph and all edges connected to the node and pointing to other transactions are removed as well.</p>
+	<br/>
+	<p>When a transaction commits itself, commit operation is sent to a scheduler and the scheduler removes a node with an identifier of committed transaction from the graph and all edges connected to the node and pointing to other transactions.</p>
+	<br/>
+	<p>The main advantage of the conflict serialization graph testing protocol is its simplicity. Practically entire protocol is based on creation, maintenance and testing acyclicity of a binary directed graph. The protocol belongs to a class of so called "optimistic protocols" where the transactions are never blocked (as long as a cycle is created in a graph). Optimistic protocols are considered as better than blocking (pessimistic protocols) in the environments where conflict do not happen too frequently. It means the environments where the chances for conflicts are low  and closing a cycle in a conflict serialization graph are low.</p>
+	<br/>
+	<p>However, the protocol has two important disadvantages. First, the protocol may trigger cascading aborts in a situation where a transaction that close a cycle and must be aborted create a data item (earlier called as dirty data) later on read by one or more other transactions. Then other transactions that "read from" an aborted transaction must be aborted as well. Then the transactions that read from aborted transactions must be aborted and so on and so on.</p>
+	<p>Cascading abort is a price we have to pay for "optimistic" scheduling of database transactions.</p>
+	<br/>
+	<p>As cascading aborts do not completely eliminate a protocol then the second reason is difficult to accept. The second problem is a computational complexity of an algorithm testing acyclicity of  a conflict serialization graph. The best algorithm testing acyclicity has a square complexity O(n^2). A square complexity means that time spent on testing acyclicity grows proportionally to n^2 where n is the total number of transactions involved a concurrent execution. Computational complexity of the scheduling protocol is far too slow. It is why a serialization graph testing protocol is only a good educational tool.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Serialization graph testing protocol (SGT)</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Principles
+	  <ul class="build">
+	    <li>Scheduler maintains and tests <strong class="red">serialization graph</strong></li>
+	    <li>If an operation issued by a transaction violates conflict serializability, i.e. if it creates a cycle in
+<strong class="red">serialization graph</strong> then such transaction is aborted</li>
+	  </ul>
+	</li>
+	<li>Problems
+	  <ul class="build">
+		<li><strong class="red">Cascading aborts</strong>: if a transaction <strong class="green prettyprint28">T</strong> that created a data item <strong class="green prettyprint28">x</strong> is aborted then all transactions that read a new value of <strong class="green prettyprint28">x</strong> must be aborted</li>
+		<li><strong class="red">Performance</strong>: testing acyclicity of serialization graph has <strong class="blue">O(n<superscript class="superscript">2</superscript>)</strong> complexity</li>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Serialization graph</a></li>
+	<li><a href="#7">Serialization graph testing protocol</a></li>
+	<li><a class="red" href="#9">Two phase locking protocol (2PL)</a></li>
+	<li><a href="#14">Timestamp ordering protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>The more realistic and faster protocol is two-phase locking protocol. Two-phase locking protocol belongs to a group of "pessimistic protocols" A "pessimistic protocol reflect a pessimistic state of mind of a scheduler. Whenever and operation submitted to a scheduler conflicts with an already processed operation a scheduler blocks a new coming operation until conflict is eliminated by commit/abort of another transaction.</p>
+	<br/>
+	<p>The principles of two-phase locking are the following.</p>
+	<p>(1) Access to data items is controlled by shared (read) and exclusive (write) locks</p>
+	<br/>
+	<p>(2) A transaction can read a data item only if a data item is read or write locked by the same transaction or a data item is read locked by another transaction</p>
+	<br/>
+	<p>(3)	A transaction can write a data item only if a data item is write locked by the same same transaction</p>
+	<br/>
+	<p>(4) Each transaction must acquire all locks before releasing any lock.</p>
+	<br/>
+	<p>Locking is used by a scheduler to block processing of operations that have been already accessed by another concurrently running transactions. Locking itself is not sufficient to have a correct protocol. It is possible that the transactions lock data items and still concurrent processing may corrupt a database. A principle saying that "(4) Each transaction must acquire all locks before releasing any lock" solves the problem.</p>
+	<br/>
+	<p>Two-phase locking protocol eliminates a problem of cascading aborts because a transaction is never allowed to access dirty data.</p>
+	<br/>
+	<p>Like serialization graph testing the two-phase locking protocol has some disadvantages. The first problems are deadlocks. It is possible that two or more transactions are waiting for each other to access a data item that must be released by another transaction. The second problem is such that sometimes locking is not needed and in such situation it only delays processing of the transactions.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Two-phase locking (2PL) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Principles</strong>
+	  <ul class="build">
+	    <li>Access to data items is controlled by <strong class="blue">shared</strong> (<strong class="blue">read</strong>) and <strong class="blue">exclusive</strong> (<strong class="blue">write</strong>) locks</li>
+	    <li>A transaction can <strong class="blue">read</strong> a data item only if a data item is <strong class="blue">read</strong> or <strong class="blue">write locked</strong> by the same transaction or a data item is <strong class="blue">read locked</strong> by another transaction</li>
+	    <li>A transaction can <strong class="blue">write</strong> a data item only if a data item is <strong class="blue">write locked</strong> by the same same transaction</li>
+	    <li><strong class="blue">Each transaction must acquire all locks before releasing any lock</strong></li>
+	  </ul>
+	<li><strong class="red">Two-phase locking protocol</strong> belongs to a class of <strong class="red">pessimistic protocols</strong></li>
+	<li><strong class="red">Problems</strong>
+	  <ul class="build">
+	    <li><strong class="red">Deadlocks</strong></li>
+	    <li><strong class="red">Unnecessary locks</strong> and <strong class="red">delays</strong> when an execution is conflict serializable</li>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>Now, we shall look at an example of concurrent execution of two transactions controlled by two-phase locking protocol. To simplify the protocol we consider a single "lock" operations instead of "shared lock" and "exclusive lock".</p>
+	<br/>
+	<p>A transaction T1 starts processing and attempts to access a data item u with an operation a=read(u). A scheduler locks a data item u and grants lock to a transaction T1. Then a transaction T1 process an operation a=read(u).</p>
+	<br/>
+	<p>Next, a transaction t2 attempts to access a data item v and it obtains a lock on v from the scheduler. With lock granted a transaction T2 processes and operation write(v, 10).</p>
+	<br/>
+	<p>Next, a transaction t2 attempts to access a data item v and it obtains a lock on v from the scheduler. With lock granted a transaction T2 processes and operation write(v, 10).</p>
+	<br/>
+	<p>Next a transaction T1 attempts to lock a data item v. A data item v is already locked by a transaction T2 and a transaction T1 must wait for a lock.</p>
+	<br/>
+	<p>Next, a transaction T2 gets a lock on a data item x and it reads a value of data item x with b=read(x).</p>
+	<br/>
+	<p>A transaction T1 still waits for a lock on a data item v.</p>
+	<br/>
+	<p>Next a transaction T2 releases a lock on a data item v. Due to "two-phase" protocol a transaction T2 ends its "locking phase" and it is not allowed to lock any more data items. A data item is unlocked.</p>
+	<br/>
+	<p>Next, a transaction T2 write a new value into a data item x.</p>
+	<br/>
+	<p>Next, a transaction T1 locks a data item v earlier unlocked by a transaction T2.</p>
+	<br/>
+	<p>Next, a transaction T2 unlocks a data item x.</p>
+	<br/>
+	<p>Next, a transaction T1 writes a new value into a data item v.</p>
+	<br/>
+	<p>Finally a transaction T1 unlocks the data items v and u. The first unlock of data item v ends a locking phase of transactions T1 and it starts unlocking phase of a transaction T1.</p>
+	<br/>
+	<p>Please note the locking phases and unlocking phases of both transactions.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Two-phase locking (2PL) protocol</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class= "build">
+        <li>A sample execution controlled by <strong class="red">two-phase locking</strong> protocol
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions controlled by 2PL protocol">
+
+T1                                        T2                  </pre>
+	    <pre class="prettyprint">lock(u) a=read(u)</pre>
+	    <pre class="prettyprint">                                          lock(v) write(v,10)</pre>
+	    <pre class="prettyprint">write(u,a+2)</pre>
+	    <pre class="prettyprint">lock(v) wait</pre>
+	    <pre class="prettyprint">                                          lock(x) b=read(x)</pre>
+	    <pre class="prettyprint">                                          unlock(v)</pre>
+	    <pre class="prettyprint">                                          write(x,b+2)</pre>
+	    <pre class="prettyprint">lock(v)</pre>
+	    <pre class="prettyprint">                                          unlock(x)</pre>
+	    <pre class="prettyprint">write(v,a+1)</pre>
+	    <pre class="prettyprint">unlock(v)</pre>
+	    <pre class="prettyprint">unlock(u)</pre>		   
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>In this slide we look at the first problem associated with any locking protocol: "deadlock".</p>
+	<br/>
+	<p>A transaction T1 locks and reads a data item u with an operation a=read(u).</p>
+	<br/>
+	<p>Next, a transaction T2 locks and reads a data item v with an operation b=read(v) and  immediately after that it writes a new value into a data item v.</p>
+	<br/>
+	<p>Now, the transactions try to lock and to access the date items already locked by an opposite transaction.</p>
+	<p>A transaction T2 attempts to lock a data item v and it must wait because a data item v has been already locked by a transaction T2.</p>
+	<br/>
+	<p>Next, a transaction T2 attempts to lock a data item u and it must wait because u has been already locked by a transaction T1.</p>
+	<p>At the end a transaction T1 is waiting for release of a lock by a transaction T2 and a transaction T2 waits fro a release of a lock by a transaction T1. None of T1 and T2 can progress in a moment. Such situation is called a "deadlock".</p>
+	<br/>
+	<p>Luckily, database schedulers are able to break  a deadlock. Typically, a scheduler maintains a "wait-for" graph (similar to conflict serialization graph) and when a cycle is discovered in a "wait-for" graph one of the transactions involved in a cycle is aborted. Another solution is to look at time a transaction is waiting for access to a data item. If such time is too long a transaction is aborted by a scheduler. it is a solution called "timeout".</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Two-phase locking (2PL) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>A sample execution that ends in a <strong class="red">deadlock</strong>
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions that ends in a deadlock">
+		
+T1                                        T2</pre>
+	    <pre class="prettyprint">lock(u) a=read(u)</pre>
+	    <pre class="prettyprint">                                          lock(v) b=read(v)</pre>
+	    <pre class="prettyprint">                                          write(v,b+10)</pre>	    
+	    <pre class="prettyprint">lock(v) wait</pre>
+	    <pre class="prettyprint">                                          lock(u) wait</pre>
+	  </ul>
+	</li>
+	<li>Both transactions are in a <strong class="blue">wait</strong> state</li>
+	<li>In a database system <strong class="red">deadlock</strong> is eliminated through either <strong class="red">wait for graph</strong> or throught <strong class="red">timeout</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>The second problem typical for locking protocol is a completely unnecessary attempt to delay a transaction waiting for a lock.</p>
+	<br/>
+	<p>Assume that a transaction T1 locks and reads a data item u with an operation a=read(u).</p>
+	<br/>
+	<p>Next, a transaction T2 attempts to lock a data item u. A data item u is already locked by T1 and a transaction T2 must wait.</p>
+	<br/>
+	<p>Next, a transaction T1 locks a data item v and writes a new value into a data item v. A transaction t1 is still waiting for a lock on a data item u.</p>
+	<br/>
+	<p>Next a transaction T1 unlocks both data items v and u. It allows a transaction T1 to get a lock on a data item u and to process an operation b=read(u). At the end a transaction T2 writes a new value into a data item u.</p>
+	<br/>
+	<p>Why locking of a data item is not needed ?</p>
+	<br/>
+	<p>The transactions T1 and T2 access only one common data item: u. A transaction T1 reads a data item u and a transaction T2 reads and writes a data item u. For any combination of read by T1 and read and write by T2 a not conflict serializable execution will never happen. It is impossible to create more than one conflict over such sets of operations. Hence, a transaction T1 does not need to wait for a lock on a data item u. Locking of data item v by T1 is also not needed because v is not accessed by a transaction T2.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Two-phase locking (2PL) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>A sample execution that <strong class="red">unnecessarily delays</strong> a transaction
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions that unnecessarily delays a transaction">
+		
+T1                                        T2</pre>
+	    <pre class="prettyprint">lock(u) a=read(u)</pre>
+	    <pre class="prettyprint">                                          lock(u) wait</pre>
+	    <pre class="prettyprint">lock(v) write(v,a+1)</pre>
+	    <pre class="prettyprint">unlock(v,u)</pre>	    
+	    <pre class="prettyprint">                                          lock(u) b=read(u)</pre>
+	    <pre class="prettyprint">                                          write(u,b+1)</pre>	    
+	  </ul>
+	</li>
+	<li>The transactions <strong class="green prettyprint28">T1</strong> and <strong class="green prettyprint28">T2</strong> never get into <strong class="red">not conflict serializable</strong> execution</li>
+	<li>Therefore, there is no need to delay a transaction <strong class="green prettyprint28">T2</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 14 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Serialization graph</a></li>
+	<li><a href="#7">Serialization graph testing protocol</a></li>
+	<li><a href="#9">Two phase locking protocol (2PL)</a></li>
+	<li><a class="red" href="#14">Timestamp ordering protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>Timestamp ordering protocol belongs to a category of ''optimistic'' protocols. An optimistic protocol allow a transaction to access data items without any restrictions and whenever not conflict serializable execution is detected then one of the transactions is aborted and rolled back. A serialization graph testing protocol explained earlier in this presentation belongs to a category of optimistic protocols.</p>
+	<br/>
+	<p>The principles behind a timestamp ordering protocol are the following.</p>
+	<p>(1) Each transaction obtains a timestamp at its start point. A timestamp is usually taken from a system clock with a precision up to a single milisecond.</p>
+	<br/>
+	<p>(2) Data items are stamped each time any transaction accesses data items in a read or write mode. In our simplified version of the protocol we shall not distinguish between read timestamps and write timestamps. Then, whenever a transactions accesses a data item such data item is "stamped" with a timestamp a transaction got from a scheduler at start time.</p>
+	<br/>
+	<p>(3) Access to data items is permitted only in an increasing order of timestamps. It means that if a transaction wants to access a data item then a timestamp assigned to the transaction at start time must be higher than all timestamps a data item is stamped up to now. A transaction cannot access a data item after such data item was accessed by a transaction that started later.</p>
+	<p>If access to the data items in an increasing order of timestamps is impossible then a transaction that violates the rule is aborted by the systemn and it is automatically rolled back.</p>
+	<br/>
+	<p>As all other protocols a timestamp ordering protocols has its advantages and disadvantages. The main advantage is its "optimistic" nature that provides better performance than locking protocols in the environments where there are not many conflicts when accessing data items. The only overhead is granting a timestamp to a transaction and to maintain information about timestamps attached to the data items.</p>
+	<br/>
+	<p>On the other hand a timestamp ordering protocol has two disadvantages:</p>
+	<p>- cascading aborts (as all "optimistic" protocols),</p>
+	<p>- unnecessary aborts when execution is conflict serializable (it is a similar problem to unnecessary locks by two-phase locking protocol).</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Timestamp ordering (TO) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Principles</strong>
+	  <ul class="build">
+	    <li>Each transaction obtains a <strong class="red">timestamp</strong> at its start point</li>
+	    <li>Data items are <strong class="red">stamped</strong> each time any transaction accesses data items in a read or write mode</li>
+	    <li>Access to data items is permitted in an <strong class="red">increasing order</strong> of <strong class="red">timestamps</strong></li>
+	  </ul>
+	</li>
+	<li><strong class="blue">Timestamp ordering</strong> protocol belongs to a class of <strong class="red">optimistic protocols</strong></li>
+	<li><strong class="red">Problems</strong>
+	  <ul class="build">
+	    <li>Cascading aborts</li>
+	    <li>Unnecessary aborts when execution is conflict serializable</li>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>We start from a sample concurrent execution of database transactions controlled by timestamp ordering protocol.</p>
+	<br/>
+	<p>The transaction T1 and T2 access data items x and y.</p>
+	<p>A concurrent execution of T1 and T2 starts from a transaction T1 accesing a data item x. A transaction T1 obtains a timestamp t1 at start point and an operation a=read(x) forces an item x to be timestamped with t1 (x:t1).</p>
+	<br/>
+	<p>Next, a transaction T1 changes a value of data item x with an operation write(x,a-10). A data item x is already stamped with a timestamp t1, hence there is no need to do it next time.</p>
+	<br/>
+	<p>Next, a transaction T2 starts and it obtains a timestamp t2. A transaction T2 writes data item x and stamps it with t2. Now, x has two timestamps t1 and t2 and it has been accessed in a correct order of timestamps (t1 < t2). A transaction T1 accessed a data item x before a transaction T2 accessed a data item x. An order of timestamps is correct and both T1 and T2 continue their processing.</p>
+	<br/>
+	<p>Next, a transaction T2 reads a data item y with an operation b=read(y). A data item y is stamped with a timestamp t2.</p>
+	<br/>
+	<p>Finally, a transaction T1 attempt to write a data item y with an operation write(y,a+1). An attempt to stamp a data item y with a timestamp t1 fails because a data item y is already stamped with t1 < t2. A data item cannot be stamped in a decreasing order of timestamps. A transaction T1 cannot process an operation write(y,a+1), it is aborted by a scheduler and it is rolled back.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Timestamp ordering (TO) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>A sample execution controlled by the <strong class="red">timestamp ordering</strong> protocol
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions controlled by TO protocol">
+
+T1                                 T2                          x,y</pre>
+	    <pre class="prettyprint">timestamp(t1)</pre>
+	    <pre class="prettyprint">a=read(x)                                                      x:t1</pre>
+	    <pre class="prettyprint">write(x,a-10)</pre>
+	    <pre class="prettyprint">                                   timestamp(t2)</pre>
+	    <pre class="prettyprint">                                   write(x,10)                 x:t1:t2</pre>
+	    <pre class="prettyprint">                                   b=read(y)                   y:t2</pre>
+	    <pre class="prettyprint">write(y,a+1)                                                   y:t2:t1</pre>
+	    <pre class="prettyprint">abort</pre>		   
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>The present slide shows a sample cascading abort.</p>
+	<br/>
+	<p>A transaction T1 starts first, obtains a timestamp t1, reads a data items c and writes a data item x. A data item x is stamped with t1.</p>
+	<br/>
+	<p>Then a transaction T2 starts, gets a timestamp t2 > t1 and reads a data item x. A data item x is stamped with t2. An order of time stamp t2 > t1 is consistent with an order a data item has been accessed by the transactions T1 and T2.</p>
+	<br/>
+	<p>Then a transaction T1 fails, for example due to a programming error, a physical error when accessing persistent storage or any kind of error. A transaction T1 must be rolled back. A transaction T2 read a data item written by a transaction T1 and because of that it must be aborted and rolled back ss well.</p>
+	<br/>
+	<p>A transaction T2 is forced to abort because it reads a dirty data item written by a failed transaction T1.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Timestamp ordering (TO) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>A sample execution controlled by the <strong class="red">timestamp ordering</strong> protocol with <strong class="red">cascading abort</strong>
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions controlled by TO protocol with cascading abort">
+
+T1                                 T2                          x</pre>
+	    <pre class="prettyprint">timestamp(t1)</pre>
+	    <pre class="prettyprint">a=read(x)                                                      x:t1</pre>
+	    <pre class="prettyprint">write(x,x-10)</pre>
+	    <pre class="prettyprint">                                   timestamp(t2)</pre>
+	    <pre class="prettyprint">                                   b=read(x)                   x:t1:t2</pre>
+	    <pre class="prettyprint">fail</pre>
+	    <pre class="prettyprint">                                   forced abort</pre>
+	</ul>
+	<li>A transaction <strong class="green prettyprint28">T2</strong> is forced to <strong class="red">abort</strong> because it reads a <strong class="blue">dirty data item</strong> written by a failed transaction <strong class="green prettyprint28">T1</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>In the present slide we show a sample A sample execution controlled by the timestamp ordering protocol where a transaction is unnecessarily aborted.</p>
+	<br/>
+	<p>The execution start from granting a timestamp t2 to a transaction T2. Then a transaction T2 does nothing and a transaction T1 starts. A transaction T1 obtains a timestamp t1. This time t1 > t2.</p>
+	<br/>
+	<p>Next, a transaction T1 reads a data item x with an operation a=read(x). A data item x is stamped with t1.</p>
+	<br/>
+	<p>Next, a transaction T1 writes a data item x with an operation write(x,a-10).</p>
+	<br/>
+	<p>Finally, a transaction T2 attempts to read data item x with an operation b= read(x). An attempt to read x by T2 fails because data item x has been already stamped with a timestamp t1 greater than a timestamp t2. According to timestamp ordering protocol a data item must be stamped with an increasing order of timestamps. As a consequence a transaction t2 is aborted and rolled back.</p>
+	<br/>
+	<p>But ... the execution is conflict serializable, A transaction T2 is aborted even the execution is conflict serializable</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Timestamp ordering (TO) protocol</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>A sample excution controlled by the <strong class="red">timestamp ordering</strong> protocol where a transaction is <strong class="red">unnecessarily aborted</strong>
+	  <ul class= "build">
+	    <pre class="prettyprint" data-lang="Concurrent execution of database transactions controlled by TO protocol with unnecessary abort">
+
+T1                                 T2                          x</pre>
+	    <pre class="prettyprint">                                   timestamp(t2)</pre>
+	    <pre class="prettyprint">timestamp(t1)</pre>
+	    <pre class="prettyprint">a=read(x)                                                      x:t1</pre>
+	    <pre class="prettyprint">write(x,a-10)</pre>
+	    <pre class="prettyprint">                                   b=read(x) forced abort      x:t1:t2</pre>
+	</ul>
+	<li>A transaction <strong class="green prettyprint28">T2</strong> is <strong class="red">aborted</strong> even the execution is <strong class="red">conflict serializable</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>T. Connoly, C. Begg, Database Systems, A Practical Approach to Design, Implementation, and Management, Chapter 22.2 Concurrency Control, Pearson Education Ltd, 2015</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+<!--
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/miHYCmO5ZZhGYOzMHB75D9?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+-->
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

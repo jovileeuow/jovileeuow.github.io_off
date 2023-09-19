@@ -1,0 +1,637 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>24 MongoDB Data Manipulations</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>MongoDB Data Manipulations</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Data Manipluations</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a class="red" href="#3">A sample database</a></li>
+        <li><a href="#9">Inserting documents</a></li>
+	<li><a href="#13">Removing documents</a></li>
+        <li><a href="#15">Updating documents</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+  2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A conceptual schema of a database with information about <strong class="red">suppliers</strong>, <strong class="red">products</strong>,   <strong class="red">customers</strong>, <strong class="red">orders</strong>, and <strong class="red">details of orders</strong>
+	  <ul class="build">
+    	    <p style="text-align:center;"><img src="database/dbschema.png" width="850" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A sample collection <strong class="green prettyprint28">orders</strong></strong>
+	  <ul class="build">
+	    <p style="text-align:center;"><img src="database/bsonschema.png" width="500" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A sample document, that belongs to a class <strong class="green prettyprint28">CUSTOMER</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="CUSTOMER">{
+        "_id":"ALFKI",
+        "CUSTOMER":{
+                 "customer code":"ALFKI",
+                 "company name":"Alfreds Futterkiste",
+                 "contact name":"Maria Anders",
+                 "contact title":"Sales Representative",
+                 "address":"Obere Str. 57",
+                 "city":"Berlin",
+                 "region":null,
+                 "postal code":"12209",
+                 "country":"Germany",
+                 "phone":"030-0074321",
+                 "fax":"030-0076545",
+                 "submits":[ ]
+        }
+}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>A sample nested document, that belongs to a class <strong class="green prettyprint28">CUSTOMER</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="CUSTOMER">{
+ "_id":"FAMIA",
+ "CUSTOMER":{
+               "customer code":"FAMIA",
+                ...  ...  ...  ...  ...  ...
+               "submits":[
+                            {
+                             "ORDER":{
+                                        "order id":328,
+                                         ...  ...  ...  ...  ...
+                                        "consists of":[
+                                                         {
+                                                          "ORDER DETAIL":{
+                                                                            "product name":"Louisiana Fiery Hot Pepper Sauce",
+                                                                            ...  ...  ...  ...  ...
+                                                                           }
+                                                         },
+                                                         {
+                                                          "ORDER DETAIL":{
+                                                                            "product name":"Raclette Courdavault",
+	                                                                    ...  ...  ...  ...  ...
+                                                                           }
+                                                         }
+                                                        ]
+                                       }
+                            } 
+ ] } }</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>A sample nested document, that belongs to a class <strong class="green prettyprint28">SUPPLIER</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="SUPPLIER">{
+ "_id":"Karkki Oy",
+ "SUPPLIER":{
+               "company name":"Karkki Oy",
+               "contact name":"Anne Heikkonen",
+               "contact title":"Product Manager",
+               "address":"Valtakatu 12",
+               ...  ...  ...  ...  ...  ...
+               "supplies":[
+                             {
+                              "PRODUCT":{
+                                           "product name":"Maxilaku",
+                                           "category name":"Confections",
+                                            ...  ...  ...  ...  ... 
+                                          }
+                             },
+                             {
+                              "PRODUCT":{
+                                           "product name":"Valkoinen suklaa",
+                                           "category name":"Confections",
+                                           ...  ...  ...  ...  ...
+                                          }
+                             }
+
+                            ]
+              }
+}
+</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Data Manipluations</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">A sample database</a></li>	
+        <li><a class="red" href="#9">Inserting documents</a></li>
+	<li><a href="#13">Removing documents</a></li>
+        <li><a href="#15">Updating documents</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+  2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Inserting documents</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A method <strong class="green prettyprint">insert()</strong> can be used to insert a single document
+into a collection
+          <ul class="build">
+           <pre class="prettyprint" data-lang="insert()">db.orders.insert(
+      {
+        "_id":"ALFKI",
+        "CUSTOMER":{
+                      "customer code":"ALFKI",
+                      "company name":"Alfreds Futterkiste",
+                      "contact name":"Maria Anders",
+                      "contact title":"Sales Representative",
+                      "address":"Obere Str. 57",
+                      "city":"Berlin",
+                      "region":null,
+                      "postal code":"12209",
+                      "country":"Germany",
+                      "phone":"030-0074321",
+                      "fax":"030-0076545",
+                      "submits":[ ]
+                     }
+      }
+)</pre>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Inserting documents</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>It is possible to insert many documents in one call
+          <ul class="build">
+           <pre class="prettyprint" data-lang="insert()">db.department.insert(
+    [ {"_id":"ANATR",
+       "CUSTOMER":{
+	           "customer code":"ANATR",
+	           "company name":"Ana Trujillo Emparedados y helados",
+	           "contact name":"Ana Trujillo",
+	           "contact title":"Owner",
+                   "submits":[ ]
+	          }
+      },	     
+      {"_id":"Aux joyeux ecclesiastiques",
+       "SUPPLIER":{
+                   "company name":"Aux joyeux ecclesiastiques",
+                   "contact name":"Guylene Nodier",
+	           "contact title":"Sales Manager",
+	           "supplies": [ ]
+                  }
+      }	     
+    ]
+)</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Inserting documents</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Restrictions on insertions:
+	  <ul class="build">
+            <li>It is impossible to insert two documents with the same <strong class="green prettyprint">"_id"</strong> into the same collection</li>
+	    <li>Insertion of many documents with one call can be done only on one collection</li>
+            <li>There is a limit on much data can be inserted in one inserts (<strong class="blue">48Mb</strong>)</li>
+	    <li>If insertion of many documents with one call fails then entire operation is not rolled back (partial insertion)</li>
+            <li>A document must be smaller than <strong class="blue">16Mb</strong></li>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Data Manipluations</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">A sample database</a></li>	
+        <li><a href="#9">Inserting documents</a></li>
+	<li><a class="red" href="#13">Removing documents</a></li>
+        <li><a href="#15">Updating documents</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Removing documents</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li>A method <strong class="green prettyprint">remove()</strong> can be used to remove the documents from a collection</li>
+        <li>Remove all documents from a collection <strong class="green prettyprint28">orders</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="remove()"> 
+db.orders.remove({})</pre>
+          </ul>
+        </li>
+	<li>Remove all customers from a collection <strong class="green prettyprint28">orders</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="remove()">  
+db.orders.remove({"CUSTOMER":{$exists:true}})</pre>
+          </ul>
+        </li>
+	<li>Remove from a collection <strong class="green prettyprint28">orders</strong> all suppliers who supply no products
+          <ul class="build">
+            <pre class="prettyprint" data-lang="remove()">  
+db.orders.remove({"SUPPLIER.supplies":[]})</pre>
+          </ul>
+        </li>
+	<li>Drop a collection <strong class="green prettyprint28">orders</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="drop()">  
+db.orders.drop()</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB: Data Manipluationss</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">A sample database</a></li>	
+        <li><a href="#9">Inserting documents</a></li>
+	<li><a href="#13">Removing documents</a></li>
+        <li><a class="red" href="#15">Updating documents</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Updating documents</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Replace a document that describes a customer with customer code <strong class="green prettyprint">ALFKI</strong> with a new document
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">
+db.orders.update({"CUSTOMER.customer code":"ALFKI"},
+   	         {"_id":"ALFKI",
+                  "CUSTOMER":{"customer code" :"ALFKI",
+                              "company name":"Alfreds Futterkiste",
+                              "contact name":"James Bond",
+                              "contact title":"Sales Representative",
+                              "address":"Johan Strauss Str. 23",
+                              "city":"Hamburg",
+                              "region":null,
+                              "postal code":"34567",
+                              "country":"Germany",
+                              "phone":"030-0074321",
+                              "fax":"030-0076545",
+                              "submits":[ ]
+                             }
+                 }
+)</pre>
+          </ul>
+	</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Updating documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Rename a key <strong class="green prettyprint28">contact title</strong> into <strong class="green prettyprint28">title</strong> in all documents describing customers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">
+db.orders.updateMany({"CUSTOMER":{$exists:true}},
+                     {$rename:{"CUSTOMER.contact title":"CUSTOMER.title"}})</pre>
+          </ul>
+        </li>
+	<li>Change a name of city to <strong class="green prettyprint28">Liverpool</strong> in a document describing a customer who has  customer code <strong class="green prettyprint28">AROUT</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">
+db.orders.updateOne({"CUSTOMER.customer code":"AROUT"},
+                    {$set:{"CUSTOMER.city":"Liverpool"}})</pre>
+          </ul>
+        </li>
+	<li>Change a name of city to <strong class="green prettyprint28">null</strong> in a document describing a customer who has a customer code <strong class="green prettyprint28">AROUT</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">
+db.orders.updateOne({"CUSTOMER.customer code":"AROUT"},
+                    {$set:{"CUSTOMER.city":null}})</pre>
+          </ul>
+        </li>
+	<li>Remove a key city from a document describing a customer who has a customer code <strong class="green prettyprint28">AROUT</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">
+db.orders.updateOne({"CUSTOMER.customer code":"AROUT"},
+                    {$unset:{"CUSTOMER.city":null}}))</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Updating documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Change a unit price of a product <strong class="green prettyprint28">Guarana Fantastica</strong> to <strong class="green prettyprint28">10</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">  
+db.orders.updateOne({"SUPPLIER.supplies.PRODUCT.product name":"Guarana Fantastica"},
+                    {$set:{"SUPPLIER.supplies.$.PRODUCT.unit price":100}}))</pre>
+          </ul>
+	</li>
+	<li>Set a value of a unit price of a product <strong class="green prettyprint28">Guarana Fantastica</strong> to <strong class="green prettyprint28">null</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">  
+db.orders.updateOne({"SUPPLIER.supplies.PRODUCT.product name":"Guarana Fantastica"},
+                    {$set:{"SUPPLIER.supplies.$.PRODUCT.unit price":null}}))</pre>
+          </ul>
+        </li>
+        </li>
+	<li>Increment a unit price of a product <strong class="green prettyprint28">Guarana Fantastica</strong> by <strong class="green prettyprint28">10</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">  
+db.orders.updateOne({"SUPPLIER.supplies.PRODUCT.product name":"Guarana Fantastica"},
+                    {$inc:{"SUPPLIER.supplies.$.PRODUCT.unit price":10}})</pre>
+          </ul>
+        </li>
+	<li>Multiply a unit price of a product  <strong class="green prettyprint28">Guarana Fantastica</strong> by <strong class="green prettyprint28">2</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()"> 
+ db.orders.updateOne({"SUPPLIER.supplies.PRODUCT.product name":"Guarana Fantastica"},
+                     {$mul:{"SUPPLIER.supplies.$.PRODUCT.unit price":2}})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Updating documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Remove a key unit price from a description of a product <strong class="green prettyprint28">Guarana Fantastica</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()">  
+db.orders.updateOne({"SUPPLIER.supplies.PRODUCT.product name":"Guarana Fantastica"},
+                    {$unset:{"SUPPLIER.supplies.$.PRODUCT.unit price":null}}))</pre>
+          </ul>
+	</li>
+	<li>Multiply a unit price of the first product supplied by a company <strong class="green prettyprint28">Exotic Liquids</strong> by <strong class="green prettyprint28">2</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()"> 
+db.orders.updateOne({"SUPPLIER.company name":"Exotic Liquids"},
+                    {$mul:{"SUPPLIER.supplies.0.PRODUCT.unit price":2}})</pre>
+          </ul>
+        </li>	
+	<li>If we know, that the first product supplied by a company <strong class="green prettyprint28">Exotic Liquids</strong> is <strong class="green prettyprint28">Chai</strong> then its unit price can be multiplied by <strong class="green prettyprint28">2</strong> in the following way
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()"> 
+db.orders.updateOne({"SUPPLIER.supplies.PRODUCT.product name":"Chai"},
+                    {$mul:{"SUPPLIER.supplies.$.PRODUCT.unit price":2}})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Updating documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        </li>
+	<li>Remove a product <strong class="green prettyprint28">Chai</strong> supplied by a supplier <strong class="green prettyprint28">Exotic Liquids</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()"> 
+db.orders.updateOne({"SUPPLIER.company name":"Exotic Liquids"},
+                    {$pull:{"SUPPLIER.supplies":{"PRODUCT.product name":"Chai"}}})</pre>
+          </ul>
+        </li>
+	<li>Remove all discontinued products supplied by a supplier <strong class="green prettyprint28">Bigfoot Breweries</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()"> 
+db.orders.updateMany({"SUPPLIER.company name":"Bigfoot Breweries"},
+                     {$pull:{"SUPPLIER.supplies":{"PRODUCT.discontinued":"Y"}}}))</pre>
+          </ul>
+        </li>
+	<li>Add a new product <strong class="green prettyprint28">Champagne</strong> to the products supplied by <strong class="green prettyprint28">Exotic Liquids</strong>, the product is not discontinued and its unit price is <strong class="green prettyprint28">100</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="update()"> 
+db.orders.updateOne({"SUPPLIER.company name":"Exotic Liquids"},
+                    {$push:{"SUPPLIER.supplies":{"PRODUCT":{"product name":"Champaigne",
+                                                            "discontinued":"N",
+                                                            "unit price":100}}}}))</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><a href="https://docs.mongodb.com/manual/reference/operator/update/">MongoDB Reference, Operators, Update Operators</a></li>
+	<li>Banker L., Bakkum P., Verch S., Garrett D., Hawkins T., MongoDB in Action, Manning, 2016</li>
+        <li>Chodorow K. MongoDB The Definitive Guide, O'Reilly, 2013, chapter 2</li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>26 MongoDB Indexing</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>MongoDB Indexing</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+        <li><a class="red" href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Overview of indexing</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Indexes significantly reduce amount of time needed to access the documents</li>
+        <li>Without indexes all the documents in a collection must be accessed</li>
+	<li>Single-key index is the most appropriate for <strong class="green prettyprint">{"key":"value"}</strong> query conditions</li>
+        <li>For query conditions over multiple keys, for example <br/>
+ <strong class="green prettyprint">{$and:[{"key1":"value1"},{"key2":"value2"}]} </strong> </br/> compound
+index is the best option</li>
+	<li>If we have a compound index on  <strong class="green">(key1, key2)</strong> then the second index on
+<strong class="green">key1</strong> is not really needed, however it may still speed up an access a bit</li>
+        <li>If we have a compound index on  <strong class="green">(key1, key2)</strong> then the second index on
+ <strong class="green">key2</strong> speeds up access a lot</li>
+	<li>An order of keys in a compound index is very important</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 04 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+         <li><a href="#2">Overview of indexing</a></li>
+	<li><a class="red" href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Single key indexes</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>An index on  <strong class="green prettyprint">"_id"</strong>  is an automatically created single-key index</li>
+        <li>Equality search over the values of <strong class="green prettyprint">"_id"</strong> is the fasted possible search</li>
+	<li>The following command creates a <strong class="red">single key unique index </strong>on a key <strong class="green prettyprint">code</strong>
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"code": 1}, {"unique":true} )</pre>
+          </ul>
+	</li>
+        <li>The index is <strong class="red">unique</strong> because it enforces uniqueness of the values associated with key <strong class="green prettyprint">code</strong>, i.e. each document in a collection has a different value associated with a key <strong class="green prettyprint">code</strong></li>
+	<li>An attempt to insert two documents with the same value of key <strong class="green prettyprint">code </strong>fails enforcing a key constraint</li>
+        <li>Unique index should be create before inserting any data</li>
+	<li>A unique index cannot be created on a collection where duplicate keys exist</li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Single key indexes</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>The following command creates a <strong class="red">single key nonunique index </strong>on a key <strong class="green prettyprint">budget</strong>
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"budget": 1}, {"unique": false} )</pre>
+          </ul>
+	</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+         <li><a href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a class="red" href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Compound key index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>The following commands create the <strong class="red">single key nonunique indexes</strong> on the keys <strong class="green prettyprint">budget</strong> and <strong class="green prettyprint">total_staff_number</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"budget":1}, {"unique":false} )</pre>
+	    <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"total_staff_number":1}, {"unique":false} )</pre>
+          </ul>
+        </li>
+	<li>A query like
+          <ul class="build">
+	    <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.find({"budget":2000, :"total_staff_number":5})</pre>
+          </ul>
+        </li>
+        <li>uses only one of the indexes created above</li>
+        <li>A query optimizer picks the more efficient index (with higher <strong class="red">selectivity</strong>)</li>
+	<li>To use both indexes we can traverse each index separately and calculate
+intersection of disk locations found</li>	
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Compound key index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>The following commands create a <strong class="red">compound key nonunique index </strong>on the keys
+<strong class="green prettyprint">budget</strong> and <strong class="green prettyprint">total_staff_number</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"budget":1, "total_staff_number":1}, {"unique":false} )</pre>
+          </ul>
+        </li>
+	<li>A compound index is a single index where each entry is composed of more than one key</li>
+        <li>A compound index is used by a query
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">
+
+db.department.find({"budget":2000, "total_staff_number":5})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+        <li><a href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a class="red" href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Sparse index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>MongoDB indexes are <strong class="red">dense</strong> by default</li>
+        <li>In a <strong class="red">dense index</strong> for every document there is an index key even the document lacks a key</li>
+        <li>Then there exists a null entry in an index and it is possible to use an index for a query like
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">
+
+db.department.find( {"budget":null} )</pre>
+          </ul>
+        </li>
+	<li><strong class="red">Dense index</strong> is inconvenient when:
+          <ul class="build">
+            <li>unique index on a field that doesn’t appear in every document in a collection is needed</li>
+            <li>a large number of documents in a collection have no indexed key</li>
+          </ul>
+        </li>
+	<li>In a sparse index, only documents that have a value for the indexed key are indexed
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Create sparse index">
+
+db.department.createIndex( {"total_staff_number":1},
+	                   {"unique":false, "sparse":true} )</pre>
+          </ul>
+        </li>	
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+        <li><a href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a class="red"href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Multikey index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">multikey index</strong> multiple entries in the index reference the same document</li>
+        <li><strong class="red">Multikey index</strong> is useful for indexing fields whose values are arrays
+          <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"course.code":1} )</pre>
+          </ul>
+        </li>
+	<li>Each value in this <strong class="green prettyprint">courses.code</strong> array will appear in the index</li>
+        <li>A query on any array values can use the index to locate the document</li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+        <li><a href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a class="red" href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Hashed index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">hashed index</strong> the keys become the arguments of a <strong class="red">hash function</strong> and a results of
+of <strong class="red">hash function</strong> determine location of a document in a hash bucket</li>
+        <li>The hashed values will determine the ordering of the documents
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Indexing">
+
+db.department.createIndex( {"name":"hashed"} )</pre>
+          </ul>
+        </li>
+	<li>Hashed indexes have the following restructions:
+          <ul class="build">
+            <li>equality queries can be processed with an index</li>
+            <li>range queries cannot use hashed index</li>
+	    <li>multikey hashed indexes are not allowed</li>
+            <li>floating-point values are cast to an integer before being hashed; <strong class="green">1.4</strong>
+and <strong class="green">1.5</strong> will have the same value in hashed index</li>
+          </ul>
+        </li>
+	<li><strong class="red">Hashed indexes</strong> are used for <strong class="red">sharding</strong></li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+        <li><a href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a class="red" href="#16">Geospacial index</a></li>
+       <li><a href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Geospacial index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Geospacial index</strong> allows to find the documents that are close to a given location, based on latitude and longitude values stored in each document</li>
+        <li><strong class="red">Geospacial index</strong> can be used to efficiently calculate geographic distances, including the curvature of the earth</li>
+        <li>MongoDB supports different kinds of indexes, however, only the first two types of indexes listed below can be combined to a <strong class="blue">compound index</strong>
+          <ul class="build">
+            <li>1: <strong class="blue">Ascending B*-tree index</strong></li>
+            <li>-1: <strong class="blue">Descending B*-tree index</strong></li>
+            <li>"hashed": <strong class="blue">Hashtable index;</strong> very fast for lookup by exact value, especially in very large collections. But it is not usable for inexact queries (<strong class="green prettyprint">"$gt"</strong>, <strong class="green prettyprint">"$regex"</strong> or similar)</li>
+            <li>"text": <strong class="blue">Text index</strong> designed for searching for words in strings with natural language</li>
+	    <li>"2d": <strong class="blue">Geospatial index</strong> on a flat plane</li>
+            <li>"2dsphere": <strong class="blue">Geospatial index</strong> on a sphere</li> 
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->  
+  <slide>
+    <hgroup>
+      <h2 class="blue">Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>	
+        <li><a href="#2">Overview of indexing</a></li>
+	<li><a href="#4">Single key index</a></li>
+        <li><a href="#7">Compound key index</a></li>
+        <li><a href="#10">Sparse index</a></li>
+        <li><a href="#12">Multikey index</a></li>
+        <li><a href="#14">Hashed index</a></li>
+        <li><a href="#16">Geospacial index</a></li>
+       <li><a class="red" href="#18">Index administration</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Index administration</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Listing the indexes
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">
+
+db.department.getIndexes()</pre>
+            <pre class="prettyprint" data-lang="Results">
+
+[
+	{
+		"v" : 2,
+		"key" : {
+			"_id" : 1
+		},
+		"name" : "_id_",
+		"ns" : "test.department"
+	}
+]</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Index administration</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Creating an index 
+          <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"name":"hashed"} )</pre>
+            <pre class="prettyprint" data-lang="Results">
+
+{
+	"createdCollectionAutomatically" : false,
+	"numIndexesBefore" : 1,
+	"numIndexesAfter" : 2,
+	"ok" : 1
+}
+</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 21 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Index administration</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Listing the indexes
+          <ul class="build">
+            <pre class="prettyprint" data-lang="getindexes()">
+
+db.department.getIndexes()</pre>
+            <pre class="prettyprint" data-lang="Results">
+
+[
+	{
+		"v" : 2,
+		"key" : {
+			"_id" : 1
+		},
+		"name" : "_id_",
+		"ns" : "test.department"
+	},
+	{
+		"v" : 2,
+		"key" : {
+			"name" : "hashed"
+		},
+		"name" : "name_hashed",
+		"ns" : "test.department"
+	}
+]</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 22 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Index administration</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Delete an index <strong class="green prettyprint">name_hashed</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="dropIndex()">
+
+db.department.dropIndex("name_hashed")</pre>
+	    <pre class="prettyprint" data-lang="getIndexes()">
+
+db.department.getIndexes()</pre>
+	    <pre class="prettyprint" data-lang="Results">
+
+[
+	{
+		"v" : 2,
+		"key" : {
+			"_id" : 1
+		},
+		"name" : "_id_",
+		"ns" : "test.department"
+	}
+]
+</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 23 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Index administration</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Creation of indexes before loading data allows indexes to be built incrementally as
+the data is inserted</li>
+        <li>Creation of an index on an already loaded collection may take a long time</li>
+        <li>It is possible to create an index in the background without closing a database system
+          <ul class="build">
+            <pre class="prettyprint" data-lang="createIndex()">
+
+db.department.createIndex( {"total_staff_number":1},{"background":true} )</pre>
+          </ul>
+        </li>
+	<li>It is possible to create an index in offline by taking a replica node offline, building an index, and taking node online allowing the node to catch up with master replica node</li>
+        <li>When ready we can promote a node to primary and take another secondary node offline,
+etc.</li>
+      </ul>
+    <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 24 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Index administration</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>It is possible to re-build indexes in order to defragment them after a lot of updates
+          <ul class="build">
+            <pre class="prettyprint" data-lang="reIndex()">
+
+db.department.reIndex()</pre>
+            <pre class="prettyprint" data-lang="Results">
+
+{
+	"nIndexesWas" : 1,
+	"nIndexes" : 1,
+	"indexes" : [
+		{
+			"v" : 2,
+			"key" : {
+				"_id" : 1
+			},
+			"name" : "_id_",
+			"ns" : "test.department"
+		}
+	],
+	"ok" : 1
+}
+</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 25 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+		<li>Banker K., Bakkum P., Verch S., Garret D., Hawkins T., MongoDB in Action, 2nd ed., Manning Publishers, 2016</li>
+		<li>MongoDB Manual, Indexes <strong class="green prettyprint">https://docs.mongodb.com/manual/indexes/</strong></li>
+		<li>Chodorow K. MongoDB The Definitive Guide, O'Reilly, 2013</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+
+  <slide class="backdrop"></slide>
+
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>

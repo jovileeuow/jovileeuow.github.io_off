@@ -1,0 +1,779 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/rgmWCr81kkt3KJ6NSzpPO-?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>17TransactionsDistributed</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Transactions Distributed</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#2">Principles</a></li>
+	<li><a href="#4">Distributed transaction management</a></li>
+	<li><a href="#7">Distributed serializability</a></li>
+	<li><a href="#9">Locking protocols</a></li>
+	<li><a href="#14">Distributed database recovery</a></li>
+	<li><a href="#16">Two-phase commit protocol</a></li>
+	<li><a href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+     <aside class="note">
+      <section>
+    <p>A distributed database system consists of geographically distributed database sites. It is why a transaction in distributed database system usually must access data stored at any locations.</p>
+    <br/>
+	<p>A distributed transaction that access data items in many location must be divided into a number of subtransactions one for each site that has to be accessed.</p>
+	<br/>
+	<p>Transaction processing in distributed systems must support the same ACID properties as in centralized systems.</p>
+	<br/>
+	<p>It means that apart from atomicity of a distributed transaction, atomicity of subtransactions must be enforced.</p>
+	<br/>
+	<p>Concurrency transparency and failure transparency must be enforced as well. Concurrency transparency means that the results of all concurrently processed transactions (distributed and non-distributed) must be the same as the results obtained by the same transactions processed in one of the serial orders.</p>
+    <br/>
+	<p>Failure transparency means that distributed system must provide recovery mechanisms that ensure that in the presence of failures transactions are atomic and durable.</p>
+	<br/>
+      </section>
+     </aside>
+    <hgroup>
+      <h2 class="blue">Principles</h2>
+    </hgroup>     
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">distributed transaction</strong> accesses data stored at more than one location</li>
+	<li>Each transaction is divided into a number of <strong class="red">subtransactions</strong> one for each site that has to be accessed</li>
+	<li>Apart from <strong class="red">atomicity</strong> of a <strong class="red">distributed transaction</strong>, <strong class="red">atomicity</strong> of <strong class="red">subtransactions</strong> must be ensured</li>
+	<li><strong class="red">Concurrency transparency</strong> and <strong class="red">failure transparency</strong> must be enforced</li>
+	<li><strong class="red">Concurrency transparency</strong> means that the results of all concurrently processed transactions (distributed and non-distributed) must be <strong class="red">the same</strong> as the results obtained by the same transactions processed in one of the serial orders</li>
+<li><strong class="red">Failure transparency</strong> means that distributed system must provide recovery mechanisms that ensure that in the presence of failures transactions are <strong class="red">atomic</strong> and <strong class="red">durable</strong></li> 
+     </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Principles</a></li>
+	<li><a class="red" href="#4">Distributed transaction management</a></li>
+	<li><a href="#7">Distributed serializability</a></li>
+	<li><a href="#9">Locking protocols</a></li>
+	<li><a href="#14">Distributed database recovery</a></li>
+	<li><a href="#16">Two-phase commit protocol</a></li>
+	<li><a href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>In a centralized DBMS transaction manager coordinates transactions, scheduler implements a particular protocol processing of transactions, and recovery manager restores a database to a consistent state whenever it is necessary.</p>
+    <br/>
+	<p>In a distributed DBMS transaction manager, scheduler , and recovery manager exist in the local sites.</p>
+	<p>Additionally each local site obtains "transaction coordinator" to coordinate processing of local and global transactions.</p>
+	<br/>
+	<p>Additionally a data communication component handles communications between the local sites. A data communication component is located at each local site of distributed system.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed transaction management</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>In a <strong class="blue">centralized DBMS</strong> <strong class="red">transaction manager</strong> coordinates transactions, <strong class="red">scheduler</strong> implements a particular protocol processing of transactions, and <strong class="red">recovery manager</strong> restores a database to a consistent state whenever it is necessary</li>
+	<li>In a <strong class="red">distributed DBMS</strong> transaction manager, scheduler , and recovery manager exist in the local sites</li>
+	<li>Additionally each local site obtains <strong class="red">transaction coordinator</strong> to coordinate processing of local and global transactions</li>
+	<li>A <strong class="red">data communication component</strong> handles communications between the local sites</li>
+	  </ul>
+	</li>
+     </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 06 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Processing of global transactions, i.e. transactions operating on more than one database site is performed in the following way.</p>
+    <br/>
+	<p>A transaction coordinator at a site where a global transaction has been issued divides the transaction into subtransactions. The subtransactions are created on the base of information obtained from query optimizer. Query optimizer tries to find the most effective plan for processing of SQL statements. Then such plan is used to decompose a global transaction into sub-transactions. The sub-transactions are created such that each one operates only on a single database site.</p>
+	<br/>
+	<p>Then the sub-transactions are sent to the local sites for processing</p>
+	<br/>
+	<p>A transaction coordinators at local sites manage the sub-transactions.</p>
+	<br/>
+	<p>The results from subtransactions are communicated to a transaction coordinator by data communication components.</p>
+    <br/>
+	<p>The results obtained from the local site are integrated into the final global result by a global transaction coordinator.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed transaction management</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Processing of <strong class="red">global transactions</strong> is performed in the following way.
+	  <ul class="build">
+	    <li>A <strong class="red">transaction coordinator</strong> at a site where a <strong class="red">global transaction</strong> has been issued divides the transaction into <strong class="red">subtransactions</strong></li>
+	    <li>The <strong class="red">subtransaction</strong>s are sent to local sites</li>
+	    <li>A <strong class="red">transaction coordinator</strong>s at local sites manage the subtransactions</li>
+	    <li>The results from <strong class="red">subtransaction</strong>s are communicated to a <strong class="red">transaction coordinator</strong> by <strong class="red">data communication components</strong></li>
+	  </ul>
+	</li>
+     </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Principles</a></li>
+	<li><a href="#4">Distributed transaction management</a></li>
+	<li><a class="red" href="#7">Distributed serializability</a></li>
+	<li><a href="#9">Locking protocols</a></li>
+	<li><a href="#14">Distributed database recovery</a></li>
+	<li><a href="#16">Two-phase commit protocol</a></li>
+	<li><a href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Correctness of database transaction processing in a distributed database system can be defined in the same way as correctness of database transaction processing in a centralized database system. A concept of serializability can be extended on distributed transaction processing.</p>
+    <br/>
+	<p>We say that a concurrent processing of distributed transactions is serializable if processing of subtransactions at each local site is serializable and local serialization orders are the same.</p>
+	<br/>
+	<p>All subtransactions are processed in the same order in the equivalent serial schedule at all sites.</p>
+	<br/>
+	<p>it means that if the subtransactions T1 and T2 are processed in two or more database sites then local serialization order in all database sites must be the same. It is not allowed to have an order T1 before T in one site and T2 before T1 in  another site.</p>
+	<br/>
+	<p>Like in centralized database systems concurrency control in a distributed environment is based on locking or on timestamping protocol.</p>
+    <br/>
+	<p>If a distributed database is not replicated then there is only one copy of each data item then subtransactions do not need to be duplicated over many local sites.</p>
+	<br/>
+	<p>Then conflict serializability at each site is sufficient for correct processing of concurrent subtransactions.</p>
+	<br/>
+	<p>If distributed database is replicated then subtransaction must be replicated over many local sites and serialization of subtransactions must be the same in each local site (see above).</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed serializability</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A concept of <strong class="blue">serializability</strong> can be extended on distributed transaction processing</li>
+	<li>A concurrent processing of <strong class="red">distributed transaction</strong>s is <strong class="blue">serializable</strong> if processing of subtransactions at local site is <strong class="blue">serializable</strong> and local serialization orders are the same</li>
+	<li>All <strong class="red">subtransactions</strong> are processed in the same order in the equivalent serial schedule at all sites</li>
+	<li>Concurrency control in a distributed environment is based on <strong class="red">locking</strong> or on <strong class="red">timestamping</strong> protocol</li>
+	<li>If a distributed database is <strong class="red">not replicated</strong> then there is only one copy of each data item then subtransactions do not need to be duplicated over many local sites</li>
+	<li>If distributed database is <strong class="red">replicated</strong> then subtransaction must be <strong class="red">replicated</strong> over many local sites and <strong class="red">serialization</strong> of subtransactions must be the same in each local site</li>
+	
+     </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 09 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Principles</a></li>
+	<li><a href="#4">Distributed transaction management</a></li>
+	<li><a href="#7">Distributed serializability</a></li>
+	<li><a class="red" href="#9">Locking protocols</a></li>
+	<li><a href="#14">Distributed database recovery</a></li>
+	<li><a href="#16">Two-phase commit protocol</a></li>
+	<li><a href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>There exists four locking protocols in distributed database systems: Centralized 2PL (two-phase locking),  Primary copy 2PL, Distributed 2PL, Majority locking.</p>
+    <br/>
+	<p>Centralized to 2PL is almost a direct reflection of 2PL protocol in centralized database system. Centralized 2PL is based on the following principles.</p>
+	<p>(1) A single site maintains all locking information, i.e. there is only one lock manager for entire distributed DBMS that can grant and release locks.</p>
+	<p>(2) All replicated copies of data items require replication of subtransactions in different local sites.</p>
+	<p>(3) Local transaction managers control processing of transactions at the local sites in the same way as in centralized 2PL.</p>
+	<p>(4) Centralized lock manager checks if a request about lock on a data item is compatible with the locks already granted; if it is so lock manager grants a lock, otherwise a request about lock is put in a queue.</p>
+	<br/>
+	<p>Centralized 2PL cantralizes all decisions related to granting locks on data items distributed over many database sites. Such strategy significantly slows down processing of database transactions at different sites.</p>
+	<p>The next strategy distributes lock managers to local sites to avoid one central bottleneck when accessing lock table. </p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Locking protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>There exists four locking protocols in distributed database systems
+	  <ul class="build">
+	    <li><strong class="red">Centralized 2PL</strong></li>
+	    <li><strong class="red">Primary copy 2PL</strong></li>
+	    <li><strong class="red">Distributed 2PL</strong></li>
+	    <li><strong class="red">Majority locking</strong></li>
+	  </ul>
+	</li>
+	<li><strong class="red">Centralized 2PL</strong> is based on the following principles
+	  <ul class="build">
+	    <li>A single site maintains all locking information, i.e. there is only one <strong class="red">lock manager</strong> for entire distributed DBMS that can grant and release locks</li>
+	    <li>All replicated copies of data items require replication of subtransactions in different local sites</li>
+	    <li>Local transaction managers control processing of transactions at the local sites in the same way as in centralized 2PL</li>
+	    <li>Centralized <strong class="red">lock manager</strong> checks if a request about lock on a data item is compatible with the locks already granted; if it is so <strong class="red">lock manager</strong> grants a lock, otherwise a request about lock is put in a queue</li>
+	  </ul>
+	</li>
+     </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+ <!-- slide 11 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>primary copy 2PL protocol supposed to speed up Centralized 2PL protocol through distribution of lock tables and lock managers over local sites of a distribute system. Primary copy 2PL protocol is based on the following principles.</p>
+	<p>(1) Primary copy 2PL is an extension of centralized 2PL.</p>
+	<p>(2) Primary copy 2PL distributes lock managers over the local sites.</p>
+	<p>(3) For each replicated data item, one copy is chosen as the primary copy and the other copies are slave copies.</p>
+	<p>(4) When a data item is to be updated transaction coordinator must determine where a primary copy is in order to send a lock request to a lock manager to appropriate local site.</p>
+	<p>(5) It is necessary to put an exclusive lock on the primary copy.</p>
+	<p>(6) While primary copy is updated a change can be propagated to slave copies.</p>
+	<p>(7) Propagation must be done as soon as possible to prevent other transactions to read old slave copies.</p>
+	<br/>
+	<p>Primary copy 2PL protocol guarantees that only the primary copy is current. The slave copies can be not-up-to-date in certain period of time (also called as inconsistency window) after primary copy is updated.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Locking protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Primary copy 2PL</strong> protocol is based on the following principles
+	  <ul class="build">
+	    <li><strong class="red">Primary copy 2PL</strong> is an extension of <strong class="red">centralized 2PL</strong></li>
+	    <li><strong class="red">Primary copy 2PL</strong> distributes lock managers over the local sites</li>
+	    <li>For each replicated data item, one copy is chosen as the <strong class="red">primary copy</strong> and the other copies are <strong class="blue">slave copies</strong></li>
+	    <li>When a data item is to be updated <strong class="red">transaction  coordinator</strong> must determine where a primary copy is in order to send a lock request to a <strong class="red">lock manager</strong> to appropriate local site</li>
+	    <li>It is necessary to put an <strong class="blue">exclusive lock</strong> on the <strong class="red">primary copy</strong></li>
+	    <li>While <strong class="red">primary copy</strong> is updated a change can be propagated to <strong class="blue">slave copies</strong></li>
+	    <li>Propagation must be done as soon as possible to prevent other transactions to read old <strong class="blue">slave copies</strong></li>
+	    <li>However, the protocol guarantees that only the <strong class="red">primary copy</strong> is current</li>
+	  </ul>
+	</li>
+     </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+ <!-- slide 12 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Distributed 2PL protocol is based on the following principles.</p>
+	<p>(1) Distributed 2PL like primary copy 2PL distributes lock managers to every local site.</p>
+	<p>(2) Lock manager is responsible for managing locks in its own local site accordingly to 2PL protocol.</p>
+	<p>(3) If data is not replicated the protocol is the same as primary copy 2PL.</p>
+	<p>(4) Otherwise distributed 2PL implements read one/write all replica control. It means that any copy of a replicated data item can be used for read and all copies must be exclusively locked before an item can be updated.</p>
+    <br/>
+	<p>Like primary copy 2PL the protocol guarantees that only the primary copy is current. The slave copies can be not-up-to-date in certain period of time (also called as inconsistency window) after primary copy is updated.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Locking protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Distributed 2PL</strong> protocol is based on the following principles
+	  <ul class="build">
+	    <li><strong class="red">Distributed 2PL</strong> distributes <strong class="red">lock managers</strong> to every local site</li>
+	    <li><strong class="red">Lock manager</strong> is responsible for managing locks in its own local site</li>
+	    <li>If data is not replicated the protocol is the same as <strong class="red">primary copy 2PL</strong></li>
+	    <li>Otherwise <strong class="red">distributed 2PL</strong> implements <strong class="red">read one write all</strong> replica control</li>
+	    <li>It means that any copy of a replicated data item can be used for read and all copies must be  exclusively locked before an item can be updated</li>
+	  </ul>
+	</li>
+     </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+ <!-- slide 13 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Majority locking protocol is based on the following principles.</p>
+    <p>(1) Majority locking is an extension of distributed 2PL that avoids to lock all copies of a replicated item before an update.</p>
+	<p>(2) The protocol maintains a lock manager at each site to manage locks of all data at the site.</p>
+	<p>(3) When transaction wishes to read or write a data item replicated in n sites then it must send a lock request to more than half of n sites where the item is stored.</p>
+	<p>(4) A transaction cannot proceed until it obtains locks on a majority of the copies.</p>
+	<p>(5) If a transaction does not receive majority of locks after certain period of time it informs all sites about its cancellation.</p>
+	<p>(6) Otherwise it informs the sites about successful attempt to lock a majority of items</p>
+	<p>(7) Any number of transactions can simultaneously hold a shared lock on a majority of copies</p>
+	<p>(8)Only one transaction can hold an exclusive lock on a majority of copies</p>
+    <br/>
+	<p>Like in the previous cases the slave copies can be not-up-to-date in certain period of time (also called as inconsistency window) after primary copy is updated.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Locking protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Majority locking</strong> protocol is based on the following principles
+	  <ul class="build">
+	    <li><strong class="red">Majority locking</strong> is an extension of <strong class="red">distributed 2PL</strong> that avoids to lock all copies of a replicated  item before an update</li>
+	    <li>The protocol maintains a <strong class="red">lock manager</strong> at each site to manage locks of all data at the site</li>
+	    <li>When transaction wishes to read or write a data item replicated in <strong class="green prettyprint28">n </strong> sites then it must send a lock request to more than half of <strong class="green prettyprint28">n</strong> sites where the item is stored</li>
+	    <li>A transaction cannot proceed until it obtains locks on a majority of the copies</li>
+	    <li>If a transaction does not receive majority of locks after certain period of time it informs all sites about its cancellation </li>
+	    <li>Otherwise it informs the sites about successful attempt to lock a majority of items</li>
+	    <li>Any number of transactions can simultaneously hold a shared lock on a majority of copies</li>
+	    <li>Only one transaction can hold an exclusive lock on a majority of copies</li>
+	  </ul>
+	</li>
+     </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>    
+<!-- slide 14 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Principles</a></li>
+	<li><a href="#4">Distributed transaction management</a></li>
+	<li><a href="#7">Distributed serializability</a></li>
+	<li><a href="#9">Locking protocols</a></li>
+	<li><a class="red" href="#14">Distributed database recovery</a></li>
+	<li><a href="#16">Two-phase commit protocol</a></li>
+	<li><a href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>What happens when one subtransactions fails and it must be rolled back. Then a distributed database system must perform a distributed recovery. Distributed recovery must maintain atomicity and durability of distributed transactions.</p>
+    <br/>
+	<p>Recovery in a distributed DBMS is more complicated than in a centralized DBMS because atomicity is required for local and global transactions. The following principles must be applied.</p>
+	<p>- global transaction cannot commit until all its subtransactions are committed or aborted.</p>
+	<p>- recovery protocol must ensure that the failures in one site do not affect processing in the other sites, i.e. it must be nonblocking protocol.</p>
+	<p>- every global transaction has one site that acts as a coordinator (transaction manager).</p>
+	<p>- local sites where a global transaction has agents are called as participants (resource managers).</p>
+	<br/>
+	<p>We start from the Two-Phase Commit (2PC) protocol for processing of distributed transactions.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed database recovery</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Distributed recovery</strong> maintains <strong class="red">atomicity</strong> and <strong class="red">durability</strong> of distributed transactions</li>
+	<li>Recovery in a distributed DBMS is more complicated than in a centralized DBMS because <strong class="red">atomicity</strong> is required for local and global transactions</li>
+	<li>Global transaction cannot commit until all its subtransactions are committed or aborted</li>
+	<li>Recovery protocol must ensure that the failures in one site do not affect processing in the other sites, i.e. it must be <strong class="red">nonblocking protocol</strong></li>
+	<li>Every global transaction has one site that acts as a <strong class="red">coordinator</strong> (<strong class="red">transaction manager</strong>)</li>
+	<li>Local sites where a global transaction has agents are called as <strong class="red">participants</strong> (<strong class="red">resource managers</strong>)</li> 
+	  </ul>
+	</li>
+     </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>    
+<!-- slide 16 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Principles</a></li>
+	<li><a href="#4">Distributed transaction management</a></li>
+	<li><a href="#7">Distributed serializability</a></li>
+	<li><a href="#9">Locking protocols</a></li>
+	<li><a href="#14">Distributed database recovery</a></li>
+	<li><a class="red" href="#16">Two-phase commit protocol</a></li>
+	<li><a href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>The Two-Phase Commit  is called as 2PC because a global commit or a global rollback is performed in two phases: voting phase (1) and decision phase (2).</p>
+    <br/>
+	<p>Voting phase starts when the subtransactions running at the local sites (participating systems) inform a coordinator that processing is completed.</p>
+	<br/>
+	<p>Next, a coordinator sends "can commit?" message to all participants at the local systems.</p>
+	<br/>
+	<p>The participants force-write their log records and information needed for a local recovery and send ready to commit message to a coordinator.</p>
+	<br/>
+	<p>If a participant cannot force-write all log records then it sends cannot commit message to a coordinator.</p>
+    <br/>
+	<p>It is the end phase one.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Two-phase commit protocol (2PC)</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Global <strong class="green prettyprint28">COMMIT</strong> or global <strong class="green prettyprint28">ROLLBACK</strong> is performed in two phases: <strong class="red">voting phase</strong> and <strong class="red">decision phase</strong></li>
+	<li> <strong class="red">PHASE 1</strong>
+	  <ul class="build">
+	    <li>All participating systems inform a <strong class="red">coordinator</strong> that a transaction at a local system is completed</li>
+	    <li>A <strong class="red">coordinator</strong> sends a message  <strong class="blue">can commit ?</strong> to local systems</li>
+            <li>All participating systems force-write all log records and information needed for recovery and send  <strong class="blue">ready to commit</strong> message to a coordinator</li>
+	    <li>If a participating system cannot force-write all log records then it sends <strong class="blue">cannot commit</strong> message to a coordinator</li>
+	  </ul>
+	</li>
+     </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 18 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>In phase two the coordinator decides what to do if all systems replied with a ready to commit message or if one or more systems replied with a cannot commit message.</p>
+    <br/>
+	<p>If all participants reply with ready to commit message then a coordinator sends commit message to all participants.</p>
+	<br/>
+	<p>If at least one of participants replies with cannot commit message then a coordinator sends rollback message to all participants and all participants are aborted and rolled back.</p>
+	<br/>
+	<p>In a reply to commit message from a coordinator all participants complete the transactions by writing COMMIT to a transaction log and optionally permanently updating a database.</p>
+	<br/>
+	<p>In a reply to rollback message the participants complete the transactions with ROLLBACK.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Two-phase commit protocol (2PC)</h2>
+    </hgroup>
+    <article>
+      <ul>
+	<li>Global <strong class="green prettyprint28">COMMIT</strong> or global <strong class="green prettyprint28">ROLLBACK</strong> is performed in two phases: <strong class="red">voting phase</strong> and <strong class="red">decision phase</strong></li>
+	<li> <strong class="red">PHASE 2</strong>
+	  <ul class="build">
+	    <li>If all participating systems reply with <strong class="blue">ready to commit</strong> message then a <strong class="red">coordinator</strong> sends <strong class="blue">commit</strong> message to all participating systems</li>
+	    <li>Each participating systems complete the transactions by writing <strong class="green prettyprint28">COMMIT</strong> to a transaction log and optionally permanently updating a database</li>
+	    <li>If at least one of participating systems reply with <strong class="blue">cannot commit</strong> message then a coordinator sends <strong class="blue">rollback</strong> message to all participating systems</li>
+	  </ul>
+	</li>
+     </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 19 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Unfortunately 2PC protocol is not perfect.</p>
+    <br/>
+	<p>2PC protocol is a blocking protocol. It means that if a coordinator fails before sending commit or rollback message to the participants then all participants must wait until a coordinator recovers. It is because each individual transaction does not know the results of voting.</p>
+	<br/>
+	<p>In the other case, if a coordinator and one of participating transactions fails together then the distributed transaction becomes nondeterministic.  It means that it is impossible to ensure that all participants got commit message in the second phase. Then some of participants may commit independently on the other participants</p>
+	<br/>
+	<p>The second protocol supposed to remove both problem through application of one more phase.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Two-phase commit protocol (2PC)</h2>
+          </hgroup>
+    <article>
+      <ul class="build">
+	<li>Problems with <strong class="blue">2PC</strong> protocol:
+	  <ul class="build">
+            <li><strong class="blue">2PC</strong> protocol is a <strong class="red">blocking protocol</strong></li>
+	    <li><strong class="red">Blocking protocol</strong> means that if a <strong class="red">coordinator</strong> fails then all participating sites must wait until a <strong class="red">coordinator</strong> recovers</li>
+	    <li>If a <strong class="red">coordinator</strong> and one of participating transactions fails together then the distributed transaction becomes <strong class="red">nondeterministic</strong></li>
+	    <li>It means that it is impossible to ensure that all participants got <strong class="blue">commit</strong> message in the second phase</li>
+	    <li>Then some of participants may commit independently on the other participants</li>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 20 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Distributed Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Principles</a></li>
+	<li><a href="#4">Distributed transaction management</a></li>
+	<li><a href="#7">Distributed serializability</a></li>
+	<li><a href="#9">Locking protocols</a></li>
+	<li><a href="#14">Distributed database recovery</a></li>
+	<li><a href="#16">Two-phase commit protocol</a></li>
+	<li><a class="red" href="#20">Three-phase commit protocol</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 21 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>An improved protocol adds one more phase to 2PC protocol. It is why the new protocol is called as Three-Phase Commit protocol (3PC).</p>
+    <br/>
+	<p>In 3PC protocol the first phase (voting) is the same.  The second phase is divided into PREPARE-TO-COMMIT and COMMIT phases</p>
+	<br/>
+	<p>In the first phase, the participants send to a coordinator information that processing at the local sites is completed. </p>
+	<br/>
+	<p>A coordinator replies with can commit? message. If all transactions are able to commit then they send "ready to commit message" to a coordinator. If commit is impossible for one or more transactions then such transactions sends "cannot commit" message to a coordinator.  Then a coordinator sends rollback message to all transactions.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Three-phase commit protocol (3PC)</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="blue">3PC</strong> the first phase is the same as in <strong class="blue">2PC</strong></li>
+	<li>The second phase is divided into <strong class="blue">PREPARE-TO-COMMIT</strong> and <strong class="blue">COMMIT</strong> phases</li>
+	<li><strong class="red">PHASE 1</strong>
+	  <ul class="build">
+	    <li>All participating systems inform a <strong class="red">coordinator</strong> that a transaction at a local system is completed</li>
+	    <li>A <strong class="red">coordinator</strong> sends a message <strong class="blue">can commit ?</strong> to local systems</li>
+	    <li>All participating systems send <strong class="blue">yes</strong> message to a <strong class="red">coordinator</strong></li>
+	    <li>If a participating system send a message <strong class="blue">no</strong> then a <strong class="red">coordinator</strong> sends <strong class="blue">abort</strong> message</li>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 22 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>In the second phase, if all participating systems reply with yes message then a coordinator sends "pre commit" message to all participating systems and waits for "acknowledgement" message. It is a moment when all participants are informed that a global commit is possible. It is information that is missing from 2PC protocol.</p>
+	<p>Each participating system replies with acknowledgement that it is ready to commit. It is confirmation of the original commit.  At this point all participants are aware that global commit is possible.</p>
+	<br/>
+	<p>If a participating system is not able to reply with acknowledgement message the transactions are aborted by a coordinator.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Three-phase commit protocol (3PC)</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>In <strong class="blue">3PC</strong> the first phase is the same as in <strong class="blue">2PC</strong></li>
+	<li>The second phase is divided into <strong class="blue">PREPARE-TO-COMMIT</strong> and <strong class="blue">COMMIT</strong> phases</li>
+        <li><strong class="red">PHASE 2</strong>
+	  <ul class="build">
+	    <li>If all participating systems reply with <strong class="blue">yes</strong> message then a <strong class="red">coordinator</strong> sends <strong class="blue">pre commit</strong> message to all participating systems and waits for <strong class="blue">"acknowledgement"</strong> message</li>
+	    <li>Each participating system replies with <strong class="blue">acknowledgement</strong> that it is ready to commit</li>
+	    <li>At this point each participating system is aware that global commit is possible</li>
+	    <li>If a participating system is not able to reply with <strong class="blue">acknowledgement</strong> message the transactions are aborted by a <strong class="red">coordinator</strong></li>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 23 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>The third phase is a commit phase.</p>
+    <br/>
+	<p>A coordinator sends "do commit" message to all participating systems</p>
+	<br/>
+	<p>Each participating system replies with has committed message after COMMIT operation was successful.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Three-phase commit protocol (3PC)</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>In <strong class="blue">3PC</strong> the first phase is the same as in <strong class="blue">2PC</strong></li>
+	<li>The second phase is divided into <strong class="blue">PREPARE-TO-COMMIT</strong> and <strong class="blue">COMMIT</strong> phases</li>	
+        <li><strong class="red">PHASE 3</strong>
+	  <ul class="build">
+	    <li>A coordinator sends <strong class="blue">do commit</strong> message to all participating systems</li>
+	    <li>Each participating system replies with <strong class="blue">has committed</strong> message after <strong class="green prettyprint28">COMMIT</strong> operation was successful</li>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 24 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>T. Connoly, C. Begg, Database Systems, A Practical Approach to Design, Implementation, and Management, Chapter 25 Distributed DBMSs - Advanced Concepts, Pearson Education Ltd, 2015</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+<!--
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/tlfYCvl122H0mV4BSz5teR?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+-->
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

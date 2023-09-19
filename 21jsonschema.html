@@ -1,0 +1,1857 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/jLJICp81YYtXLmpYfYDXVJ?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>21 JSON Schema</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>JSON Schema</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a class="red" href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+  <slide>
+    <aside class="note">
+      <section>
+    <p>What is JSON Schema ?</p>
+    <br/>
+	<p>In the past we learnt and we used few other sort of schemas, like for example conceptual schema, relational schema and XML schema.</p>
+	<p>A schema represents the structures of certain domain expressed in a formalized language. A conceptual schema represents a conceptual structure of a database domain expressed in a graphical notation of simplified UML classes or a graphical notation of Entity-Relationship data model or a notation of Object-Role-Model and many others. A relational schema represents a structure of relational table expressed in a language of named sets of attributes, primary keys, candidate keys and foreign keys. XML schema represents a structure of XML documents expressed in XML notation.</p>
+	<br/>
+	<p>So, again, what is JSON schema.?</p>
+	<p>JSON schema represents a structure of JSON/BSON document expressed as a JSON document. Hence, like with XML schema where a schema is a well formed XML document , JSON schema is also well formed JSON document.</p>
+    <br/>
+	<p>Why do we need JSON Schema ? As we mentioned before the ideas of unstructured or semistructured data model allow fro lack of rigid schema precisely determining the structures of data objects. In theory such idea seems to be very attractive. Unfortunately in practice when a data object has a structure very different from the majority of data object it is impossible distinguish between such exotic structure or a simple mistake. It means that we have to provide information about a number of possible correct structures instead of saying that any structure will do. It is why we need JSON Schema for validation of JSON objects and also XML schema for validation of XML documents. From such perspective JSON Schema is a vocabulary for validation of JSON objects and MongoDB uses an slightly modified notation of JSON Schema to validate BCON documents in MongoDB collections of documents. A collection of BSON documents can have JSON Schema assigned to more precisely determines the structures of BSON documents stored in the collection.</p>
+	<br/>
+	<p>In a general case, JSON Schema describes the structures and types of existing JSON objects. JSON Schema allows for automated validation of JSON object.</p>
+	<br/>
+	<p>Like XML Schema being itself a well formed XML document, JSON Schema itself is a well formed JSON object.</p>
+	<br/>
+	<p>The latest version of JSON Schema is a version 2020-12</p>
+    <br/>
+	<p>JSON schema expresses the constraints imposed on JSON object. If JSON Schema is an empty object then it positively validates any possible JSON object.</p>
+	<br/>
+	<p>The following JSON object:</p>
+	<p>{"city":"Sydney", "street":"Victoria", "building number":25, "building name":"James Bond Building"}</p>
+	<p>validates well against the following JSON Schema:</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { </p>
+	<p>"city": { "type":"string" },</p>
+	<p>"street": { "type":"string" },</p>
+	<p>"building": { "type" :"number",</p>
+	<p>"minimum": 1}</p>
+	<p>}}</p>
+	<p>Note that a JSON Schema above does not impose an constraints for a key:vale pairs "building name":"James Bond Building" or any other</p>
+	<p>key:vale pair that can be added to the JSON object. It means that the given document can be extended by any additional key:vale pairs</p>
+	<p>without violation of the constraints imposed by the given JSON Schema.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">JSON Schema ? What is it ?</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li><strong class="red">JSON Schema</strong> is a <strong class="blue">vocabulary</strong> for validation of <strong class="blue">JSON objects</strong></li>
+	<li><strong class="red">JSON Schema</strong> describes the structures and types of existing <strong class="blue">JSON objects</strong></li>
+	<li><strong class="red">JSON Schema</strong> allows for automated validation of <strong class="blue">JSON objects</strong></li>	
+        <li><strong class="red">JSON Schema</strong> itself is a <strong class="blue">JSON object</strong></li>
+        <li>The latest version of <strong class="red">JSON Schema</strong> is a version <strong class="blue">2020-12</strong></li>
+	<li>The following <strong class="blue">JSON object</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON object">
+
+{"city":"Sydney", "street":"Victoria", "building number":25, "building name":"James Bond Building"}</pre>
+          </ul>
+        </li>
+	<li> validates well against the following <strong class="red">JSON Schema</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "properties": { "city": { "type":"string" },
+                  "street": { "type":"string" },       
+                  "building": { "type" :"number",
+                                "minimum": 1}
+                }
+}</pre>
+          </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a class="red" href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 05 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The simplest possible JSON schema is an empty JSON object.</p>
+	<p>{ }</p>
+	<p>Such schema does not enforce any constraints and it validates any well formed JSON object</p>
+	<br/>
+	<p>The extensions of the schema given above impose the restrictions on the validated objects. For example, the following JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "Hello world message": { "type":"string" } }</p>
+	<p>}</p>
+	<p>validates well the following JSON objects</p>
+	<p>{ "Hello world message":"Hello world !" }</p>
+	<p>{ "Hello world message":"Hello world !", "Greeting":"How are you ?" }</p>
+	<p>{}</p>
+	<br/>
+	<p>An object that has a key:vale pair "Hello world message":"Hello world !" validates well because a value associated with a key is of type string.</p>
+	<br/>
+	<p>An object { "Hello world message":"Hello world !", "Greeting":"How are you ?" } validates well because like before a value associated with a key is a string and a JSON Schema does not impose any constraints of a key "Greetings".</p>
+	<br/>
+	<p>An empty objet {} validates well because a default validation of a missing key against a key in JSN scheme is always true. It is like a default NULL constraints imposed on a column in CREATE TABLE statements. It is possible to enforce mandatory occurrence of a key:vale pair in a JSON document. Such possibility will be discussed in the future.</p>
+    <br/>
+	<p>Validation with JSON schema applies only to key:value pairs in an object that are listed in JSON schema. If a key:value pair is not listed in JSON schemas then validation does not apply to such key:value pair.</p>
+	<br/>
+	<p>If a key: value pair is listed in JSON schema and it is not included in an object then according to a default interpretation such key:value pair is optional in the object. A default interpretation cam be changed with application of a key "requiredProperties" in JSON schema. This topic will be discussed in the near future.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Basics</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>The simplest possible <strong class="red">JSON schema</strong> is the following (an empty object)
+          <ul class="build">
+            <pre class="prettyprint" data-lang="The simplest JSON schema">
+
+{ }</pre>
+          </ul>
+        </li>
+	<li>The schema given above validates every <strong class="blue">JSON object</strong></li>
+	<li>Extensions of the schema given above impose the restrictions on the validated objects</li>
+	<li>For example, the following <strong class="red">JSON schema</strong>
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="A Hello world JSON schema">
+{ "type":"object",
+  "properties": { "Hello world message": { "type":"string" } }
+}</pre>
+          </ul>
+	</li>
+	<li> validates well the objects
+          <ul class="build">
+            <pre class="prettyprint" data-lang="A Hello world object">{ "Hello world message":"Hello world !" }</pre>
+            <pre class="prettyprint" data-lang="A How are you object">{ "Hello world message":"Hello world !", "Greeting":"How are you ?" }</pre>
+            <pre class="prettyprint" data-lang="An empty object">{}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The following extension of the previous JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "Hello world message": { "type":"string",</p>
+	<p>"minLength": 1,</p>
+	<p>"maxLength": 13 }</p>
+	<p>}}</p>
+	<p>imposes the additional conditions on the length of a string associated with a key "Hello world message". A string cannot be empty and and it cannot be longer than 13 characters.</p>
+	<br/>
+	<p>A JSON object </p>
+	<p>{ "Hello world message":"Hello world !!!" }</p>
+	<p>fails validation agains the schema given above because a string "Hello world !!!" is too long (15 characters)</p>
+	<br/>
+	<p>The JSON schema given above validates well the objects</p>
+	<p>{ "Hello world message":"Hello world !" } and</p>
+	<p>{ "Hello world message":"Hello world !", "Greeting":"How are you ?" }</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Basics</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>The following extension of the previous schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="An extended Hello world JSON schema">
+
+{ "type":"object",
+  "properties": { "Hello world message": { "type":"string",
+                                           "minLength": 1,
+                                           "maxLength": 13 }
+                }
+}</pre>
+          </ul>
+	</li>
+	<li> fails validation of an object
+          <ul class="build">
+            <pre class="prettyprint" data-lang="A Hello world object">
+
+{ "Hello world message":"Hello world !!!" }</pre>
+          </ul>
+        </li>
+	<li> because a string <strong class="green prettyprint28">"Hello world !!!"</strong> is too long (15 characters)</li>
+	<li> It validates well the objects
+          <ul class="build">
+            <pre class="prettyprint" data-lang="A Hello world object">  
+{ "Hello world message":"Hello world !" }</pre>
+            <pre class="prettyprint" data-lang="A How are you object">  
+{ "Hello world message":"Hello world !", "Greeting":"How are you ?" }</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a class="red" href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 08 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>To determine a type of value associated with a key JSON schema uses a key:vale pair "type":basic-type-name.</p>
+	<p>JSON schema defines the following basic types: "string", "Numeric types", "object", "array", "boolean", and "null" "Numeric types" will be discussed in the future. "null" means that only no value (null) can be assigned with a key.</p>
+	<br/>
+	<p>If "type" keyword is associated with a name of a basic type then a respective value must be of the same basic type, for example</p>
+	<p>{ "type":"string"}</p>
+	<p>determines a type of a respective value as a string.</p>
+    <br/>
+	<p>It is possible to define the variants of types. A basic type associated with a keyword "type" can be either one of the types listed above or it can be an array of the basic types. If "type" keyword is associated with an array of basic types then each element of the array must be unique, for example</p>
+	<p>{ "type": ["string","number"] }</p>
+	<p>Such key:vale pair determines a type of a respective value as either string or number</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Types</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>In <strong class="red">JSON schema</strong> a <strong class="green prettyprint28">type</strong> keyword  is associated with a data type</li>
+	<li><strong class="red">JSON schema</strong> defines the following <strong class="red">basic types</strong>: <strong class="green prettyprint28">string</strong>, <strong class="green prettyprint28">Numeric types</strong>, <strong class="green prettyprint28">object</strong>, <strong class="green prettyprint28">array</strong>, <strong class="green prettyprint28">boolean</strong>, and <strong class="green prettyprint28">null</strong></li>
+	<li>A <strong class="red">basic type</strong> associated with a keyword <strong class="green prettyprint28">type</strong> can be either one of the types listed above or it can be an array of the types listed above</li>
+	<li>If <strong class="green prettyprint28">type</strong> keyword is associated with a name of a <strong class="red">basic type</strong> then a respective value must be of the same <strong class="red">basic type</strong>, for example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Type string">
+{ "type":"string"}</pre>
+	  </ul>
+	</li>
+	<li>It determines a type of a respective value as a <strong class="green prettyprint28">string</strong></li>
+	<li>If <strong class="green prettyprint28">type</strong> keyword is associted with an <strong class="blue">array</strong> of <strong class="red">basic types</strong> then each element of the array must be unique, for example
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Type string or number">
+{ "type": ["string","number"] }</pre>
+	  </ul>
+	</li>
+	<li>It determines a type of a respective value as either <strong class="green prettyprint28">string</strong> or <strong class="green prettyprint28">number</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a class="red" href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 10 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key:vale pair "type":"string" determines a type of a respective value as a string of characters. For example</p>
+	<p>"city": { "type":"string" }</p>
+	<p>validates well any string of characters including an empty string associated with a key "city".</p>
+	<br/>
+	<p>it is possible to enforce more constraints on a type string through so called "restrictions. A string type has the following restrictions: minLength, maxLength, pattern, and format.</p>
+	<br/>
+	<p>For example</p>
+	<p>"city":{</p>
+	<p>"type":"string",</p>
+	<p>"minLength": 10,</p>
+	<p>"maxLength": 20 }</p>
+	<p>validates well any string longer than 9 characters and shorter than 21 characters associated with a key "city".</p>
+	<br/>
+	<p>For example</p>
+	<p>"character":{</p>
+	<p>"type":"string",</p>
+	<p>"minLength": 1,</p>
+	<p>"maxLength": 1 }</p>
+	<p>validates well any string 1 character long associated with a key "character".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">String</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A type <strong class="green prettyprint28">string</strong> determines a type of a respective value as a string of characters</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="String type">
+	      
+"city":{ "type":"string" }</pre>
+	  </ul>
+	</li>
+	<li>validates well any string of characters including an empty string associated with a key <strong class="green prettyprint28">"city"</strong></li>
+	<li>A <strong class="green prettyprint28">string</strong> type has the following restrictions: <strong class="green prettyprint28">minLength</strong>, <strong class="green prettyprint28">maxLength</strong>, <strong class="green prettyprint28">pattern</strong>, and <strong class="green prettyprint28">format</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="String type with length restrictions"> 
+"city":{"type":"string",
+        "minLength": 10,
+        "maxLength": 20 }</pre>
+	  </ul>
+	</li>
+	<li> validates well any string longer than 9 characters and shorter than 21 characters associated with a key <strong class="green prettyprint28">"city"</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A pattern restriction can be used to used to match a string with a given regular expression.</p>
+	<p>For example</p>
+	<p>"number":{"type":"string",</p>
+	<p>"pattern":"[1-9][0-9]" }</p>
+	<p>validates well any string of characters representing a number in a range from "10" to "99" with a key "number".</p>
+	<br/>
+	<p>The first [1-9] range subexpression in a regular expression determines the first character to be in a range from "1" to "9". The second [0-9] subexpression determines the second character to be in a range from "0" to "9".</p>
+	<br/>
+	<p>A format restriction is used to match a string with predefined format</p>
+	<p>For example</p>
+	<p>"birthday":{"type":"string",</p>
+	<p>"format":"date" }</p>
+	<p>validates well any string of characters representing a date in a format "YYYY-MM-DD" for example "2020-07-21" with key "birthday".</p>
+	<br/>
+	<p>The following built-in formats are allowed:</p>
+	<p>Dates and times</p>
+	<p>Email addresses</p>
+	<p>Hostnames</p>
+	<p>IP Addresses</p>
+	<p>Resource identifiers</p>
+	<p>URI template</p>
+	<p>JSON Pointer</p>
+	<p>Regular Expressions</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">String</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A <strong class="green prettyprint28">pattern</strong> restriction is used to match a string with a given regular expression</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="String type with regular expression restriction"> 
+"number":{"type":"string",
+          "pattern":"[1-9][0-9]" }</pre>
+	  </ul>
+	</li>
+	<li>validates well any string of characters representing a number in a range from <strong class="green prettyprint28">"10"</strong> to <strong class="green prettyprint28">"99"</strong> with a key <strong class="green prettyprint28">number</strong></li>
+        <li>A <strong class="green prettyprint28">format</strong> restriction is used to match a string with a predefined format</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="String type with format restriction"> 
+"birthday":{"type":"string",
+            "format":"date" }</pre>
+	  </ul>
+	</li>
+	<li>validates well any string of characters representing a date in a format <strong class="green prettyprint28">"YYYY-MM-DD"</strong> for example <strong class="green prettyprint28">"2020-07-21"</strong> with a key <strong class="green prettyprint28">birthday</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a class="red" href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 13 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>JSON Schema has two numeric types: "integer" and "number". A type integer is used for validation of integer numbers</p>
+	<p>For example</p>
+	<p>"int":{ "type":"integer" }</p>
+	<p>validates well any integer number like -5, 0, 7, etc with key "int".</p>
+	<br/>
+	<p>A type "number" is used for validation of any numeric value, either integer or floating point numbers</p>
+	<p>For example</p>
+	<p>"num":{ "type":"number" }</p>
+	<p>validates well any integer or floating point number like like -35.7, -7, 0.0, 23, 23.4, etc with a key "num".</p>
+	<br/>
+	<p>Similarly to "string" type the numeric types can have the restrictions to impose the additional constraints on the values. The restrictions of numeric types are explained in the next slide.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Numeric types</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li><strong class="red">JSON Schema</strong> has two numeric types: <strong class="green prettyprint28">integer</strong> and <strong class="green prettyprint28">number</strong></li>
+	<li>A type <strong class="green prettyprint28">integer</strong> is used for validation of integer numbers</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Integer type"> 
+"int":{ "type":"integer" }</pre>
+	  </ul>
+	</li>
+	<li>validates well any integer number like <strong class="green prettyprint28">-5</strong>, <strong class="green prettyprint28">0</strong>, <strong class="green prettyprint28">7</strong>, etc with key <strong class="green prettyprint28">int</strong></li>
+	<li>A type <strong class="green prettyprint28">number</strong> is used for validation of any numeric value, either integer or floating point numbers</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Number type"> 
+"num":{ "type":"number" }</pre>
+	  </ul>
+	</li>
+	<li>validates well any integer or floating point number like  like <strong class="green prettyprint28">-35.7</strong>, <strong class="green prettyprint28">-7</strong>, <strong class="green prettyprint28">0.0</strong>, <strong class="green prettyprint28">23</strong>, <strong class="green prettyprint28">23.4</strong>, etc with a key <strong class="green prettyprint28">num</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Numeric types "integer" and "number" have the following restrictions: multipleOf, minimum, exclusive Minimum, maximum, exclusiveMaximum</p>
+	<p>For example</p>
+	<p>"mod5zero":{ "type":"integer",</p>
+	<p>"multipleOf": 5 }</p>
+	<p>validates well any integer like 0, 5, 10, 15, etc, associated with a key "mod5zero".</p>
+	<br/>
+	<p>For example</p>
+	<p>"mof2":{ "type":"number",</p>
+	<p>"multipleOf": 0.2 }</p>
+	<p>validates well any number like 0.0, 0.2, 0.4, 0.6, etc, associated with a key "mof2".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Numeric types</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Numeric types <strong class="green prettyprint28">integer</strong> and <strong class="green prettyprint28">number</strong> have the following restrictions: <strong class="green prettyprint28">multipleOf</strong>, <strong class="green prettyprint28">minimum</strong>, <strong class="green prettyprint28">exclusive Minimum</strong>, <strong class="green prettyprint28">maximum</strong>, <strong class="green prettyprint28">exclusiveMaximum</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Integer type with multipleOf restriction"> 	      
+"mod5zero":{ "type":"integer",
+             "multipleOf": 5 }</pre>
+	  </ul>
+	</li>
+	<li>validates well any integer like <strong class="green prettyprint28">0</strong>, <strong class="green prettyprint28">5</strong>, <strong class="green prettyprint28">10</strong>, <strong class="green prettyprint28">15</strong>, etc, with a key  <strong class="green prettyprint28">mod5zero</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Number type with multipleOf restriction"> 	      
+"mof2":{ "type":"number",
+         "multipleOf": 0.2 }</pre>
+	  </ul>
+	</li>
+	<li>validates well any number like <strong class="green prettyprint28">0.0</strong>, <strong class="green prettyprint28">0.2</strong>, <strong class="green prettyprint28">0.4</strong>, <strong class="green prettyprint28">0.6</strong>, etc, associated with a key  <strong class="green prettyprint28">mof2</strong></li>	
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The restrictions minimum, maximum, exclusiveMinimum, and exclusiveMaximum can be used for expressing ranges</p>
+	<p>For example</p>
+	<p>"intrange":{ "type":"integer",</p>
+	<p>"minimum": 0,</p>
+	<p>"exclusiveMaximum": 5}</p>
+	<p>validates well integer numbers 0, 1, 2, 3, and 4 associated with a key "intrange".</p>
+	<br/>
+	<p>For example</p>
+	<p>"zero15range":{ "type":"integer",</p>
+	<p>"multipleOf": 5 ,</p>
+	<p>"minimum" : 0,</p>
+	<p>"maximum" : 15}</p>
+	<p>validates well integers like 0, 5, 10, 15 associated with a key "zero15range".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Numeric types</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>The restrictions <strong class="green prettyprint28">minimum</strong>, <strong class="green prettyprint28">maximum</strong>, <strong class="green prettyprint28">exclusiveMinimum</strong>, and <strong class="green prettyprint28">exclusiveMaximum</strong> can be used for expressing ranges</li>
+	<li>For example
+	  <ul class="build">
+           <pre class="prettyprint" data-lang="Integer type with a range restriction">  
+"intrange":{ "type":"integer",
+             "minimum": 0,
+             "exclusiveMaximum": 5}</pre>
+	  </ul>
+	</li>
+	<li>validates well integer numbers <strong class="green prettyprint28">0</strong>, <strong class="green prettyprint28">1</strong>, <strong class="green prettyprint28">2</strong>, <strong class="green prettyprint28">3</strong>, and <strong class="green prettyprint28">4</strong> associated with a key  <strong class="green prettyprint28">intrange</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 16 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a class="red" href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 17 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>A type "boolean" determines a type of a respective value either as true or false.</p>
+	<p>For example</p>
+	<p>"bool":{ "type":"boolean" }</p>
+	<p>validates well the values true and false and no other values associated with a key "bool".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Boolean</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>A type <strong class="green prettyprint28">boolean</strong> determines a type of a respective value either as <strong class="green prettyprint28">true</strong> or <strong class="green prettyprint28">false</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Boolean type"> 
+"bool":{ "type":"boolean" }</pre>
+	  </ul>
+	</li>
+	<li>validates well the values <strong class="green prettyprint28">true</strong> and <strong class="green prettyprint28">false</strong> and no other values associated with a key <strong class="green prettyprint28">bool</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a class="red" href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 19 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>A type "null" determines a type of a respective value as null (nothing).</p>
+	<p>For example</p>
+	<p>"nothing":{ "type":"null" }</p>
+	<p>validates well a lack of value null and no other values associated with key "nothing".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Null</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>A type <strong class="green prettyprint28">null</strong> determines a type of a respective value as <strong class="green prettyprint28">null</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Null type">       
+"nothing":{ "type":"null" }</pre>
+	  </ul>
+	</li>
+	<li>validates well a lack of value <strong class="green prettyprint28">null</strong> and no other values associated with key <strong class="green prettyprint28">nothing</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a class="red" href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 21 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A type "object" determines a type of a respective value as JSON object</p>
+	<p>For example</p>
+	<p>{ "type":"object" }</p>
+	<p>validates well any object, like for example</p>
+	<p>{"city":"Sydney", "street":"Victoria", "building":25}</p>
+    <br/>
+	<p>or</p>
+	<br/>
+	<p>{ "name":"School of Astronomy",</p>
+	<p>"courses":[ {"code":"SOA101",</p>
+	<p>"title":"Astronomy for Kids",</p>
+	<p>"credits":3},</p>
+	<p>{"code":"SOA201",</p>
+	<p>"title":"Black Holes",</p>
+	<p>"credits":6}</p>
+	<p>]</p>
+	<p>}</p>  
+	<br/>
+	<p>or even an empty object like</p>
+	<br/>
+	<p>{ }</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>A type <strong class="green prettyprint28">object</strong> determines a type of a respective value as <strong class="blue">JSON object</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Object type">      
+{ "type":"object" }</pre>
+	  </ul>
+	</li>
+        <li>validates well the objects like
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Flat JSON object"> 
+{ "city":"Sydney", "street":"Victoria", "building":25 }</pre>
+	    <pre class="prettyprint" data-lang="Nested JSON object">
+{ "name":"School of Astronomy",
+  "courses":[ {"code":"SOA101",
+               "title":"Astronomy for Kids",
+               "credits":3},
+              {"code":"SOA201",
+               "title":"Black Holes",
+              "credits":6}
+            ]
+}</pre>
+	    <pre class="prettyprint" data-lang="Empty JSON object">
+
+{ }</pre>
+          </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 22 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>A key "properties" can be used to impose the constraints on some of the key:value pairs an object consists of.</p>
+	<p>A key "properties" is associated with an object that consists of key:value pairs where each key is a name of a property and each value is a JSON schema used to validate a property.</p>
+    <br/>
+	<p>For example JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "city": { "type":"string" },</p>
+	<p>"street": { "type":"string" },</p>
+	<p>"building": { "type":"number",</p>
+	<p>"minimum":1 }</p>
+	<p>}</p>
+	<p>}</p>
+	<p>validates well the following objects:</p> 
+    <p>{ "city":"Dapto","street":"Station","building":7}</p>
+	<p>It is because </p>
+	<p>- a key "city" is associated with string a value and JSON schema does not impose any restrictions on the size of a string,</p>
+	<p>- a key "street" is associated with a string value and JSON schema does not impose any restrictions on the size of a string,</p>
+	<p>- a is key "building" is associated with a number value and JSON schema does not impose any restrictions on the size of a number.</p>
+	<br/>
+    <p>{ "city":"Dapto","street":"Station"}</p>
+	<p>It is because</p>
+	<p>- a key "city" is associated with string a value and JSON schema does not impose any restrictions on the size of a string,</p>
+	<p>- a key "street" is associated with a string value and JSON schema does not impose any restrictions on the size of a string,</p>
+	<p>- an object does not contain a key:value pair where a key is "building", hence a property of "building" does not apply to the object.</p>
+    <br/>
+	<p>{ "city":"Dapto","street":"Station","building":7,"type":"skyscraper"}</p>
+	<p>It is because</p>
+	<p>- a key "city" is associated with string a value and JSON schema does not impose any restrictions on the size of a string,</p>
+	<p>- a key "street" is associated with a string value and JSON schema does not impose any restrictions on the size of a string,</p>
+	<p>- a is key "type" is associated with a number value and JSON schema does not impose any restrictions on a key "type".</p>
+	<br/>
+    <p>{ }</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>A key <strong class="green prettyprint28">properties</strong> can be used to impose the constraints on some or all of <strong class="blue">key:value</strong> pairs an object consists of</li>
+	<li> A key <strong class="green prettyprint28">properties</strong> is associated with an object that consists of <strong class="blue">key:value</strong> pairs where each <strong class="blue">key</strong> is a name of a property and each <strong class="blue">value</strong> is a <strong class="red">JSON schema</strong> used to validate a property</li>
+	<li>For example <strong class="red">JSON schema</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "properties": { "city": { "type":"string" },
+                  "street": { "type":"string" },       
+                  "building": { "type":"number", "minimum":1 }
+                }
+}</pre>
+          </ul>
+	</li>
+	<li>validates well the objects
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station"}</pre> 
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7,"type":"skyscraper"}</pre>
+	     <pre class="prettyprint" data-lang="Empty JSON object">
+{ }</pre>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 23 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "additionalProperties" in JSON schema determines whether additional properties not listed in JSON schema are allowed. A default value associated with a key "additionalProperties" is true. It means that an object ma have key:value pairs not listed in JSON schema.</p>
+    <br/>
+	<p>For example JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "city": { "type":"string" },</p>
+	<p>"street": { "type":"string" }, </p>
+	<p>"building": { "type":"number","minimum":1 }</p>
+	<p>},</p>
+	<p>"additionalProperties":false</p>
+	<br/>
+	<p>validates well the objects</p>
+	<p>{ "city":"Dapto","street":"Station","building":7}</p>
+    <br/>
+	<p>It is because</p>
+	<p>- all keys included in an object are listed in JSON schema.</p>
+    <br/>
+	<p>{ "city":"Dapto","street":"Station"}</p>
+	<p>It is because</p>
+	<p>- a key "building" is missing from an object and a default interpretation of missing keys ("requiredProperties key in JSON schema, see next slide) is false. It means that an object does not need to have the keys listed in JSON schema.</p>
+    <br/>
+	<p>{ }</p>
+	<p>It is because</p>
+	<p>- a default interpretation of missing keys ("requiredProperties key in JSON schema, see next slide) is false. It means that an object does not need to have the keys listed in JSON schema.</p>
+    <br/>
+	<p>An object</p>
+	<p>{ "city":"Dapto","street":"Station","building":7,"type":"skyscraper"}</p>
+	<p>does not validate well against JSON schema listed above because the object contains a key:value pair "type":"skyscraper" which is not listed in JSON schema and a key "additionalProperties" is associated with a value false in the schema.</p>
+	<br/>
+    </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>A key <strong class="green prettyprint28">additionalProperties</strong> determines whether additional properties not listed in <strong class="red">JSON schema</strong> are allowed</li>
+	<li>For example <strong class="red">JSON schema</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "properties": { "city": { "type":"string" },
+                  "street": { "type":"string" },       
+                  "building": { "type":"number",
+                                "minimum":1 }
+                },
+  "additionalProperties":false
+}</pre>
+          </ul>
+	</li>
+	<li>validates well the objects
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station"}</pre> 
+	     <pre class="prettyprint" data-lang="Empty JSON object">
+{ }</pre>
+	  </ul>
+	</li>
+        <li>It does not validate well an object
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7,"type":"skyscraper"}</pre>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 24 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "requiredProperties" determines the compulsory properties of an object. A default value associated with a key "requiredProperties" is []. It means that in such a case none of the properties in JSON schema is required to be in an object.</p>
+    <br/>
+	<p>For example JSON schema=</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "city": { "type":"string" },</p>
+	<p>"street": { "type":"string" }, </p>
+	<p>"building": { "type":"number", "minimum":1 }</p>
+	<p>},</p>
+	<p>"requiredProperties": ["city","street"]</p>
+	<p>}</p>
+    <br/>
+	<p>validates well the objects</p>
+	<p>{ "city":"Dapto","street":"Station","type":"skyscraper"}</p>
+	<p>It is because both required keys "city","street" are included in an object and a key "building" is not required in an object. A default value associated with "additionalProperties: is true and it means that a key "type" does not need to be validated in JSON schema.</p>
+    <br/>
+	<p>{ "city":"Dapto","street":"Station"}</p>
+	<p>It is because both required keys "city","street" are included in an object and a value associated with a key "building" validates well. </p>
+    <br/>
+	<p>It does not validate well an object</p>
+	<p>{ "city":"Dapto","building":7,"type":"skyscraper"}</p>
+	<p>because a key "street" is missing from an object.</p>
+    <br/>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>A key <strong class="green prettyprint28">requiredProperties</strong> determines the compulsory properties of an object</li>
+	<li>For example <strong class="red">JSON schema</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "properties": { "city": { "type":"string" },
+                  "street": { "type":"string" },       
+                  "building": { "type":"number","minimum":1 }
+                },
+  "requiredProperties": ["city","street"]
+}</pre>
+          </ul>
+	</li>
+	<li>validates well the objects
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","type":"skyscraper"}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7}</pre> 
+	  </ul>
+	</li>
+	<li>It does not validate well an object
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","building":7,"type":"skyscraper"}</pre>
+	  </ul>
+	</li>	
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 25 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The keys "minProperties" and "maxProperties" determine the minimum and maximum number of properties of an object.</p>
+    <br/>
+	<p>For example JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "city": { "type":"string" },</p>
+	<p>"street": { "type":"string" }, </p>
+	<p>"building": { "type":"number", "minimum":1 }</p>
+	<p>},</p>
+	<p>"minProperties": 2,</p>
+	<p>"maxProperties": 3</p> 
+	<p>}</p> 
+    <br/>
+	<p>validates well the objects</p>
+	<p>{ "city":"Dapto","street":"Station","building":7}</p>
+	<p>It is because an object above has maximum 3 keys.</p>
+	<br/>
+	<p>{ "city":"Dapto","street":"Station"}</p>
+	<p>{ "street":"Station","building":7}</p>
+	<p>It is because both objects have only 2 keys.</p>
+	<br/>
+	<p>It does not validate well an object</p>
+	<p>{ "city":"Dapto","street":"Station","building":7,"type":"skyscraper"}</p>
+	<p>because it has 4 keys.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>The keys <strong class="green prettyprint28">minProperties</strong> and <strong class="green prettyprint28">maxProperties</strong> determine the minimum and maximum number of properties of an object</li>
+	<li>For example <strong class="red">JSON schema</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "properties": { "city": { "type":"string" },
+                  "street": { "type":"string" },       
+                  "building": { "type":"number","minimum":1 }
+                },
+  "minProperties": 2,
+  "maxProperties": 3
+}</pre>
+          </ul>
+	</li>
+	<li>validates well the objects
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station"}</pre> 
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "street":"Station","building":7}</pre>
+	  </ul>
+	</li>
+	<li>It does not validate well an object
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7,"type":"skyscraper"}</pre>
+	  </ul>
+	</li>		
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 26 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "dependencies" determine the existence dependencies of one property on another. For example if a key "a" is in an object then both keys "b" and "c" must be present in the same object. However, if a key "a" is not present in. an object then the keys "b" and "c" can be present or not.</p>
+    <br/>
+	<p>A value associated with a key "dependencies" is an object.</p>
+	<br/>
+	<p>Each entry in the object maps from a name of a property into an array of properties that are required whenever the property is present</p>
+	<p>For example JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"properties": { "city": { "type":"string" },</p>
+	<p>"street": { "type":"string" },</p>
+	<p>"building": { "type":"number",</p>
+	<p>"minimum":1 }</p>
+	<p>},</p>
+	<p>"dependencies": { "street": ["building"]} }</p>
+	<br/>
+	<p>validates well the objects</p>
+	<p>{ "city":"Dapto","street":"Station","building":7}</p>
+	<p>It is because an object has a key "street" and then it also must have a key "building". It may also have some other properties because a default value associated with "additionalProperties" is true.</p>
+	<br/>
+	<p>{ "street":"Station","building":7}</p>
+	<p>It is because an object has a key "street" and then it also must have a key "building".</p>
+	<br/>
+	<p>{ "city":"Dapto","building":7}</p>
+	<p>It is because an object has no key "street".</p>
+	<br/>
+	<p>It does not validate well an object</p>
+	<p>{ "city":"Dapto","street":"Station"}</p>
+	<p>It is because a key "street" is present and a key "building" required together with a key "street" is absent.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>A key <strong class="green prettyprint28">dependencies</strong> determine the existence dependencies of one property on another</li>
+	<li>A value associated with a key <strong class="green prettyprint28">dependencies</strong> is an object</li>
+	<li>Each entry in the object maps from a name of a property into an array of properties that are required whenever the property is present</li>
+	<li>For example <strong class="red">JSON schema</strong>
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "properties": { "city": { "type":"string" },
+                  "street": { "type":"string" },       
+                  "building": { "type":"number",
+                                "minimum":1 }
+                },
+  "dependencies": { "street": ["building"]} }</pre>
+          </ul>
+	</li>
+	<li>validates well the objects
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","street":"Station","building":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "street":"Station","building":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","building":7}</pre>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 27 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "patternProperties" determines a syntax of key names in an object. A value associated with a "key patternProperties" is an object. The regular expressions can be used determine the valid names of the keys in a document. If a key "a" is equivalent to a key "A" then it van be represented by the following regular expression "^(a|A)".</p>
+    <br/>
+	<p>For example JSON schema</p>
+	<p>{ "type":"object",</p>
+	<p>"patternProperties": { "^(city|CITY)": { "type":"string" },</p>
+	<p>"^(street|STREET)": { "type":"string" },</p>
+	<p>"^(building|BUILDING)": { "type":"number",</p>
+	<p>"minimum":1 }</p>
+	<p>},</p>
+	<p>"additionalProperties":false }</p>
+	<p>}</p>
+	<br/>
+	<p>validates well the objects</p>
+	<p>{ "city":"Dapto","STREET":"Station","building":7}</p>
+	<p>{ "street":"Station","BUILDING":7}</p>
+	<p>{ "CITY":"Dapto","BUILDING":7}</p>
+	<p>It is because both uppercase and lowercase names of keys "street", "city" and "building" are allowed in JSON schema.</p>
+	<br/>
+	<p>{ }</p>
+	<p>It is because a default values associated with "requiredProperties"is [] and none of the properties is required.</p>
+	<br/>
+	<p>It does not validate well an object</p>
+	<p>{ "City":"Dapto","street":"Station"}</p>
+	<p>It is because a key "City" does not match a regular expression"^(city|CITY)" and a key "additionalProperties" is associated with a value false (no other keys apart from the keys matching the given regular expressions are allowed).</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Object</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>A key <strong class="green prettyprint28">patternProperties</strong> determines a syntax of key names in an object
+	<li>A value associated with a key <strong class="green prettyprint28">patternProperties</strong> is an object</li>
+	<li>For example <strong class="red">JSON schema</strong> 
+          <ul class="build">
+ 	    <pre class="prettyprint" data-lang="JSON schema">
+{ "type":"object",
+  "patternProperties": { "^(city|CITY)": { "type":"string" }, 
+                         "^(street|STREET)": { "type":"string" },       
+                         "^(building|BUILDING)": { "type":"number",
+                                                   "minimum":1 }
+                       },
+  "additionalProperties":false }
+}</pre>
+          </ul>
+	</li>
+	<li>validates well the objects
+	  <ul class="build">
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "city":"Dapto","STREET":"Station","building":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "street":"Station","BUILDING":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ "CITY":"Dapto","BUILDING":7}</pre>
+	     <pre class="prettyprint" data-lang="JSON object">
+{ }</pre>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 28 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16>Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a class="red" href="#28">Array</a></li>
+       <li><a href="#34">Combined schemas</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 29 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A type "array" determines a type of a respective value as array.</p>
+	<p>For example</p>
+	<p>{ "type":"array" }</p>
+	<p>validates well any array, like for example</p>
+	<p>array of numbers: [1, 2, 3, 4, 5, 6, 7]</p>
+    <br/>
+	<p>array of strings: ["ab", "cde", "efgh", "ijklm"]</p>
+	<br/>
+	<p>array of arrays of numbers: [ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]</p>
+	<br/>
+	<p>an empty array: [ ]</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Array</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>A type <strong class="green prettyprint28">array</strong> determines a type of a respective value as <strong class="blue">array</strong></li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Array type">
+	      
+{ "type":"array" }</pre>
+	  </ul>
+	</li>
+        <li>validates well any array, like for example
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Array of numbers">
+
+[1, 2, 3, 4, 5, 6, 7]</pre>
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+["ab", "cde", "efgh", "ijklm"]</pre>
+	    <pre class="prettyprint" data-lang="Array of arrays">
+
+[ [1, 2, 3], [4, 5, 6], [7, 8, 9] ]</pre>
+	    <pre class="prettyprint" data-lang="Empty array">
+
+[ ]</pre>
+          </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 30 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "items" determines a type of values in an array.</p>
+    <br/>
+	<p>For example</p>
+	<p>{ "type":"array",</p>
+	<p>"items": { "type":"string" }</p>
+	<p>}</p>
+	<p>validates well any array of strings, like for example</p>
+	<p>["ab", "cde", "ab", "ijklm"]</p>
+	<p>or</p>
+	<p>["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]</p>
+	<p>or empty array</p>
+	<p>[ ]</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Array</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>A key <strong class="green prettyprint28">items</strong> determines a type of values in an array</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Array type">
+	      
+{ "type":"array",
+  "items": { "type":"string" }
+}</pre>
+	  </ul>
+	</li>
+        <li>validates well any array of strings like
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+["ab", "cde", "ab", "ijklm"]</pre>
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]</pre>
+	    <pre class="prettyprint" data-lang="Empty array">
+
+[ ]</pre>
+          </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 31 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Tuple validation determines a type of values when an array is a collection of items, each item has a different schema, and position of each item is important. If a keyword "items" is associated with an array of types then each type in an array validates the respective data element in an array being validated.</p>
+    <br/>
+	<p>For example	</p>
+	<p>{ "type":"array",</p>
+	<p>"items": [ { "type":"string" },</p>
+	<p>{ "type":"number",</p>
+	<p>"minimum":1} ],</p>
+	<p>"additionalItems":false</p>
+	<p>}</p>
+	<br/>
+	<p>validates well any array of values like</p>
+	<p>["Station St.", 25]</p>
+	<p>It is becausethe first element in an array of types associated with a key "items" is of type "string" and the second element is of type "number".</p>
+	<br/>
+	<p>It also validates well and array of values like</p>
+	<p>["Victoria St."]</p>
+	<p>It is because the first element in an array of types associated with a key "items" is of type "string".</p>
+	<br/>
+	<p>It also validates well an empty array</p>
+	<p>[ ]</p>
+	<p>It is because none of the elements in an empty array break a validation determined by a tuple validation.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Array</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li><strong class="blue">Tuple validation</strong> determines a type of values when an array is a collection of items, each item has a different schema, and position of each item is important</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Array type with tuple validation">
+	      
+{ "type":"array",
+  "items": [ { "type":"string" },
+             { "type":"number",
+               "minimum":1} ],
+  "additionalItems":false
+}</pre>
+	  </ul>
+	</li>
+        <li>validates well any array of values like
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="A tuple">
+
+["Station St.", 25]</pre>
+	    <pre class="prettyprint" data-lang="Incomplete tuple">
+
+["Victoria St."]</pre>
+	    <pre class="prettyprint" data-lang="Empty tuple">
+
+[ ]</pre>
+          </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 32 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A key "uniqueItems" requires each item in an array to be unique (different).</p>
+    <br/>
+	<p>For example</p>
+	<p>{ "type":"array",</p>
+	<p>"items": { "type":"string" },</p>
+	<p>"uniqueItems":true</p>
+	<p>}</p>
+	<p>validates well any array of strings like</p>
+	<p>["ab", "cde", "efgh", "ijklm"]</p>
+	<p>It is because all elements an array are different and all of them are strings.</p>
+	<br/>
+	<p>or an array of strings like</p>
+	<p>[ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]</p>
+	<p>It is because all element n an array are different and all of them are strings.</p>
+	<br/>
+	<p>iI also validates well an empty array.</p>
+	<p>[ ]</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Array</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>A key <strong class="green prettyprint28">uniqueItems</strong> requires each item in an array to be unique</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Array type">
+	      
+{ "type":"array",
+  "items": { "type":"string" },
+  "uniqueItems":true
+}</pre>
+	  </ul>
+	</li>
+        <li>validates well any array of strings like
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+["ab", "cde", "efgh", "ijklm"]</pre>
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+[ "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" ]</pre>
+	    <pre class="prettyprint" data-lang="Empty array">
+
+[ ]</pre>
+          </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 33 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The keys "minItems" and "maxItems" determine a size of an array. An array must have at least the total number of elements equal to a number associated with a key "minItems". An array must have at most the total number of elements equal to a number associated with akey "maxItems".</p>
+    <br/>
+	<p>For example</p>
+	<p>{ "type":"array",</p>
+	<p>"items": { "type":"string" },</p>
+	<p>"uniqueItems":true,</p>
+	<p>"minItems":3,</p>
+	<p>"maxItems":5</p>
+	<p>}</p>
+	<p>validates well any array of strings like</p>
+	<p>["ab", "cde", "efgh", "ijklm"]</p>
+	<p>It is because all elements in an array are strings, all of them are different and an array contains 4 elements. It is more or equal 3 and less or equal 5.</p>
+	<br/>
+	<p>[ "0", "1", "2", "3", "4" ]</p>
+	<p>It is because all elements in an array are strings, all of them are different and an array contains 5 elements. It is more or equal 3 and less or equal 5.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Array</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>The keys <strong class="green prettyprint28">minItems</strong> and <strong class="green prettyprint28">maxItems</strong> determine a size of an array</li>
+	<li>For example
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Array type">
+	      
+{ "type":"array",
+  "items": { "type":"string" },
+  "uniqueItems":true,
+  "minItems":3,
+  "maxItems":5
+}</pre>
+	  </ul>
+	</li>
+        <li>validates well any array of strings like
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+["ab", "cde", "efgh", "ijklm"]</pre>
+	    <pre class="prettyprint" data-lang="Array of strings">
+
+[ "0", "1", "2", "3", "4" ]</pre>
+          </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 34 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">JSON Schema</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">JSON Schema ? What is it ?</a></li>
+       <li><a href="#4">Basics</a></li>
+       <li><a href="#7">Types</a></li>
+       <li><a href="#9">String</a></li>
+       <li><a href="#12">Numeric types</a></li>
+       <li><a href="#16">Boolean</a></li>
+       <li><a href="#18">Null</a></li> 
+       <li><a href="#20">Object</a></li>
+       <li><a href="#28">Array</a></li>
+       <li><a class="red" href="#34">Combined schemas</a></li>       
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 35 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The keys "anyOf", "allOff" and "oneOff" can be used to combine JSON Schemas together. Sometimes we may wish to say that an element is either of type "string or of type "Boolean".</p>
+    <br/>
+	<p>For example "anyOf" keyword can be used to validate JSON object against one or more of the given schemas. In such a case a keyword "anyOf" as associated with an array of well formed JSON schemas.</p>
+	<br/>
+	<p>For example</p>
+	<p>{ "anyOf": [ {"type":"string",</p>
+	<p>"maxLength":5},</p>
+	<p>{"type":"boolean"} ]</p>
+	<p>}</p>
+	<p>validates well the objects like strings up to 5 characters long or Boolean values true or false.</p>
+	<br/>
+	<p>It is because a key "anyOf" is associated with an array of two validation types: string with maximum length equal to 5 and Boolean.</p>
+    <br/>
+	<p>A key "anyOf" allows for representation of a union of overlapping types, see an example in the next slide.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Combined schemas</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>The keys <strong class="green prettyprint28">anyOf</strong>, <strong class="green prettyprint28">allOf</strong> and <strong class="green prettyprint28">oneOf</strong> can be used to combine <strong class="red">JSON Schemas </strong> together</li>
+	<li>For example <strong class="green prettyprint28">anyOf</strong> keyword can be used to validate <strong class="blue">JSON object</strong> against one or more of the given schemas
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Validation with anyOf">
+	      
+{ "anyOf": [ {"type":"string",
+              "maxLength":5},
+             {"type":"boolean"} ]
+}</pre>
+	  </ul>
+	</li>
+        <li>validates well the objects like strings up to 5 characters long or Boolean values <strong class="green prettyprint28">true</strong> or <strong class="green prettyprint28">false</strong></li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 36 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>For example "anyOf" keyword can be used to validate JSON object against one or more of the given schemas.</p>
+    <br/>
+	<p>For example, JSON schema</p>
+	<p>{ "anyOf": [ {"type":"string",</p>
+	<p>"maxLength":5},</p>
+	<p>{"type":"string",</p>
+	<p>"minLength":3} ]</p>
+	<p>}</p>
+	<p>validates well any string. It is because the first element</p>
+	<p>{"type":"string",</p>
+	<p>"maxLength":5}</p>
+	<p>validates well any string not longer than 5 characters including an empty string. While the second element validates well any string that is at least 3 characters long. A string that is 4 characters long is validated well by both schemas. It is all right because of a keyword "anyOf".</p>
+	<br/>
+	<p>If a keyword "oneOf" is used like in a case below</p>
+	<p>{ "oneOf": [ {"type":"string",</p>
+	<p>"maxLength":5},</p>
+	<p>{"type":"string",</p>
+	<p>"minLength":3} ]</p>
+	<p>}</p>
+	<p>then a string that is 4 characters long does not validated well with such JSON schema.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Combined schemas</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>For example <strong class="green prettyprint28">anyOf</strong> keyword can be used to validate <strong class="blue">JSON object</strong> against one or more of the given schemas
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Validation with anyOf">     
+{ "anyOf": [ {"type":"string",
+              "maxLength":5},
+             {"type":"string",
+              "minLength":3} ]
+}</pre>
+	  </ul>
+	</li>
+	<li>validates well any string</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 37 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The keys "anyOf", "allOf" and "oneOf" can be used to combine JSON Schemas together.</p>
+    <br/>
+	<p>For example, "allOf" keyword can be used to validate JSON object against all of the given schemas to express an intersection of types.</p>
+    <br/>
+	<p>For example, JSON schema</p>
+	<p>{ "allOf": [ {"type":"string",</p>
+	<p>"maxLength":5},</p>
+	<p>{"type":"string",</p>
+	<p>"minLength":3} ]</p>
+	<p>}</p>
+	<p>validates well any string no longer than 5 characters and no shorter than 3 characters.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Combined schemas</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>The keys <strong class="green prettyprint28">anyOf</strong>, <strong class="green prettyprint28">allOf</strong> and <strong class="green prettyprint28">oneOf</strong> can be used to combine <strong class="red">JSON Schemas </strong> together</li>
+	<li>For example <strong class="green prettyprint28">allOf</strong> keyword can be used to validate <strong class="blue">JSON object</strong> against all of the given schemas 
+	  <ul class="build">
+            <pre class="prettyprint" data-lang="Validation with allOf">
+	      
+{ "allOf": [ {"type":"string",
+              "maxLength":5},
+             {"type":"string",
+              "minLength":3} ]
+}</pre>
+	  </ul>
+	</li>
+	<li>validates well any string no longer than 5 characters and no shorter than 3 characters</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 38 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The keys "anyOf", "allOf" and "oneOf" can be used to combine JSON Schemas together.</p>
+    <br/>
+	<p>A keyword "oneOf" can be used to validate JSON object against exactly one of the given schemas.</p>
+    <br/>
+	<p>For example, JSON schema</p>
+	<p>{ "oneOf": [ {"type":"string",</p>
+	<p>"maxLength":5},</p>
+	<p>{"type":"string",</p>
+	<p>"minLength":3} ]</p>
+	<p>}</p>
+	<p>validates well either any string no longer than 5 characters or a string longer than 3 characters and a string 4 characters long does not validate well.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Combined schemas</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+       <li>The keys <strong class="green prettyprint28">anyOf</strong>, <strong class="green prettyprint28">allOf</strong> and <strong class="green prettyprint28">oneOf</strong> can be used to combine <strong class="red">JSON Schemas </strong> together</li>
+	<li>For example <strong class="green prettyprint28">oneOf</strong> keyword can be used to validate <strong class="blue">JSON object</strong> against exactly one of the given schemas 
+	  <ul class="build">
+             <pre class="prettyprint" data-lang="Validation with oneOf">     
+{ "oneOf": [ {"type":"string",
+              "maxLength":5},
+             {"type":"string",
+              "minLength":3} ]
+}</pre>
+	  </ul>
+	</li>
+	<li>validates well either any string no longer than 5 characters or a string longer than 3 characters and a string 4 characters long does not validate well</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 39 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><a href="https://protect-au.mimecast.com/s/OFdqCq71xxTmrZJqCEdktE?domain=json-schema.org">JSON Schema</a></li>
+        <li><a href="https://protect-au.mimecast.com/s/cPAMCr81kktLjE4gsjHIZG?domain=json-schema.org">Understanding JSON Schema</a></li>
+	<li><a href="https://protect-au.mimecast.com/s/uTPGCvl122HMgxrQf5gAfu?domain=docs.mongodb.com">MongoDB - JSON Schema validation</a></li>
+	<li><a href="https://protect-au.mimecast.com/s/Wf6vCwV1ppHYQKgBfxYVik?domain=docs.mongodb.com">MongoDB - $jsonSchema operator</li>	
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+
+  <slide class="backdrop"></slide>
+
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/m2xpCxngkkSr0kPYUg9yRL?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

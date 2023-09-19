@@ -1,0 +1,749 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/o15_CL7E99T51w80tq2MKn?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>13TransactionsInSQL</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Transactions In SQL</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#2">Dirty read phenomenon</a></li>
+	<li><a href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a href="#7">Phantom phenomenon</a></li>
+	<li><a href="#10">Isolation levels</a></li>
+	<li><a href="#12">Phenomena</a></li>
+	<li><a href="#14">Isolation levels versus phenomena</a></li>
+	<li><a href="#17">Setting isolation levels in ANSI SQL</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+      <aside class="note">
+      <section>
+    <p>Transaction processing in ANSI SQL is based on the different definitions of correctness from view and conflict serialziability. The correctness levels in transaction processing in ANSI SQL are based on the concepts of phenomena.</p>
+    <br/>
+	<p>We start from a "dirty read phenomenon". A dirty read phenomenon happens when a transaction reads uncommitted date created by a transcation that fails later on.</p>
+	<br/>
+	<p>In the present example Transaction 2 starts processing with SELECT statement:</p>
+	<p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+    <p>WHERE name = 'SALES';</p>
+	<br/>
+	<p>The result is 2000</p>
+	<br/>
+	<p>Then Transaction 1 increases a value of budget by 1000 for Sales department:</p>
+	<p>UPDATE DEPARTMENT</p>
+    <p>SET BUDGET = BUDGET + 1000</p>
+	<p>WHERE NAME = 'Sales';</p>
+	<br/>
+	<p>Then Transaction 2 process the same SELECT statement as before:</p>
+    <p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+	<p>WHERE name = 'SALES';</p>
+	<br/>
+	<p>The result is 3000.</p>
+    <br/>
+	<p>Finally Transaction 1 performs rollback. Hence the current value of budget for Sales department is 2000. A Transaction 2 is left with an incorrect value 3000. It is because a Transaction 2 was allowed to read uncommitted data.</p>
+	<br/>
+	</section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Dirty read phenomenon</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A transaction reads <strong class="red">uncommitted data</strong> created by a transaction that fails later on
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Dirty read phenomenon">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'SALES';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET BUDGET = BUDGET + 1000
+WHERE NAME = 'Sales';              </pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'SALES';</pre>
+<pre class="prettyprint">
+                                3000</pre>
+<pre class="prettyprint">
+  ROLLBACK;                        </pre>
+<pre class="prettyprint">
+                                ???</pre>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In this example Transaction 2 like before lists a budget of Sales department.</p>
+    <br/>
+	<p>Then Transaction 1 changes a budget of Sales department to 3000.</p>
+	<br/>
+	<p>Transaction 2 again lists a budget of Sales department. This time a value is still 2000 because Transaction 2 can not see updated and uncommitted data by Transaction 1. All tramnscations are allowed to read only committed data.</p>
+	<br/>
+	<p>A way how old data is preserved for a Transaction 2 depends on how the scheduler is implemented. One of the possible solutions is to keep a stack of versions of each data item with a timestamp when updated and when committed.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Reading only committed data</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Reading only committed data">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'SALES';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET BUDGET = BUDGET + 1000
+WHERE NAME = 'Sales';              </pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'SALES';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+<pre class="prettyprint">
+  ROLLBACK;                        </pre>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 05 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Dirty read phenomenon</a></li>
+	<li><a class="red" href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a href="#7">Phantom phenomenon</a></li>
+	<li><a href="#10">Isolation levels</a></li>
+	<li><a href="#12">Phenomena</a></li>
+	<li><a href="#14">Isolation levels versus phenomena</a></li>
+	<li><a href="#17">Setting isolation levels in ANSI SQL</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The next pehonomenon is a "non-repeatable read" phenomenon. In such case a transaction reads a data item many times and sometimes a value is different.</p>
+    <br/>
+	<p>Like before Transaction 2 starts from reading a budget of Sales department. A result is 2000.</p>
+	<br/>
+	<p>Next, Transaction 1 updates a budget of Sales department to 3000 and it commits an update. It means that now Transaction 1 is successfully completed and its results can be disclosed to other transactions with a danger of reading  dirty data.</p>
+	<br/>
+	<p>Transaction 2 reads again a budget of Sales department and this time a result is 3000.</p>
+	<br/>
+	<p>It means that another transcation updated a budget and successfully committed itself. Now, Transaction 2 has a dilemma: do we proghress with 3000 or do we check a values of budget of Sales department again ? Maybe in the mean time another transaction changed the value and it successfully committed itself.</p>
+    <br/>
+	<p>If the first value has been already used for the computations by Transaction 2 then using a different value later on makes the results of computations inconsistent.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Non-repeatable read phenomenon</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A transaction reads the <strong class="red">same data item few times</strong> and sometimes a data item has a <strong class="red">different value</strong>
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Non-repeatable read phenomenon">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'SALES';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET BUDGET = BUDGET + 1000
+WHERE NAME = 'Sales';              </pre>
+<pre class="prettyprint">
+COMMIT;                    </pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'SALES';</pre>
+<pre class="prettyprint">
+                                3000</pre>
+
+<pre class="prettyprint">
+                                ???</pre>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Dirty read phenomenon</a></li>
+	<li><a href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a class="red" href="#7">Phantom phenomenon</a></li>
+	<li><a href="#10">Isolation levels</a></li>
+	<li><a href="#12">Phenomena</a></li>
+	<li><a href="#14">Isolation levels versus phenomena</a></li>
+	<li><a href="#17">Setting isolation levels in ANSI SQL</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The phenomenon is called "phantom phenomenon". A transaction counts several time the total number of rows in the table and sometimes the total number of rows is different.</p>
+    <br/>
+	<p>In the present example, Transaction 2 starts from counting the total number of rows in a relational table DEPARTMENT. The total number of rows is 20.</p>
+	<br/>
+	<p>Next, Transaction 1 delete a row with information about Sales department and commits the deletion. </p>
+	<br/>
+	<p>Transaction 2 counts the total number of rows again and a resuilt is different from the previous one.</p>
+	<br/>
+	<p>A "phantom phenomenon" is differemnt from "non-repeatable read" phenomenon. It applies only to DELETE and INSERT operations perfromed by Transaction 1. UPDATE operation performed by Transaction 1 would never change the total number of rows in a relational table. It means that elimination of phantom phenomenon does not need any control of UPDATE statements perfromed by the transactions as UPDATE statements are not able to change the total number of rows in a relational table.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Phantom phenomenon</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A transaction <strong class="red">counts several times the total number of rows</strong> in the same table and sometimes the <strong class="red">total number of rows is different</strong>
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Phantom phenomenon">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT count(*)
+                                FROM DEPARTMENT</pre>
+<pre class="prettyprint">
+                                20</pre>
+<pre class="prettyprint">
+DELETE DEPARTMENT
+WHERE NAME = 'Sales';              </pre>
+<pre class="prettyprint">
+COMMIT;                    </pre>
+<pre class="prettyprint">
+                                SELECT count(*)
+                                FROM DEPARTMENT</pre>
+<pre class="prettyprint">
+                                19</pre>
+</ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A concurrent execution of database transactions that does not exhibit a "phantom phenomenon" is presented in the current slide.</p>
+    <br/>
+	<p>Transaction 2 counts the total number of rows in a relational table DEPARTMENT.</p>
+	<br/>
+	<p>Then, Transaction 1 deletes a row from a relational table DEPARTMENt and commits the deletion.</p>
+	<br/>
+	<p>Transaction 2 again count the total number of rows in a relational table DEPARTMENT. The result of counting is the same in the first attempt. It proves no phantom pehonomenon in this case.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">No phantoms</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>
+	  <ul class="build">
+<pre class="prettyprint" data-lang="No phantoms">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT count(*)
+                                FROM DEPARTMENT</pre>
+<pre class="prettyprint">
+                                20</pre>
+<pre class="prettyprint">
+DELETE DEPARTMENT
+WHERE NAME = 'Sales';              </pre>
+<pre class="prettyprint">
+COMMIT;                    </pre>
+<pre class="prettyprint">
+                                SELECT count(*)
+                                FROM DEPARTMENT</pre>
+<pre class="prettyprint">
+                                20</pre>
+</ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 10 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Dirty read phenomenon</a></li>
+	<li><a href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a href="#7">Phantom phenomenon</a></li>
+	<li><a class="red" href="#10">Isolation levels</a></li>
+	<li><a href="#12">Phenomena</a></li>
+	<li><a href="#14">Isolation levels versus phenomena</a></li>
+	<li><a href="#17">Setting isolation levels in ANSI SQL</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Isolation levels are equivalent to correctness levels of transaction processing in ANSI SQL standard. The standard provides four levels of isolation (correctness ) of concurrent processing of database transactions.</p>
+    <br/>
+	<p>Isolation levels are defined in terms of several possible phenomena or wird hard-to-explain occurrences of operations.</p>
+	
+	<p>ANSI SQL standard defines the following isolation levels:</p>
+	<p>READ UNCOMMITTED</p>
+	<p>READ COMMITTED</p>
+   	<p>REPEATABLE READ</p>
+	<p>SERIALIZABLE</p>
+	<br/>
+	<p>The lowest correctness level is READ UNCOMITTED isolation level. At READ UNCOMMITTED isolatin level the transactions are not controlled at. The highest correct ness level is SERIALIZABLE level. A serializable isolation level is equivalent to conflict serializability correctness criterion.</p>
+	<br/>
+	<p>Isolation levels are defined in trems of the already presented phenomena:</p>
+    <p>Dirty read phenomenon</p>
+	<p>Non-repeatable read phenomenon</p>
+	<p>Phantom phenomenon</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Isolation levels</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li>SQL provides four <strong class="red">levels of isolation</strong> for database transactions</li>
+		<li><strong class="red">Isolation levels </strong>are equivalent to correctness levels</li>
+	    <li><strong class="red">Isolation levels</strong> are defined in terms of several possible phenomena, or weird hard-to-explain occurrences of operations</li>
+	    <li>The following <strong class="red">isolation levels</strong> are defined in ANSI SQL
+	      <ul class="build">
+		<li><strong class="red">READ UNCOMMITTED</strong></li>
+		<li><strong class="red">READ COMMITTED</strong></li>
+		<li><strong class="red">REPEATABLE READ</strong></li>
+		<li><strong class="red">SERIALIZABLE</strong></li>
+	      </ul>
+	    </li>
+	    <li><strong class="red">Isolation levels</strong> are defined in the terms of so called <strong class="red">phenomena</strong></li>
+	    <li>The following <strong class="red">phenomena</strong> are considered
+	      <ul class="build">
+		<li><strong class="blue">Dirty read phenomenon</strong></li>
+		<li><strong class="blue">Non-repeatable read phenomenon</strong></li>
+		<li><strong class="blue">Phantom phenomenon</strong></li>
+	      </ul>
+	    </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 12 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Dirty read phenomenon</a></li>
+	<li><a href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a href="#7">Phantom phenomenon</a></li>
+	<li><a href="#10">Isolation levels</a></li>
+	<li><a class="red" href="#12">Phenomena</a></li>
+	<li><a href="#14">Isolation levels versus phenomena</a></li>
+	<li><a href="#17">Setting isolation levels in ANSI SQL</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>This slide summarizes the properties of phenomena presneted earier: dirty read phenomenon, on-repeatable read phenomenon, phantom phenomenon.</p>
+    <br/>
+	<p>Dirty read phenomenon happens when read operations of database transactions are allowed to access data written by uncommitted transactions (dirty data).</p>
+	<br/>
+	<p>Non-repeatable read phenomenon happens when different reads perfromed by the same tramsaction to the same data are not repeatable. Different reads of the same data items return dofferent results.</p>
+	<br/>
+	<p>Phantom pehonomenon happend when a set of rows that transaction reads once time might be different set of rows if the transaction reads the rows again.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Phenomena</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="blue">Dirty read phenomenon</strong>
+	  <ul class="build">
+	    <li>Read operations may access <strong class="blue">dirty data</strong>, i.e. data written by <strong class="red">uncommitted transactions</strong></li>
+	  </ul>
+	</li>
+	<li><strong class="blue">Non-repeatable read phenomenon</strong>
+	  <ul class="build">
+	    <li>Different reads by a single transaction to the <strong class="blue">same data will not be repeatable</strong>, i.e. they may return different values</li>
+	  </ul>
+	</li>
+	<li><strong class="blue">Phantom phenomenon</strong>
+	  <ul class="build">
+	    <li>A set of rows that transaction reads once might be a <strong class="blue">different set of rows</strong> if the transaction attempts to read them again</li>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 14 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Dirty read phenomenon</a></li>
+	<li><a href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a href="#7">Phantom phenomenon</a></li>
+	<li><a href="#10">Isolation levels</a></li>
+	<li><a href="#12">Phenomena</a></li>
+	<li><a class="red" href="#14">Isolation levels versus phenomena</a></li>
+	<li><a href="#17">Setting isolation levels in ANSI SQL</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>At read uncommitted level a transaction may experience dirty read phenomenon, non-repeatable read phenomenon and phantom phenomenon. It measn that execution of a transaction is not controlled at all. all data manipulation operations executed by the other transtactions have a direct impact on data read by a tranbsaction running at read uncommitted level.</p>
+    <br/>
+	<p>At read committed level a transaction may experience non-repeatable read phenomenon and phantom phenomenon. At read committed level a transaction reads only comitted data. It is possible that while a transaction is processed another transcation processes UDATE, DELETE, and INSERT statements on the same data items and its commits its operations. Then due to processing of UPDATE statement by another transaction a transcation may experience non-repetable read. Then due to processing of INSERT and DELETE statement by another transaction a transaction may expereince a phantom phenomenon.</p>
+	<br/>
+	<p>At repeatable read isolation level a transaction may experience only phantom phenomenon. At repeatable read isolation level processing of committed UPDATE statements by another transaction must not be visible to a transaction.</p>
+	<br/>
+	<p>At serializable isolation level a transaction may experience non of the phenomena. At serializable isolation level processing of committed UPDATE, DELETE, and INSERT statements is not visible to a transaction.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Isolation levels versus phenomena</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	   <li>At <strong class="red">READ UNCOMMITED</strong> isolation level a transaction may exhibit:
+		<ul class="build">
+		  <li><strong class="blue">dirty read phenomenon,</strong></li>
+		  <li><strong class="blue">non-repeatable read phenomenon,</strong></li>
+		  <li><strong class="blue">phantom phenomenon</strong></li>
+		</ul>
+	   </li>
+	   <li>At <strong class="red">READ COMMITED</strong> isolation level a transaction may exhibit:
+		<ul class="build">
+		  <li><strong class="blue">non-repeatable read phenomenon,</strong></li>
+		  <li><strong class="blue">phantom phenomenon</strong></li>
+		</ul>
+	   </li>	   
+	   <li>At <strong class="red">REPEATABLE READ</strong> isolation level a transaction may exhibit:
+	     <ul class="build">
+	       <li><strong class="blue">phantom phenomenon</strong></li>
+	     </ul>
+	   </li>
+	   <li>At <strong class="red">SERIALIZABLE </strong> isolation level a transaction may exhibit:
+	     <ul class="build">
+	       <li>none of the phenomena</li>
+	     </ul>
+	   </li>	   
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A table summarizes the condictions imposed on four isolation levels. </p>
+    <br/>
+	<p>In the first row all phenomena are possible for READ UNCOMMITTED isolation level.</p>
+	<br/>
+	<p>In the second row dirty read is not possible for READ COMMITTED isolation level.</p>
+	<br/>
+	<p>In the third row dirty read and non-rpeatable read are not possible for REPEATABLE READ isolation level.</p>
+	<br/>
+	<p>In the fourth row none of the pehenomen is possible fro SERIALIZABLE isolation level.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Isolation levels versus phenomena</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Isolation levels versus phenomena">
+	      
+Level               Dirty Read          Nonrepeatable Read          Phantom
+--------------------------------------------------------------------------------	      
+READ UNCOMMITTED    Possible            Possible                    Possible
+
+READ COMMITTED      not possible        Possible                    Possible
+
+REPEATABLE READ     not possible        not possible                Possible
+
+SERIALIZABLE        not possible        not possible                not possible</pre>
+</ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 17 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in ANSI SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Dirty read phenomenon</a></li>
+	<li><a href="#5">Non-repeatable read phenomenon</a></li>
+	<li><a href="#7">Phantom phenomenon</a></li>
+	<li><a href="#10">Isolation levels</a></li>
+	<li><a href="#12">Phenomena</a></li>
+	<li><a href="#14">Isolation levels versus phenomena</a></li>
+	<li><a class="red" href="#17">Setting isolation levels in ANSI SQL</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>SQL statement SET TRANSACTION ISOLATION LEVEL can be used to determine what isolation level (correctness level) is used fro processing of a transaction. </p>
+    <br/>
+	<p>The statement can be used with four parameters READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ and SERIALIZABLE.</p>
+	<br/>
+	<p>The statement must be the first statement in a transaction.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Setting isolation levels in ANSI SQL</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>
+	  <ul class="build">
+<pre class="prettyprint">SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;</pre>
+<pre class="prettyprint">SET TRANSACTION ISOLATION LEVEL READ COMMITTED;</pre>
+<pre class="prettyprint">SET TRANSACTION ISOLATION LEVEL REPEATABLE READ;</pre>
+<pre class="prettyprint">SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;</pre>
+
+</ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+  <slide>
+  <aside class="note">
+      <section>
+    <p></p>
+    <br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+    <br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+    <br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Elmasri R. and Navathe S. B., Fundamentals of Database Systems, Chapter 20.6 Transaction Support in SQL, 7th ed., The Pearson Education Ltd, 2017</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+<!--
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/owkGCMwG88tGZkmpiJE-HR?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+-->
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

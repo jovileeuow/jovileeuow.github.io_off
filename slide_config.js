@@ -1,7 +1,7 @@
 var SLIDE_CONFIG = {
   // Slide settings
   settings: {
-    title: 'Database Design Quality',
+    title: '',
     subtitle: '',
     //eventInfo: {
     //  title: 'Google I/O',

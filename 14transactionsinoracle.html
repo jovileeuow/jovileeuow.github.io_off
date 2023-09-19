@@ -1,0 +1,1144 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/58nOCRON66hPrxE9FNVqzc?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>14TransactionsInOracle</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Transactions In Oracle</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#2">Transaction scope</a></li>
+	<li><a href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a href="#6">Rollback/Undo segments</a></li>
+	<li><a href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a href="#10">Locking</a></li>
+	<li><a href="#14">READ COMMITTED isolation level</a></li>
+	<li><a href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+  <aside class="note">
+      <section>
+    <p>A start point for a database transaction in Oracle DBMS is determined by a connection point (it happens when a client connects to database server), COMMIT and ROLLBACK statements of the previous transaction.</p>
+    <br/>
+	<p>A transaction ends with either COMMIT, ROLLBACK, or DDL statements like CREATE, DROP, ALTER</p>
+	<br/>
+	<p>Transaction may also end with disconnection (auto-commit or auto-rollback depending on default or set up parameters) or process failure followed by automatic ROLLBACK statement.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Transaction scope</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li>Transaction starts from the first executable SQL statement after connection, <strong class="green prettyprint28">COMMIT</strong>, or <strong class="green prettyprint28">ROLLBACK</strong> statement</li>
+		<li>Transaction ends with either <strong class="green prettyprint28">COMMIT, ROLLBACK</strong>, or DDL statement <strong class="green prettyprint28">CREATE, DROP, ALTER</strong></li>
+		<li>Transaction also ends with disconnection (<strong class="blue">auto-commi</strong>t or <strong class="blue">auto-rollback</strong> depending on default or set up parameters) or process failure followed by automatic <strong class="green prettyprint28">ROLLBACK</strong> statement</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 04 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Transaction scope</a></li>
+	<li><a class="red" href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a href="#6">Rollback/Undo segments</a></li>
+	<li><a href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a href="#10">Locking</a></li>
+	<li><a href="#14">READ COMMITTED isolation level</a></li>
+	<li><a href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>In ANSI SQL standard a concept of "isolation level" is equivalent to a concept of "correctness level" in processing of database transactions. </p>
+    <br/>
+	<p>Oracle DBMS implements three isolation levels:</p>
+	<p>READ COMMITTED</p>
+	<p>SERIALIZABLE and</p>
+	<p>READ ONLY.</p>
+    <br/>
+	<p>Oracle DBMS does not implement READ UNCOMMITTED level.</p>
+	<br/>
+	<p>At READ COMMITTED isolation level a transaction may exhibit: non-repeatable read phenomenon and phantom phenomenon</p>
+	<br/>
+	<p>At SERIALIZABLE isolation level a transaction may exhibit none of the phenomena.</p>
+	<br/>
+	<p>At READ ONLY isolation level a transaction consists only of read operations.</p>
+    <br/>
+	<p>At READ COMMITTED isolation level all data read by a query (SELECT statement) come from a single point in time. It is also called as statement-level read consistency. It means that whenever SELECT statement is processed then none of the relational tables can be modified during the processing. However, a repetition of the same SELECT statement may operate on the modified relational tables contributing to non-repeatable read and phantom phenomenon.</p>
+	<br/>
+	<p>At SERIALIZABLE isolation level all queries (all SELECT statements) in a transaction read data that come from a single point in time. It is also called as transaction level read consistency. The same SELECT statement repeated many time always returns the same result.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Isolation levels and read consistency levels</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Oracle DBMS implements three <strong class="red">isolation levels</strong></li>
+	<li><strong class="blue">READ COMMITTED</strong> - a transaction may exhibit:
+	  <ul class="build">
+	    <li><strong class="blue">non-repeatable read phenomenon,</strong></li>
+	    <li><strong class="blue">phantom phenomenon</strong></li>
+	  </ul>
+	</li>
+	<li><strong class="blue">SERIALIZABLE</strong> - a transaction may exhibit:
+	  <ul class="build">
+	    <li>none of the phenomena</li>
+	  </ul>
+	</li>
+	<li><strong class="blue">READ ONLY</strong> - a transaction consists only of <strong class="green prettyprint28">read</strong> operations</li>
+	<li>At <strong class="blue">READ COMMITTED</strong> isolation level all data read by a query (<strong class="green prettyprint28">SELECT</strong> statement) come from a single point in time (<strong class="red">statement-level read consistency</strong>)</li>
+	<li>At <strong class="blue">SERIALIZABLE</strong> isolation level all queries (<strong class="green prettyprint28">SELECT</strong> statements) in a transaction read data that come from a single point in time (<strong class="red">transaction-level read consistency</strong>)</li>	
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 06 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Transaction scope</a></li>
+	<li><a href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a class="red" href="#6">Rollback/Undo segments</a></li>
+	<li><a href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a href="#10">Locking</a></li>
+	<li><a href="#14">READ COMMITTED isolation level</a></li>
+	<li><a href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>A concept of a segment is at physical level equivalent to a concept of relational table. At physical level, relational tables and indexes are called as segments. Whenever a relational table is changed, i.e. one of a data blocks is modified, the system saves an old data block in rollback/undo segment. Old value must be changed because it is still possible to process ROLLBACK operation by a database transaction.</p>
+    <br/>
+	<p>Rollback/undo segments consist of data blocks that contain the old values of data that have been changed by the uncommitted or recently committed transactions.</p>
+	<br/>
+	<p>Each time a row in a data a block is changed a new version of the block together with a timestamp is added to a rollback/undo segment. If a data block has been already changed and added to a rollback/undo segment then such old version is preserved and a new version is added "on top" of the old version with a timestamp large then a timestamp of the old version.</p>
+	<br/>
+	<p>It is always such that a new version of the same data data block obtains a timestamp higher than the previous version of the same data block.</p>
+	<br/>
+	<p>After intensive updates, a data block may have many versions updated in the different moments in time.</p>
+    <br/>
+	<p>Such case is visualized at the bottom of a slide where the data blocks t0 and t1 have two versions with timestamps t2 >t0 and t3 > t1.</p>
+	<br/>
+	<p>Then assume that a transaction with a timestamp ti must read a given sequence of the blocks. If t2 and t3 are greater than ti and ti > t0 and t1 then a transaction cannot read the data blocks stamped with t2 and t3. Instead a transaction reads the older versions of the data  blocks stamped with t0 and t1.</p>
+	<br/>
+	<p>So, in theory each transaction can always find the versions of data blocks with the highest timestamps lower than a transaction's timestamp. In practice the new versions of data blocks cannot be added in an unlimited way. One of database systems initialization parameters determines the maximum "height" of a stack of different version of a data block. If a new block must be added the maxim hight would be exceeded the oldest block (a block with the lowest timestamp) is removed from a stack.</p>
+	<br/>
+	<p>Hence, theoretically it may happen that a transaction that processed for a long time needs to access a data block that has been already removed from a stack of the versions. Then, such transaction is aborted, rolled back the submitted again. The height of a stack of versions must be carefully select such that the long running transactions are never aborted and such that not a lot of persistent storage is kept on the versions with too old timestamps to be used at least one time.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Rollback/undo segments</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Rollback/undo segments </strong>consist of data blocks that contain the old values of data that have been changed by the uncommitted or recently committed transactions</li>
+	<li>Each time a row in a data a block is changed a new version of the block together with a <strong class="blue">timestamp</strong> is added to <strong class="red">rollback/undo segment</strong><li>
+	<li>A new version of a data block obtains a <strong class="blue">timestamp</strong> higher than the previous version</li>
+	<li>A data block may have many versions updated in the different moments in time</li>
+	<li>See below the data blocks read by a transaction <strong class="green prettyprint28">T</strong> with a timestamp <strong class="red">t<sub class="subscript">i</sub></strong>  such that <strong class="red">t<sub class="subscript">2</sub> , t<sub class="subscript">3</sub> > t<sub class="subscript">i</sub> > t<sub class="subscript">0</sub> , t<sub class="subscript">1</sub></strong></li>
+	<p style="text-align:center;"><img src="images/rollback.png" width="800" height="200" alt="ORM" title="ORM"></p>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 08 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Transaction scope</a></li>
+	<li><a href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a href="#6">Rollback/Undo segments</a></li>
+	<li><a class="red" href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a href="#10">Locking</a></li>
+	<li><a href="#14">READ COMMITTED isolation level</a></li>
+	<li><a href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>An interesting question is what is a difference between Oracle's READ COMMITTED and SERIALIZABLE levels ? </p>
+    <br/>
+	<p>At READ COMMITTED isolation level each query executes with respect to its own materialized view time, thereby permitting non-repeatable reads and phantoms for multiple executions of a query. An abstract materialized view is created when the system starts processing of SELECT statement. The contents of all relational tables use for such materialized view comes from a single moment in time. If the same SELECT statement is processed few moments later then a new abstract materialized view is created for the second SELECT statement. Of course, the second materialized view can be different from the first one due to modification of its base tables. It is why non-repeatable reads and phantoms may happen when a transaction is running at READ COMMITTED isolation level.</p>
+	<br/>
+	<p>READ COMMITTED isolation level is recommended when few transactions are likely to conflict. Then the chances for non-repeatable read or phantom phenomenon are are lower when more transactions operate on a small amount of data.</p>
+	<br/>
+	<p>On the other hand when a transaction is running at SERIALIZABLE level then non-repeatable read and phantom phenomenon do not happen. It is because all SELECT statement processed by a database transaction act on a single state of entire database. In an abstract view of such situation a materialized view created when a transaction starts cover an entire database. Of course, in the reality a transaction running at SERIALIZABLE isolation level cannot block access to entire database. It is why the other transactions are allowed to perform a modification to a database and in exceptional situation when conflict serializability cannot be longer supper a transaction running at SERIALIZABLE isolation level must be aborted and rolled back.</p>
+	<br/>
+	<p>A transaction running at SERIALIZABLE isolation level is aborted and rolled back in the following situation:</p>
+	<p>If a transaction T running at SERIALIZABLE isolation level tries to update or delete data modified by a transaction that commits after the serializable transaction T began then the system aborts transaction T.</p>
+	<br/>
+	<p>Such situation may happen when a transaction T started and after some time tries to update a data item x. Then it may happen that a data items x has been already modified by another uncommitted yet transaction T'. Then a transaction T cannot modify x because it does not know if modification done by T' will succeed or not. Then a transaction T must wait for access to x. if T' fails to commit itself then it is rolled back and T can access an original value of x. If T' commits a modification of x then T would read data updated an committed after T started, i.e. T would run at READ COMMITTED level. If T runs at SERIALIZABLE level such situation is unacceptable and a transaction T is aborted an rolled back.</p>
+	<br/>
+	<p>If a transaction running at SERIALIZABLE level fails then it is possible to:</p>
+	<p>commit the work executed to that point,</p>
+	<p>execute additional (but different) statements,</p>
+	<p>rollback the entire transaction (what is selected in the majority of cases).</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED versus SERIALIZABLE levels</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li>At <strong class="blue">READ COMMITTED</strong> isolation level each query executes with respect to its own materialized view time, thereby permitting nonrepeatable reads and phantoms for multiple executions of a query</li>
+	    <li><strong class="blue">READ COMMITTED</strong> isolation level is recommended when few transactions are likely to conflict</li>
+	    <li>If a transaction <strong class="green prettyprint28">T</strong> running at <strong class="blue">SERIALIZABLE</strong> isolation level tries to update or delete data modified by a transaction that commits after the serializable transaction <strong class="green prettyprint28">T</strong> began then the system aborts transaction <strong class="green prettyprint28">T</strong></li>
+	    <li>If a serializable transaction fails then it is possible to:
+	      <ul class="build">
+		<li>commit the work executed to that point,</li>
+		<li>execute additional (but different) statements,</li>
+		<li>rollback the entire transaction</li>
+	      </ul>
+	   </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 10 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Transaction scope</a></li>
+	<li><a href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a href="#6">Rollback/Undo segments</a></li>
+	<li><a href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a class="red" href="#10">Locking</a></li>
+	<li><a href="#14">READ COMMITTED isolation level</a></li>
+	<li><a href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>To block access to data items modified by uncommitted transactions Oracle used a mechanism of locking. Locking is performed automatically by the system.</p>
+    <br/>
+	<p>It is also possible to lock data items manually. It applies to locking of entire relational table. Locking of entire relational table can be used only in very special situations whene there is no other solution to a concurrency control problem.</p>
+	<br/>
+	<p>The system uses two types of locks: shared locks also called as read locks and exclusive locks also called as write locks.</p>
+	<br/>
+	<p>All inserted, updated and delete rows are automatically and exclusively locked by the system. A transaction that performed the data manipulation operations on a row keeps the locks on such rows.</p>
+	<br/>
+	<p>The locks kept by a transaction are automatically released when the transaction either commits or rollbacks.</p>
+    <br/>
+	<p>The system automatically converts a lock of lower restrictiveness to one of higher restrictiveness when it is appropriate.  For example, SELECT statement with FOR UPDATE clause initially locks the rows in shared mode, then when UPDATE is performed the locks are upgraded to exclusive locks.</p>
+	<br/>
+	<p>For example</p>
+	<p>SELECT * </p>
+	<p>FROM EMPLOYEE</p>
+	<p>WHERE enumber IN (007, 008, 009) FOR UPDATE;</p>
+	<br/>
+	<p>Initially the selected rows are locked in shared mode. Then after processing of the following UPDATE statements:</p>
+	<p>UPDATE EMPLOYEE</p>
+	<p>SET salary = salary + 100</p>
+	<p>WHERE enumber = 007;</p>
+	<br/>
+	<p>UPDATE EMPLOYEE</p>
+	<p>SET salary = salary + 100</p>
+	<p>WHERE enumber = 008;</p>
+	<br/>
+	<p>UPDATE EMPLOYEE</p>
+	<p>SET salary = salary + 100</p>
+	<p>WHERE enumber = 009;</p>
+	<p>forces the system to upgrade the locks to exclusive mode.</p>
+	<br/>
+	<p>Processing of SELECT statement with FOR UPDATE clause allows fro faster processing of UPDATE statement. The selected rows are saved in a transient memory and updated there. It is a very typical solution in interactive applications when a row is displayed to a user who decides if the row should be updated or not. Then there is no need to repeat search of a given row whenever it supposed to be updated.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Locking</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li><strong class="red">Locking</strong> is performed automatically by the system</li>
+	    <li>It is also possible to lock data items manually</li>
+	    <li>There are two types of locks:
+	      <ul class="build">
+		<li><strong class="red">shared</strong> (read locks),</li>
+		<li><strong class="red">exclusive</strong> (write locks)</li>
+	      </ul>
+	    </li>
+	    <li>A transaction holds <strong class="red">exclusive row locks</strong> for all rows <strong class="blue">inserted</strong>, <strong class="blue">updated</strong>, or <strong class="blue">deleted</strong> within the transaction</li>
+	    <li>The system releases all locks acquired by a transaction when the transaction either <strong class="blue">commits</strong> or <strong class="blue">rollbacks</strong></li>
+	    <li>The system automatically converts a lock of <strong class="red">lower restrictiveness</strong> to one of <strong class="red">higher restrictiveness</strong> when it is appropriate</li>
+	    <li>For example, <strong class="green prettyprint28">SELECT</strong> statement with <strong class="green prettyprint28">FOR UPDATE</strong> clause initially locks the rows in <strong class="red">shared mode</strong>, then when <strong class="green prettyprint28">UPDATE</strong> is performed the locks are upgraded to <strong class="red">exclusive locks</strong></li>    
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>In Oracle locking is performed at row-level. The older DBMSs performed locking at a level of entire data block.</p>
+    <br/>
+	<p>Both READ COMMITTED and SERIALIZABLE transactions in Oracle use row-level locking mechanism to ensure database consistency.</p>
+	<br/>
+	<p>If a transaction must wait if  it tries to modify a row changed/inserted/deleted by another uncommitted transaction.</p>
+	<br/>
+	<p>If a transaction rollbacks then the waiting transactions regardless of its isolation mode can proceed to change the previously locked row.</p>
+	<br/>
+	<p>If a transaction commits than any other transaction at READ COMMITTED level waiting for a locked row can proceed to change the previously locked row.</p>
+    <br/>
+	<p>If a transaction commits than any other transaction at SERIALIZABLE level waiting for a locked row fails with the error "Cannot serialize access", because the other transaction has committed a change that was made since the serializable transaction began.  It is why all data in a database cannot come from a single point in time.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Locking</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li>Both <strong class="blue">READ COMMITTED</strong> and <strong class="blue">SERIALIZABLE</strong> transactions use row-level locking to ensure
+database consistency</li>
+	    <li>A transaction must wait if it tries to change a row updated by an uncommitted transaction</li>
+	    <li>If a transaction rollbacks then the waiting transactions regardless of its isolation mode can proceed to change the previously locked row</li>
+	    <li>If a transaction commits than any other transaction at <strong class="blue">READ COMMITTED</strong> level waiting for a locked row can proceed to change the previously locked row</li>
+	    <li>If a transaction commits than any other transaction at <strong class="blue">SERIALIZABLE</strong> level waiting for a locked row fails with the error "Cannot serialize access", because the other transaction has committed a change that was made since the serializable transaction began</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Every transaction managemetn system that uses locking mechanisms suffers from deadlock. A deadlock may occurs when two or more users are waiting for data locked by each other.</p>
+    <br/>
+	<p>Oracle automatically detects a deadlock of two transactions and rolls back one of the statements involved in the deadlock. A sample concurrent processing that leads to a deadlock is presented in the Cookbook, Recipe 8.3, Step 4.</p>
+	<br/>
+	<p>As it has been mentioned earlier it is possible to perform manual locking of entire relational table with LOCK TABLE statement.</p>
+	<br/>
+	<p>In a general case locking entire relational table frequently used by database transactions is a "crime".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">Locking</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">deadlock</strong> occurs when two or more users are waiting for data locked by each other</li>
+	<li>The system automatically detects a <strong class="red">deadlock</strong> and rolls back one of the statements involved in the deadlock</li>
+        <li>It is possible to perform <strong class="red">manual locking</strong> of entire relational table with <strong class="green prettyprint28">LOCK TABLE</strong> statement</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 14 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Transaction scope</a></li>
+	<li><a href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a href="#6">Rollback/Undo segments</a></li>
+	<li><a href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a href="#10">Locking</a></li>
+	<li><a class="red" href="#14">READ COMMITTED isolation level</a></li>
+	<li><a href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>In this section of the current presentations we shall first look at a number of concurrent executions of database transactions running at READ COMMITTED isolation level.</p>
+    <br/>
+	<p>An isolation level READ COMMITTED is performed the beginning of a transaction with the following statement:</p>
+	<br/>
+	<p>SET TRANSACTION ISOLATION LEVEL READ COMMITTED;</p>
+	<br/>
+	<p>The statement must be processed as the first statement of a transaction.</p>
+	<br/>
+	<p>As we mentioned before a transaction running at READ COMMITTED isolation level processes each query with the respect to a query own materialized view time. It means that the same SELECT statement may return different results when it is processed several time. Hence, READ COMMITTED isolation level permits for non-repeatable reads and phantoms for multiple processing of the same query.</p>
+    <br/>
+	<p>READ COMMITTED isolation level is recommended when few transactions are likely to conflict.</p>
+	<br/>
+	<p>READ COMMITTED is a default isolation level when a transaction is started without processing SET TRANSACTION ISOLATION LEVEL statement.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Setting <strong class="blue">READ COMMITTED</strong> <strong class="red">isolation level</strong> is performed at the beginning of  transaction with the following statement
+	  <ul>
+	    <pre class="prettyprint">SET TRANSACTION ISOLATION LEVEL READ COMMITTED;</pre>
+	  </ul>
+	</li>
+	<li>At <strong class="blue">READ COMMITTED</strong> isolation level each query executes with the respect to its own materialized view time, thereby permitting <strong class="red">nonrepeatable reads</strong> and <strong class="red">phantoms</strong> for multiple processing of the same  query</li>
+	<li><strong class="blue">READ COMMITTED</strong> isolation level is recommended when few transactions are likely to conflict</li>
+        <li><strong class="blue">READ COMMITTED</strong> is a default isolation level</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide presents a concurrent execution of database transactions both running at READ COMMITTED isolation level.</p>
+    <br/>
+	<p>A concurrent execution starts from Transaction 2 finding a budget of a department Sales.</p>
+	<p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+	<p>WHERE name = 'Sales';</p>
+	<p>The result is 2000</p>
+	<br/>
+	<p>Next, Transaction 1 updates a budget of department Sakes.</p>
+	<p>UPDATE DEPARTMENT</p>
+	<p>SET budget = budget + 1000</p>
+	<p>WHERE NAME = 'Sales';</p>
+	<br/>
+	<p>Next, Transaction 1 finds a budget of department Sales again.</p>
+	<p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+	<p>WHERE name = 'Sales';</p>
+	<br/>
+	<p>The result is again 2000 because UPDATE performed by Transaction 1 is still not committed. If Transaction 2 runs at READ COMMITTED isolation level then it cannot "see" not comitted data.</p>
+	<br/>
+	<p>Note, that despite an exclusive lock on a row UPDATED by Transaction 1 access to its earlier version is still possible for Transaction 2. An important property of the protocol implemented by Oracle DBMS is such that read operation never wait fro release of a lock. It is a transaction can always find an older version of a data item appropriate for the transaction.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Sample concurrent execution of database transactions at <strong class="blue">READ COMMITTED</strong> isolation level that <strong class="green">does not corrupt</strong> a database
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Concurrent execution of database transactions at READ COMMITTED isolation level">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = budget + 1000
+WHERE NAME = 'Sales';              </pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM DEPARTMENT
+                                WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+	  </ul>
+	</li>
+	<li><strong class="red">Transaction 2</strong> cannot read uncommitted modifications</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide presents a concurrent execution of database transactions both running at READ COMMITTED isolation level.</p>
+    <br/>
+	<p>A concurrent execution starts from Transaction 2 finding a budget of a department Sales.</p>
+	<p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+	<p>WHERE name = 'Sales';</p>
+	<p>The result is 2000</p>
+	<br/>
+	<p>Next, Transaction 1 updates a budget of department Sales and it immediately commits the UPDATE.</p>
+	<p>UPDATE DEPARTMENT</p>
+	<p>SET budget = budget + 1000</p>
+	<p>WHERE NAME = 'Sales';</p>
+	<br/>
+	<p>Next, Transaction 1 finds a budget of department Sales again.</p>
+	<p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+	<p>WHERE name = 'Sales';</p>
+	<br/>
+	<p>The result is 3000 because UPDATE performed by Transaction 1 has been committed. If Transaction 2 runs at READ COMMITTED isolation level then it can see all committed data. It is a nice example of non-repeatable read performed by Transaction 2.</p>
+    <br/>
+	<p>Note, that COMMIT operation processed by Transaction 1 removes and exclusive lock on the update row such that Transaction 2 can access it in the second SELECT statement.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Sample concurrent execution of database transactions at <strong class="blue">READ COMMITTED</strong> isolation level that <strong class="green">does not corrupt</strong> a database
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Concurrent execution of database transactions at READ COMMITTED isolation level">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM Department
+                                WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+                                2000</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = budget + 1000
+WHERE name = 'Sales';              </pre>
+<pre class="prettyprint">
+COMMIT;                    </pre>
+<pre class="prettyprint">
+                                SELECT budget
+                                FROM Department
+                                WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+                                3000</pre>
+
+	  </ul>
+	</li>
+	<li><strong class="red">Transaction 2</strong> can only read committed modifications</li>	
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide presents a concurrent execution of database transactions both running at READ COMMITTED isolation level.</p>
+	<p>The sample concurrent processing at READ COMMITTED level does not corrupt a database.</p>
+	<br/>
+	<p>A concurrent execution starts from Transaction 1 finding a budget of a department Sales.</p>
+	<p>SELECT budget</p>
+	<p>FROM DEPARTMENT</p>
+	<p>WHERE name = 'Sales';</p>
+	<p>The result is 3000</p>
+	<br/>
+	<p>Then, Transaction 2 update a budget of department Sales with a statement:</p>
+	<p>UPDATE DEPARTMENT</p>
+	<p>SET budget = budget + 10</p>
+	<p>WHERE name = 'Sales';</p>
+	<br/>
+	<p>UPDATE statement is processed and its result s cannot be revealed to other transactions because it is not committed yet.</p>
+	<br/>
+	<p>Next, Transaction 1 attempts to update a budget of Sales department.</p>
+	<p>UPDATE DEPARTMENT</p>
+	<p>SET budget = budget + 1000</p>
+	<p>WHERE name = 'Sales';</p>
+	<br/>
+	<p>A row with a value of budget of Sales department has been already locked in exclusive mode by Transaction 2. Therefore, Transaction 1 cannot get access to the same row and it must wait until Transaction 2 either commits or rolls back.</p>
+    <br/>
+	<p>Next, Transaction 2 commits its update and releases an exclusive lock on a row with a value of budget of department Sales.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Sample concurrent execution of database transactions at <strong class="blue">READ COMMITTED</strong> isolation level that <strong class="green">does not corrupt</strong>t a database
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Concurrent execution of database transactions at READ COMMITTED isolation level">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+SELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+3000</pre>
+<pre class="prettyprint">
+                                UPDATE DEPARTMENT
+                                SET budget = budget + 10
+                                WHERE name = 'Sales';              </pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = budget + 1000
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+ Wait</pre>
+ <pre class="prettyprint">
+                               COMMIT;</pre>
+<pre class="prettyprint">
+SELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+4010</pre>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide shows a concurrent execution of database transactions both running at READ COMMITTED level and such that one of them must wait for a lock on an item earlier accessed in exclusive mode bye the other one.</p>
+    <br/>
+	<p>Transaction 1 starts from listing a value of budget of Sales department. The value is equal to 3000.</p>
+	<br/>
+	<p>Next Transaction 2 increases a value of budget of Sales department by 10. Note that a row with such value is exclusively locked and UPDATE statement is not committed yet.</p>
+	<br/>
+	<p>Next Transaction 1 attempts to update a value of budget of Sales department by 1000. A row with the value is locked in exclusive mode by Transaction 1 and Transaction 2 must wait. It is a direct consequence of processing a transaction at READ COMMITTED level. A transaction cannot read not committed data.</p>
+	<br/>
+	<p>While Transaction 1 is waiting Transaction 2 commits its modification of a budget of Sales department performed earlier. A lock on a row is released and Transaction 2 can process its update.</p>
+    <br/>
+	<p>Transaction 2 updates a row with a budget of Sales department and lists a value of a budget of Sales department. A value is 3000 + 10m + 1000 = 4100.  Transaction 1 can "see" a committed update performed by Transaction2  and obviously it can see still not committed update performed by itself.</p>
+	<br/>
+	<p>In the current example Transaction 1 must wait until Transaction 2 either commits or rolls back its update.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+	<li>
+	  <ul>
+<pre class="prettyprint" data-lang="Execution at READ COMMITTED isolation level">
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+SELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+3000</pre>
+<pre class="prettyprint">
+                                UPDATE DEPARTMENT
+                                SET budget = budget + 10
+                                WHERE name = 'Sales';              </pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = budget + 1000
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+ Wait</pre>
+ <pre class="prettyprint">
+                               COMMIT;</pre>
+<pre class="prettyprint">
+SELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+4010</pre>
+	  </ul>
+	</li>
+	<li><strong class="red">Transaction 1</strong> must <strong class="red">wait</strong> until <strong class="red">Transaction 2</strong> either commits or rolls back its update</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide shows a concurrent execution of database transactions both running at READ COMMITTED level and such that one of them must wait for a lock on an item earlier accessed in exclusive mode bye the other one. The execution is different from the previous one because Transaction 2 rolls back its modification of a value of budget of Sales department.</p>
+    <br/>
+	<p>Transaction 1 starts from listing a value of budget of Sales department. The value is equal to 3000.</p>
+	<br/>
+	<p>Next Transaction 2 increases a value of budget of Sales department by 10. Note that a row with such value is exclusively locked and UPDATE statement is not committed yet.</p>
+	<br/>
+	<p>Next Transaction 1 attempts to update a value of budget of Sales department by 1000. A row with the value is locked in exclusive mode by Transaction 1 and Transaction 2 must wait. It is a direct consequence of processing a transaction at READ COMMITTED level. A transaction cannot read not committed data.</p>
+	<br/>
+	<p>While Transaction 1 is waiting Transaction 2 rolls back its modification of a budget of Sales department performed earlier. A lock on a row is released and Transaction 2 can process its update.</p>
+    <br/>
+	<p>Transaction 2 updates a row with a budget of Sales department and lists a value of a budget of Sales department. A value is 3000 + 1000 = 4000.  An update performed by Transaction2  is rilled back and Transaction 1 can only see still not committed update performed by itself.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Sample concurrent execution of database transactions at <strong class="blue">READ COMMITTED</strong> isolation level that <strong class="green">does not corrupt</strong> a database
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Execution at READ COMMITTED isolation level">
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+SSELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+ 3000</pre>
+<pre class="prettyprint">
+                                UPDATE DEPARTMENT
+                                SET budget = budget + 10        
+                                WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT                  
+SET budget = budget + 1000
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+Wait                                 </pre>
+<pre class="prettyprint">
+                               ROLLBACK;</pre>
+<pre class="prettyprint">
+SELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+4000</pre>
+</ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 21 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide shows a concurrent execution of database transactions both running at READ COMMITTED level and such that one of them must wait for a lock on an item earlier accessed in exclusive mode bye the other one. The execution is different from the previous one because Transaction 2 rolls back its modification of a value of budget of Sales department.</p>
+    <br/>
+	<p>Transaction 1 starts from listing a value of budget of Sales department. The value is equal to 3000.</p>
+	<br/>
+	<p>Next Transaction 2 increases a value of budget of Sales department by 10. Note that a row with such value is exclusively locked and UPDATE statement is not committed yet.</p>
+	<br/>
+	<p>Next Transaction 1 attempts to update a value of budget of Sales department by 1000. A row with the value is locked in exclusive mode by Transaction 1 and Transaction 2 must wait. It is a direct consequence of processing a transaction at READ COMMITTED level. A transaction cannot read not committed data.</p>
+	<br/>
+	<p>While Transaction 1 is waiting Transaction 2 rolls back its modification of a budget of Sales department performed earlier. A lock on a row is released and Transaction 2 can process its update.</p>
+    <br/>
+	<p>Transaction 2 updates a row with a budget of Sales department and lists a value of a budget of Sales department. A value is 3000 + 1000 = 4000.  An update performed by Transaction2  is rilled back and Transaction 1 can only see still not committed update performed by itself.</p>
+	<br/>
+	<p>In the current example Transaction 1 must wait until Transaction 2 either commits or rolls back its update.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+	<li>
+	  <ul>
+<pre class="prettyprint" data-lang="Execution at READ COMMITTED isolation level">
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+SSELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+ 3000</pre>
+<pre class="prettyprint">
+                                UPDATE DEPARTMENT
+                                SET budget = budget + 10        
+                                WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT                  
+SET budget = budget + 1000
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+Wait                                 </pre>
+<pre class="prettyprint">
+                               ROLLBACK;</pre>
+<pre class="prettyprint">
+SELECT budget
+FROM DEPARTMENT
+WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+4000</pre>
+</ul>
+	</li>
+	<li><strong class="red">Transaction 1</strong> must <strong class="red">wait</strong> until <strong class="red">Transaction 2</strong> either commits or rolls back its update</li>	
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 22 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide presents a concurrent execution of two transactions running READ COMMITTED isolation level that corrupts a database</p>
+    <br/>
+	<p>Transaction 1 modifies a budget of department Finance to the same value as a budget of department Sales.</p>
+	<br/>
+	<p>Next, Transaction 2 changes a budget of department Sales to 500 and commit the modification.</p>
+	<br/>
+	<p>Next, Transaction 1 finds the current budget of department Sales recently updated and committed by Transaction 2 and adds such budget to a budget of a department Finance.</p>
+	<br/>
+	<p>Finally Transaction 1 commits the latest modification of a budget of department Finance.</p>
+    <br/>
+	<p>Transaction 1 corrupts a database, because a budget of department Finance is not equal to 2 * budget of department Sales.</p>
+	<br/>
+	<p>Assume that a budget of department Sales is 100. Then, the first UPDATE performed by a Transaction 1 set a value of budget of department Finance to 100.</p>
+	<br/>
+	<p>Then Transaction 2 updates a value of department Sales to 500 and commits the modification.</p>
+	<br/>
+	<p>Next Transaction T1 reads a new value of a budget of department Sales (it runs at READ COMMITTED isolation level so it can "see" a modification performed by Transaction2 a moment ago) and adds 500 to the current budget of department Finance (it is equal to 100 dues to the first UPDATE performed by Transaction 1). A value of budget of department Finance is set to 100 + 500 = 600.</p>
+    <br/>
+	<p>A concurrent execution visualized on the present slide is not view serializable. The final value of budget of department Finance equal to 600 cannot be reached by any of two serial executions Transaction 1 before Transaction 2 or Transaction 2 before Transaction 1.</p>
+	<br/>
+	<p>If Transaction 1 runs before Transaction 2 then a value of budget of department Finance must be 100 + 100 = 200.</p>
+	<br/>
+	<p>If Transaction 2 runs before Transaction 1 then a value of budget of department Finance must be 500 + 500 = 1000.</p>
+	<br/>
+	<p>None of two possible serial executions does not bring a state of a database to a value of budget of department Finance equal to 600.</p>
+	<br/>
+	<p>The example show that a statement level consistent is not sufficient to have a correct (view serialzable) concurrent execution every possible time.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">READ COMMITTED isolation level</strong></h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>A sample execution of database transactions at <strong class="blue">READ COMMITTED</strong> isolation level that <strong class="red">corrupts</strong> a database
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Execution at READ COMMITTED isolation level">
+
+  Transaction 1                                   Transaction 2</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = (SELECT budget
+              FROM DEPARTMENT
+              WHERE name = 'Sales')
+WHERE name = 'Finance';</pre>
+<pre class="prettyprint">
+                                                 UPDATE DEPARTMENT
+                                                 SET budget = 500
+                                                 WHERE name = 'Sales';
+                                                 COMMIT;</pre>
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = budget + (SELECT budget
+                       FROM DEPARMENT
+                       WHERE name = 'Sales')
+WHERE name = 'Finance';
+COMMIT;</pre>
+</ul>
+	</li>
+	<li><strong class="red">Transaction 1</strong> corrupts a database, because a budget of department <strong class="green prettyprint28">Finance</strong> is not equal to 2 * budget of department <strong class="green prettyprint28">Sales</strong></li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 23 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Transaction Processing in Oracle DBMS</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Transaction scope</a></li>
+	<li><a href="#4">Isolation levels and read consistency levels</a></li>
+	<li><a href="#6">Rollback/Undo segments</a></li>
+	<li><a href="#8">READ COMMITTED versus SERIALIZABLE levels</a></li>
+	<li><a href="#10">Locking</a></li>
+	<li><a href="#14">READ COMMITTED isolation level</a></li>
+	<li><a class="red" href="#23">SERIALIZABLE isolation level</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 24 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The present slide show a concurrent execution of two database transactions running at SERIALIZABLE isolation level. The execution is created such that one of the transactions must be aborted an rolled back due to the following rule.</p>
+    <br/>
+	<p>If a transaction T running at SERIALIZABLE isolation level tries to update or delete data modified by a transaction that commits after the serializable transaction T began then the system aborts transaction T.</p>
+	<br/>
+	<p>A sample execution of database transactions at SERIALIZABLE isolation level that fails one of the transactions.</p>
+	<br/>
+	<p>Both Transaction 1 and Transaction 2 run at SEIALIZABLE isolation level.</p>
+	<br/>
+	<p>First, Transaction 2 increases a value of budget of department Sales by 10.</p>
+    <br/>
+	<p>Then, Transaction 1 attempts to increase a value of budget of budget of department Sales by 100. A row with. A value of budget of department Sales is locked in exclusive mode due to UPDATE performed earlier and Transaction 1 must wait.</p>
+	<br/>
+	<p>Next, Transaction 2 commits UPDATE and removes an exclusive lock from a rows that contains a value of budget of department Sales.</p>
+	<br/>
+	<p>Next, Transaction 1 cannot read data modified and committed by another transaction after Transaction 1 began. It is why Transaction 1 is automatically aborted b y a scheduler and it is rolled back.</p>
+	<br/>
+	<p>Allowing Transaction 1 to read a value of budget of department sales would violate a principle of transaction level consistency. The principle says that all reads performed by a transaction running at SERIALIZABLE level must be performed on one state of a database.  When Transaction 1 tries to perform an UPDATE it attempts to read a database state different from a state after Transaction 2 updated an committed a value of budget of department Sales. Such behaviour would violate a principle of transaction level consistency.</p>
+    <br/>
+	<p>Please note that if Transaction 2 would abort and it would roll back its UPDATE operation (instead of COMMIT) then </p>
+	<br/>
+	<p>Please also note that if in the previous example (previous slide) Transaction 1 would run at SERIALIZABLE level then it would be aborted and rolled back on its second UPDATE due to violation of transaction level consistency principle.</p>
+	<br/>
+	<p></p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">SERIALIZABLE isolation level</strong></h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	    <li>If a transaction <strong class="green prettyprint28">T</strong> running at <strong class="blue">SERIALIZABLE</strong> isolation level tries to update or delete data modified by a transaction that commits after the serializable transaction <strong class="green prettyprint28">T</strong> began then the system aborts transaction <strong class="green prettyprint28">T</strong></li>
+	<li>A sample execution of database transactions at <strong class="blue">SERIALIZABLE</strong> isolation level that <strong class="red">fails</strong> one of the transactions
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Execution database transactions at SERIALIZABLE isolation level">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                               UPDATE DEPARTMENT
+                               SET budget = budget + 10
+                               WHERE name = 'Sales'</pre>
+<pre class="prettyprint">UPDATE DEPARTMENT
+SET budget = budget + 1000
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+Wait                                 </pre>
+<pre class="prettyprint">
+                               COMMIT;                              </pre>
+<pre class="prettyprint">
+ERROR at line 2:
+ORA-08177: can't serialize
+access for this transaction</pre>
+</ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 25 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide show a concurrent execution of database transactions running at SERIALIZABLE isolation level where a transaction is ale to obey transaction level consistency principle due to the existence of multiple versions of a data item.</p>
+    <br/>
+	<p>Both Transaction 1 and Transaction 2 run at SERIALIZABLE isolation level.</p>
+	<br/>
+	<p>Transaction 2 starts processing from reading a value of budget of department Sales.</p>
+	<br/>
+	<p>Transaction 1 updates and it commits an update of a budget of department Sales.</p>
+	<br/>
+	<p>Transaction 2 reads a value of budget of department Sales again. Transaction 2 runs at SERIALIZABLE level and it cannot see a modification performed by Transaction 1. UPDATE performed by Transaction 1 creates a new version of a data block that contains a row with a value of budget of department Sales.</p>
+    <br/>
+	<p>Transaction 2 reads old value because a timestamp of a new value is too large.</p>
+	<br/>
+	<p>The example shows that SELECT statement never waits in oracle DBMS because a transaction is able to find a version of a data item with an appropriate time stamp.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue"><strong class="blue">SERIALIZABLE isolation level</strong></h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A sample execution of database transactions at <strong class="blue">SERIALIZABLE</strong> isolation level that ends <strong class="green">successfully</strong> for both transactions
+	  <ul class="build">
+<pre class="prettyprint" data-lang="Execution database transactions at SERIALIZABLE isolation level">
+
+  Transaction 1                 Transaction 2</pre>
+<pre class="prettyprint">
+                               SELECT budget
+                               FROM Department
+                               WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+                               2000                                 </pre>						   
+<pre class="prettyprint">
+UPDATE DEPARTMENT
+SET budget = budget + 1000
+WHERE name = 'Sales';</pre>
+<pre class="prettyprint">
+COMMIT                               </pre>
+<pre class="prettyprint">
+                               SELECT budget
+                               FROM Department
+                               WHERE name = 'Sales'</pre>
+<pre class="prettyprint">
+                               2000                              </pre>						  
+</ul>
+	</li>
+	<li><strong class="red">Transaction 1</strong> creates a new version of a row for <strong class="green">Sales</strong> department
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 26 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>T. Connoly, C. Begg, Database Systems, A Practical Approach to Design, Implementation, and Management, Chapter 22.5 Concurrency Control and Recovery in Oracle, Pearson Education Ltd, 2015</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+<!--
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/mjNbCVAROOCjlY3rfybKAN?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+-->
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+
