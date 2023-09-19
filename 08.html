@@ -1,0 +1,550 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/Jg6_CzvkppUKNJ4NFXyz5N?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>08 Stored PL/SQL</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Stored PL/SQL</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+         <li><a class="red" href="#2">Stored PL/SQL ?  What is it ?</a></li>	
+        <li><a href="#5">Applications</a></li>	
+	<li><a href="#8"><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE</strong> statement</a></li>	
+	<li><a href="#10"><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</a></li>	
+	 <li><a href="#13"><strong class="blue prettyprint">GRANT</strong> statement revisited</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+  <slide>
+    <aside class="note">
+      <section>
+	<p>It is possible to per-compile PL/SQL procedures and functions and store the results of pre-compilation into a data dictionary. It is similar to storing binary code obtained from compilation of modules written in procedural programming language into libraries or packages.</p>
+	<br/>
+	<p>PL/SQL procedures and functions  stored in data dictionary can be called from within SQL statements and from within database applications. It possible to pass the values of actual parameters to stored PL/SQL functions and procedures.</p>
+	<br/>
+	<p>A syntactical structure of stored PL/SQL procedure and function is  identical to a syntactical structure of ordinary not-stored PL/SQL procedure or function.</p>
+	<br/>
+	<p>Stored procedures can be called and processed with EXECUTE statement of SQL. A call of a stored procedure is exactly the same as a call of not-stored procedure. EXECUTE keyword is followed by a name of procedure followed by a list of actual parameters.</p>
+	<br/>
+	<p>Stored functions can be called and processed in SQL statements wherever a function can be used, for example as row  a function in SELECT statement.</p>
+	<br/>
+	<p>There are two main reason why PL/SQL procedure and function can be stored in data dictionary.</p>
+	<br/>
+	<p>The first reason is "extensibility". Stored procedures functions can be used to extend the functionality of data retrieval and data manipulation statements of SQL.</p>
+	<br/>
+	<p>The second reason is "reusability". Stored procedures and functions can be used to eliminate duplication of code in the database applications.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL ? What is it </h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Stored PL/SQL</strong> means <strong class="red">PL/SQL procedures</strong> and <strong class="red">PL/SQL functions</strong> pre-compiled and stored in a <strong class="blue">data dictionary</strong>  ready to be processed</li>
+	<li><strong class="red">Stored procedures</strong> and <strong class="red">functions</strong> can be referenced or called any number of times by multiple applications processing the relational tables</li>
+	<li><strong class="red">Stored procedures</strong> and <strong class="red">functions</strong> can accept parameters when processed (called)</li>
+	<li><strong class="red">Stored procedures</strong> can be called and processed with <strong class="blue prettyprint">EXECUTE</strong> statement</li>
+	<li><strong class="red">Stored functions</strong> can be called and processed within SQL statement wherever a function can be used, for example as a row function in <strong class="blue prettyprint">SELECT</strong> statement</li>	
+	<li><strong class="red">Stored procedures</strong> and <strong class="red">stored functions</strong> can be used to extend the functionality of data retrieval and data manipulation statements of SQL (<strong class="red">extensibility</strong>) and to eliminate duplication of code in the database applications <strong class="red">(reuseability)</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Stored procedures and functions can be created with  SQL statements: CREATE OR REPLACE PROCEDURE and CREATE OR REPLACE FUNCTION.</p>
+	<br/>
+	<p>A code of stored procedure/function is the only argument of both statements. Of course, it is not recommended to process both statement in online mode in front of SQL prompt. The best idea is to create SQL script with one or more statements that store PL/SQL procedures in. a data dictionary,</p>
+	<br/>
+	<p>If a procedure/function does not exist then processing of CREATE OR REPLACE ... statement pre-compiles procedure/functions and if no syntax errors are detected a pre-compiled code is stored in data dictionary.</p>
+	<br/>
+	<p>If a procedure/function is already recorded in a data dictionary then processing of CREATE OR REPLACE ... statement pre-compiles procedure/functions and if no syntax errors are detected a anew pre-compiled code replaces the old one.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL ? What is it </h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Stored procedures</strong> and <strong class="red">functions</strong> can be created with SQL statements:
+	  <ul class="build">
+	    <li><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE</strong></li>
+	    <li><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong></li>
+	 </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Stored PL/SQL ?  What is it ?</a></li>	
+        <li><a class="red" href="#5">Applications</a></li>	
+	<li><a href="#8"><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE</strong> statement</a></li>	
+	<li><a href="#10"><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</a></li>	
+	<li><a href="#13"><strong class="blue prettyprint">GRANT</strong> statement revisited</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Stored PL/SQL procedures and functions allow for reusability of software that implements a functionality common to several database applications.</p>
+	<br/>
+	<p>Assume that we would like to verify a logical consistency constraint that applies to a relational table COURSE. The constraint must be verified in a number of database applications: Application 1, Application 2, ... Application x. Assume that verification of  the constraint is  separately implemented in each application. Then, we get x possibly different implementations in x different pieces of code. Now, imagine that the constraint must be slightly modified, for example, an additional condition must be added to the constraint. It means that we have to modify implementation of the constraint in x different places. Such solution is possible, however, it is quite time consuming. It is also possible that since its original implementation in x applications the constraint was implemented in one more application we do not know about. Then, it is impossible to modify the constraint in all places it is implemented.</p>
+	<br/>
+	<p>A better solution is to implement verification of the constraint as a stored procedure  or function and provide application programmers implementing Application 1, Application 2, ... Application x with a name for stored procedure or function and with a list of formal parameters. Then we can grant the right to invoke a procedure or function to the application programmers. In such a case, any modification of the consistency constraint is limited to an implementation of a single stored procedure or function.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Applications - reusability</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/Application.png" width="800" height="600" alt="ORM" title="ORM"></p>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 07 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Stored PL/SQL procedures and functions allows fro extensibility of the existing implementation of SQL.</p>
+	<br/>
+	<p>Assume that we would like to implement the following query:</p>
+	<p>"Find the names of all departments together with a list of courses offered by each department"</p>
+	<br/>
+	<p>and we would like to display the results in a form where a name of a department is associated with a list of titles of offered courses.</p>
+	<br/>
+	<p>DEPARTMENT NAME | LIST OF COURSES OFFERED</p>
+	<br/>
+	<p>--------------------------------------------------------</p>
+	<p>Math   Calculus Topology Logic Algebra</p>
+	<p>Comp Sci   Python Java Databases</p>
+	<p>Biol </p>
+	<p>Phys  Relativity Mechanics</p>
+	<p>Astro Astrology</p>
+	<br/>
+	<p>Implementation of a special non-tabular formatting with  one dynamically extensible column is  not a simple task in SQL. SELECT statement of SQL transforms data  in tabular 1NF format into data in tabular 1NF format.</p>
+	<br/>
+	<p>To create a list of courses we implement a function LCOURSES( dept_name ) that returns a list of courses offered by a department whose name is a value of a parameter dept_name. A sample implementation of such function is presented in one of the coming slides.</p>
+	<br/>
+	<p>A function LCOURSES can be applied as an ordinary row function. It returns a string with the titles of courses offered by a department passed through a parameters. If it is a row function then it can be used like any other row function included in a library of standard functions available for a given implementation of SQL. A row function is called for each row processed by SELECT statement.</p>
+	<br/>
+	<p>We can use a function LCOURSES as a row function in SELECT statement in the following way.</p>
+	<br/>
+	<p>SELECT dname, LCOURSES( dname )</p>
+	<p>FROM DEPARTMENT;</p>
+	<br/>
+	<p>A function LCOURSES is called for every row retrieved from a relational table DEPARTMENT like any standard row function, for example as  UPPER function.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Applications - extensibility</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Find the names of all departments together with a list of courses offered by each department, display the results in the following form:
+	  <ul>
+	    <pre class="prettyprint" data-lang="Sample results">DEPARTMENT NAME | LIST OF COURSES OFFERED
+--------------------------------------------------------
+Math            | Calculus Topology Logic Algebra
+Comp Sci        | Python Java Databases
+Biol            |
+Phys            | Relativity Mechanics
+Astro           | Astrology</pre>
+	  </ul>
+	</li>
+	<li>Implement a function <strong class="blue prettyprint">LCOURSES( dept_name )</strong> that returns a list of courses offered by a department whose name is a value of a parameter <strong class="blue prettyprint">dept_name</strong></li>
+	<li>Use a  function <strong class="blue prettyprint">LCOURSES</strong> as a <strong class="blue">row function</strong> in <strong class="blue prettyprint">SELECT</strong> statement
+	  <ul>
+	    <pre class="prettyprint" data-lang="Application of stored function">SELECT dname, LCOURSES( dname )
+FROM DEPARTMENT;</pre>
+	  </ul>
+	</li>
+	<li>A function <strong class="blue prettyprint">LCOURSES</strong> is called for every row retrieved from a relational table <strong class="blue prettyprint">DEPARTMENT</strong> like any standard row function, e.g. <strong class="blue prettyprint">UPPER</strong> function</li>
+	<li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 08 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Stored PL/SQL ?  What is it ?</a></li>	
+        <li><a href="#5">Applications</a></li>	
+	<li><a class="red" href="#8"><strong class="prettyprint">CREATE OR REPLACE PROCEDURE</strong> statement</a></li>	
+	<li><a href="#10"><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</a></li>	
+	<li><a href="#13"><strong class="blue prettyprint">GRANT</strong> statement revisited</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A statement CREATE OR REPLACE PROCEDURE compiles and stores pre-compiled code of PL/SQL procedure in a data dictionary.</p>
+	<br/>
+	<p>Assume that we would like to pre-process data before insertion into a database. For example, we would like to convert  a title of a course and a name of department that offers a course into an uppercase format. A conversion can be perform through a simple application of a row function UPPER. To solve the problem we implement a stored procedure INSERT_COURSE that converts the strings into uppercase format and "wraps " INSERT statement within  the procedure. The values of course number, title of a subject, total number of credits and department that offers a course are passed to the procedure as actual parameters.
+ </p>
+	<br/>
+	<p>A stored procedure INSERT_COURSE converts the values of parameters ctitle and coffer to upper case and inserts a row into a relational table COURSE.
+	</p>
+	<br/>
+	<p>CREATE OR REPLACE PROCEDURE INSERT_COURSE(</p>
+	<p>cnumber  IN NUMBER,</p>
+	<p>ctitle   IN VARCHAR,</p>
+	<p>ccredits IN NUMBER,</p>
+	<p>coffer   IN VARCHAR ) IS</p>
+	<p>BEGIN</p>
+	<p>INSERT INTO COURSE VALUES( cnumber, UPPER(ctitle), ccredits, UPPER(coffer) );</p>
+	<p>COMMIT;</p>
+	<p>END INSERT_COURSE;</p>
+	<br/>
+	<p>Then to enforce application of INSERT_COURSE procedure by an application programmer, we remove with REVOKE statement the rights of application programmer to process INSERT statement on a relational table COURSE. Instead, we grant to an application programmer the rights to execute a procedure INSERT_COURSE. The rights to process INSERT statement on a relational table COURSE is dynamically granted to an application programmer fro a period of time when a stored procedure INSERT_COURSE is processed.</p>
+	<br/>
+	<p>EXECUTE statement can be used to process a procedure INSERT_COURSE. For example, a statement</p>
+	<p>EXECUTE INSERT_COURSE(666, 'Java for kids', 6, 'Comp Sci'); </p>
+	<br/>
+	<p>converts the strings 'Java for kids' and 'Comp Sci' to uppercase and inserts a new row into a relational table COURSE.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue"><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE</strong> statement</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE </strong>statement compiles and stores PL/SQL <strong class="red">procedure</strong> in a <strong class="blue">data dictionary</strong></li>
+	<li>The following <strong class="red">stored procedure</strong> <strong class="blue prettyprint">INSERT_COURSE</strong> converts the values of string parameters to upper case and inserts a row into a relational table <strong class="blue prettyprint">COURSE</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Header of stored procedure">
+	      
+CREATE OR REPLACE PROCEDURE INSERT_COURSE( cnumber  IN NUMBER,
+                                           ctitle   IN VARCHAR,
+                                           ccredits IN NUMBER,
+                                           coffer   IN VARCHAR) IS</pre>
+	    <pre class="prettyprint" data-lang="Body of stored procedure">
+BEGIN
+  INSERT INTO COURSE VALUES( cnumber, UPPER(ctitle), ccredits, UPPER(coffer) );
+  COMMIT;
+END INSERT_COURSE;</pre>
+	    </ul>
+	</li>
+	<li><strong class="blue prettyprint">EXECUTE</strong> statement is used to process a procedure <strong class="blue prettyprint">INSERT_COURSE</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Application of stored procedure"> 
+EXECUTE INSERT_COURSE(666, 'Java for kids', 6, 'Comp Sci');</pre>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 10 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Stored PL/SQL ?  What is it ?</a></li>	
+        <li><a href="#5">Applications</a></li>	
+	<li><a href="#8"><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE</strong> statement</a></li>	
+	<li><a clasS="red" href="#10"><strong class="prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</a></li>	
+	<li><a href="#13"><strong class="blue prettyprint">GRANT</strong> statement revisited</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A statement CREATE OR REPLACE FUNCTION compiles and stores pre-compiled code of PL/SQL function in a data dictionary.</p>
+	<br/>
+	<p>Assume that we would like to implement a function that returns a string of characters with the  titles of courses taught by a given department (see slide 7). </p>
+	<br/>
+	<p>The stored function has one formal parameter "dept_name" of type VARCHAR, The parameters is used to pass a name of a department. The functions returns a string of characters with the titles of courses taught by a given department.</p>
+	<p>CREATE OR REPLACE FUNCTION LCOURSES( dept_name VARCHAR ) RETURN VARCHAR IS</p>
+	<br/>
+	<p>The function decalares a local variable "course_list" used to concatenate the titles of courses.</p>
+	<p>course_list VARCHAR(300);</p>
+	<br/>
+	<p>Processing starts from assigning to "course_list" an empty string to correctly handle a case when a department offers no courses.</p>
+	<p>BEGIN</p>
+	<p>course_list := '';</p>
+	<br/>
+	<p>Next, an implicit cursor is used to find the titles of all courses offered by a department determined through a value of actual parameter of the function. A cursor variable "course_cur_rec" is used to store a value at the current position of a cursor.</p>
+	<p>FOR course_cur_rec IN (SELECT title FROM COURSE WHERE offered_by = dept_name);</p>
+	<br/>
+	<p>Next, the stored function iterates over a cursor area, one title of course per iteration  and concatenates the titles separating titles with a blank. In each iteration, the titles of courses are concatenated with the present value of a variable "course_list".</p>
+	<p>LOOP</p>
+	<p>course_list := course_list || course_cur_rec.title || ' ';</p>
+	<p>END LOOP;</p>
+	<br/>
+	<p>The function returns a value of a variable "course_list"  with the titles of courses taught by a given department.</p>
+	<p>RETURN course_list;</p>
+	<p>END LCOURSES;</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue"><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION </strong>statement compiles and stores PL/SQL <strong class="red">function</strong> in a <strong class="blue">data dictionary</strong></li>
+	<li>A <strong class="red">stored function</strong> <strong class="blue prettyprint">LCOURSES</strong> returns a string of characters with the titles of courses offered by a given department.
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Header of stored function"> 
+CREATE OR REPLACE FUNCTION LCOURSES( dept_name VARCHAR ) RETURN VARCHAR IS</pre>
+		 <pre class="prettyprint" data-lang="Declaration and initialization of local variable"> 
+  course_list VARCHAR(300);
+BEGIN		      
+  course_list := '';</pre>
+		 <pre class="prettyprint" data-lang="Iterations over cursor"> 
+  FOR course_cur_rec IN (SELECT title FROM COURSE WHERE offered_by = dept_name);</pre>
+		      <pre class="prettyprint" data-lang="Body of cursor"</pre>
+  LOOP
+    course_list := course_list || course_cur_rec.title || ' ';
+  END LOOP;</pre>
+		      <pre class="prettyprint" data-lang="Returning a result">
+  RETURN course_list;
+END LCOURSES;</pre>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A stored function LCOURSES is used in SELECT statement to list the names of departments together with the lists of courses taught at each department. If a department offers no courses then an empty string is returned by LCOURSES.</p>
+	<br/>
+	<p>A stored function LCOURSES takes on input one value and returns one values. So, it can be used as a row function in SELECT statement.</p>
+	<br/>
+	<p>SELECT statement provides a mechanism of iteration over the names of department. For each department selected from a relational table COURSE a function LCOURSE is called and a string with the names of course taught by a department is returned.</p>
+	<br/>
+	<p>SELECT dname, LCOURSES( dname )</p>
+	<p>FROM COURSE;</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue"><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">stored function</strong> <strong class="blue prettyprint">LCOURSES</strong> is called as a <strong class="blue">row function</strong> in <strong class="blue prettyprint">SELECT</strong> statement
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Application of stored function"> 
+SELECT dname, LCOURSES( dname )
+FROM COURSE;</pre>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 13 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Stored PL/SQL</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Stored PL/SQL ?  What is it ?</a></li>	
+        <li><a href="#5">Applications</a></li>	
+	<li><a href="#8"><strong class="blue prettyprint">CREATE OR REPLACE PROCEDURE</strong> statement</a></li>	
+	<li><a href="#10"><strong class="blue prettyprint">CREATE OR REPLACE FUNCTION</strong> statement</a></li>	
+	<li><a class="red" href="#13"><strong class="prettyprint">GRANT</strong> statement revisited</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>To process a stored procedure or function a user must have EXECUTE rights on a procedure or function. When a procedure or function is created by a given user then such user owns a procedure or or function and it automatically obtains EXECUTE rights on a procedure or function. In reality we frequently would like to share stored procedures or functions among many user. All users who do own a procedure or functiosn and who would like to use it must be granted EXECUte right on a procedure or function.</p>
+	<br/>
+	<p>In addition to read and write access rights it is possible to grant EXECUTE rights on stored procedures and functions</p>
+	<br/>
+	<p>For example, a user "scott" grants execution rights on INSERT_COURSE to a user "janusz" in the following way. </p>
+	<p>GRANT EXECUTE ON INSERT_COURSE TO janusz;</p>
+	<br/>
+	<p>Now, a user "janusz" can execute a stored procedure INSERT_COURSE in the following way.</p>
+	<p>EXECUTE scott.INSERT_COURSE(958, 'Multimedia Databases', 6, 'Comp Sci');</p>
+	<br/>
+	<p>Please note "scott.INSERT_COURSE" in grant statement that indicates an owner of a stored procedure INSERT_COURSE.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue"><strong class="blue prettyprint">GRANT</strong> statement revisited</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>In addition to <strong class="blue">read</strong> and <strong class="blue">write</strong> access rights it is possible to grant <strong class="blue prettyprint">EXECUTE</strong> rights on <strong class="red">stored procedure</strong>s and <strong class="red">function</strong>s</li>
+	<li>For example, a user <strong class="blue prettyprint">scott</strong> grants execution rights on <strong class="blue prettyprint">INSERT_COURSE</strong> to a user <strong class="blue prettyprint">janusz</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Granting a processing right on a stored procedure"> 
+GRANT EXECUTE ON INSERT_COURSE TO janusz;</pre>
+	  </ul>
+	</li>
+	<li>Now, a user <strong class="blue prettyprint">janusz</strong> executes a <strong class="red">stored procedure</strong> <strong class="blue prettyprint">INSERT_COURSE</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Application of stored procedure"> 
+EXECUTE scott.INSERT_COURSE(958, 'Multimedia Databases', 6, 'Comp Sci');</pre>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 15 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><a href="https://protect-au.mimecast.com/s/XkhmCANpDDtjJ7EJI9GHgT?domain=docs.oracle.com">Database PL/SQL Language Reference</a></li>
+	<li><a href="https://protect-au.mimecast.com/s/NShbCBNqBBtvJE8JHjfubH?domain=docs.oracle.com">Database SQL Language Reference, <strong class="blue prettyprint">CREATE PROCEDURE</strong></a></li>
+	<li><a href="https://protect-au.mimecast.com/s/KgdtCD1vkkTXrg3rcl5vo7?domain=docs.oracle.com">Database SQL Language Reference, <strong class="blue prettyprint">CREATE FUNCTION</strong></a></li>
+	<li><a href="https://protect-au.mimecast.com/s/2pKrCE8wRRtBoRposQC-9y?domain=docs.oracle.com">Database SQL Language Reference, <strong class="blue prettyprint">GRANT</strong></a></li>		
+        <li>T. Connoly, C. Begg, Database Systems, A Practical Approach to Design, Implementation, and Management, Chapter 8 Advanced SQL, Pearson Education Ltd, 2015</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/agwaCGv066UwZjAZF1mJPn?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

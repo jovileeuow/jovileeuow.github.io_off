@@ -1,0 +1,1539 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>23 BSON Design</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>BSON Design</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+    <aside class="note">
+      <section>
+	<p>line 1</p>
+	<p>line 2</p>
+	<p>line 3</p>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Class</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/class1.png" width="200" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/class2.png" width="500" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Class</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>JSON Schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("class_a",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"string"},
+                 "CLASS A":{"bsonType":"object",
+                            "properties":{"attribute 1":{"bsonType": ... },
+                                          ...            ...         ...  ,
+                                          "attribute k":{"bsonType": ... },
+                                          "attribute m":{"bsonType": ... },
+                                          ...            ...         ...  ,
+                                          "attribute n":{"bsonType": ... } },
+                            "required":["attribute 1",...,"attribute k","attribute m",...,"attribute n"],
+                            "additionalProperties":false }
+                },
+   "required":["_id","CLASS A"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 05 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Class</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Example
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/class3.png" width="220" alt="Conceptual schema" title="Conceptual schema"></p>
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("student",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"int"},
+                 "STUDENT":{"bsonType":"object",
+                            "properties":{"snumber":{"bsonType":"int" },
+                                          "first name":{"bsonType":"string" },
+                                          "last name":{"bsonType":"string" } },
+                            "required":["snumber","first name","last name"],
+                            "additionalProperties":false }
+                },
+   "required":["_id","STUDENT"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Class</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+        <li>Example
+          <ul>
+            <pre class="prettyprint" data-lang="STUDENT">
+
+db.student.insert({"_id":NumberInt("1234567"),
+                   "STUDENT":{"snumber":NumberInt("1234567"),
+                              "first name":"Harry",
+                              "last name":"Potter"}	    
+                  } );</pre>
+          </ul>
+        </li>
+
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a class="red" href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Optional attribute</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/optional1.png" width="200" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/optional2.png" width="500" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Optional attribute</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>JSON Schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("class_a",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"string"},
+                 "CLASS A":{"bsonType":"object",
+                            "properties":{"attribute 1":{"bsonType": ... },
+                                          ...            ...         ...  ,
+                                          "attribute k":{"bsonType": ... },
+                                          "attribute m":{"bsonType": ... },
+                                          ...            ...         ...  ,
+                                          "attribute n":{"bsonType": ... },
+                                          "attribute p":{"bsonType": ... } },
+                            "required":["attribute 1",...,"attribute k","attribute m",...,"attribute n"],
+                            "additionalProperties":false }
+                },
+   "required":["_id","CLASS A"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 10 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Optional attribute</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Example
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/optional3.png" width="250" alt="Conceptual schema" title="Conceptual schema"></p>
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("student",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"int"},
+                 "STUDENT":{"bsonType":"object",
+                            "properties":{"snumber":{"bsonType":"int" },
+                                          "first name":{"bsonType":"string" },
+                                          "last name":{"bsonType":"string" },
+                                          "date of birth":{"bsonType":"date"} },
+                            "required":["snumber","first name","last name"],
+                            "additionalProperties":false }
+                },
+   "required":["_id","STUDENT"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Optional attribute</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+        <li>Example
+          <ul>
+            <pre class="prettyprint" data-lang="STUDENT">
+
+db.student.insert({"_id":NumberInt("1234567"),
+                   "STUDENT":{"snumber":NumberInt("1234567"),
+                              "first name":"Harry",
+                              "last name":"Potter",
+                              "date of birth":Date("1999-07-07")},
+                  } );</pre>
+          </ul>
+        </li>
+
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a class="red" href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Multivalued attribute</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/multivalued1.png" width="200" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent conceptual schemas
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/multivalued2.png" width="500" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 14 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Multivalued attribute</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Sample conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/multivalued3.png" width="200" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/multivalued4.png" width="500" alt="Conceptual schema" title="conceptual schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 15 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a class="red" href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Qualification</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/qualification1.png" width="600" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/qualification2.png" width="600" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 17 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Qualification</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Sample conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/qualification3.png" width="600" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/qualification4.png" width="600" alt="Logical schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 18 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a class="red" href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-one association</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetoone1.png" width="500" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetoone2.png" width="400" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 20 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-one association</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetoone4.png" width="500" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetoone3.png" width="400" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 21 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">One-to-one association </h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>JSON Schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+db.createCollection("class_a",
+                    { "validator":{$jsonSchema:
+{"bsonType":"object"
+ "properties":{"_id":{"bsonType":"string"},
+               "CLASS A":{"bsonType":"object",
+                          "properties":{"attribute 1":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute k":{"bsonType": ... },
+                                        "attribute m":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute n":{"bsonType": ... },
+                                        "Related-to": {"bsonType":"object",
+                                                       "properties":{"CLASS B":{"bsonType":"object",
+                                                                                "properties":{"attribute 1":{"bsonType": ... },
+                                                                                              ...            ...         ...  ,
+                                                                                              "attribute m":{"bsonType": ... },
+                                                                                              "attribute n":{"bsonType": ... },
+                                                                                              ...                        ...  ,
+                                                                                              "attribute p":{"bsonType": ... } },
+                                                                                "required":["attribute 1",...,"attribute m","attribute n",...,"attribute p"],
+                                                                                "additionalProperties":false } },
+                                                       "required":["CLASS B"],
+                                                       "additionalProperties":false } },
+                          "required":["attribute 1",...,"attribute k","attribute m",...,"attribute n","Related-to"],
+                          "additionalProperties":false} },
+ "required":["_id","CLASS A"],
+ "additionalProperties":false
+} } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 22 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-one association</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>Example
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetoone5.png" width="400" alt="Conceptual schema" title="Conceptual schema"></p>
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("student",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"int"},
+                 "STUDENT":{"bsonType":"object",
+                            "properties":{"snumber":{"bsonType":"int"},
+                                          "first name":{"bsonType":"string"},
+                                          "last name":{"bsonType":"string"},
+                                          "Owns":{"bsonType":"object",
+                                                  "properties":{"CAR":{"bsonType":"object",
+                                                                       "properties":{"rego":{"bsonType":"string"},
+                                                                                     "make":{"bsonType":"string"},
+                                                                                     "model":{"bsonType":"string"} },
+                                                                       "required":["rego","make","model"],
+                                                                       "additionalProperties":false} },
+                                                  "required":["CAR"],
+                                                  "additionalProperties":false} },
+                             "required":["snumber","first name","last name","Owns"],
+                             "additionalProperties":false} },
+   "required":["_id","STUDENT"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 23 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-one association</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+        <li>Example
+          <ul>
+            <pre class="prettyprint" data-lang="STUDENT Owns Car">
+
+db.student.insert({"_id":NumberInt("1234567"),
+                   "STUDENT":{"snumber":NumberInt("1234567"),
+                              "first name":"Harry",
+                              "last name":"Potter",
+                              "Owns":{"CAR":{"rego":"AL08UK",
+                                             "make":"Rolls Royce",
+                                             "model":"Silver Shadow"}
+                                     }
+                             }
+                  } );</pre>
+          </ul>
+        </li>
+
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 24 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a class="red" href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 25 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-many association</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetomany1.png" width="500" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetomany2.png" width="430" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 26 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">One-to-many association </h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>JSON Schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+db.createCollection("class_a",
+                    { "validator":{$jsonSchema:
+{"bsonType":"object"
+ "properties":{"_id":{"bsonType":"string"},
+               "CLASS A":{"bsonType":"object",
+                          "properties":{"attribute 1":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute k":{"bsonType": ... },
+                                        "attribute m":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute n":{"bsonType": ... },
+                                        "Related-to": {"bsonType":"array",
+                                                       "items":{"bsonType":"object",
+                                                                "properties":{"CLASS B":{"bsonType":"object",
+                                                                                         "properties":{"attribute 1":{"bsonType": ... },
+                                                                                                       ...            ...         ...  ,
+                                                                                                       "attribute m":{"bsonType": ... },
+                                                                                                       "attribute n":{"bsonType": ... },
+                                                                                                       ...                        ...  ,
+                                                                                                       "attribute p":{"bsonType": ... } },
+                                                                           "required":["attribute 1",...,"attribute m","attribute n",...,"attribute p"],
+                                                                                         "additionalProperties":false } },
+                                                                "required":["CLASS B"],
+                                                                "additionalProperties":false } },
+                          "required":["attribute 1",...,"attribute k","attribute m",...,"attribute n","Related-to"],
+                          "additionalProperties":false} },
+ "required":["_id","CLASS A"],
+ "additionalProperties":false } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 27 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-many association</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>Example
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/onetomany3.png" width="400" alt="Conceptual schema" title="Conceptual schema"></p>
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+db.createCollection("lecturer",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"int"},
+                 "LECTURER":{"bsonType":"object",
+                             "properties":{"staff number":{"bsonType":"int"},
+                                           "first name":{"bsonType":"string"},
+                                           "last name":{"bsonType":"string"},
+                                           "Owns":{"bsonType":"array",
+                                                   "items":{"bsonType":"object",
+                                                            "properties":{"CAR":{"bsonType":"object",
+                                                                                 "properties":{"rego":{"bsonType":"string"},
+                                                                                               "make":{"bsonType":"string"},
+                                                                                               "model":{"bsonType":"string"} },
+                                                                                 "required":["rego","make","model"],
+                                                                                 "additionalProperties":false} },
+                                                            "required":["CAR"],
+                                                            "additionalProperties":false} } },
+                              "required":["staff number","first name","last name","Owns"],
+                              "additionalProperties":false} },
+   "required":["_id","LECTURER"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 28 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-many association</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+        <li>Example
+          <ul>
+            <pre class="prettyprint" data-lang="LECTURER Owns CAR">
+
+db.lecturer.insert({"_id":NumberInt("007"),
+                   "LECTURER":{"staff number":NumberInt("007"),
+                              "first name":"James",
+                              "last name":"Bond",
+                              "Owns":[{"CAR":{"rego":"AL08UK",
+                                              "make":"Rolls Royce",
+                                              "model":"Silver Shadow"} },
+                                      {"CAR":{"rego":"PKR856",
+                                              "make":"Mercedes",
+                                              "model";"SE800"} } ]
+                             }
+                  } );</pre>
+          </ul>
+        </li>
+
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 29 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a class="red" href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 30 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Many-to-many association</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/manytomany1.png" width="500" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/manytomany2.png" width="750" alt="Equivalent conceptual schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 31 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Many-to-many association</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/manytomany3.png" width="630" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent logical  schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/manytomany4.png" width="630" alt="Equivalent conceptual schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide> 
+<!-- slide 32 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Many-to-many association </h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>JSON Schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("class_a",
+                    { "validator":{$jsonSchema:
+{"bsonType":"object"
+ "properties":{"_id":{"bsonType":"string"},
+               "CLASS A":{"bsonType":"object",
+                          "properties":{"attribute 1":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute k":{"bsonType": ... },
+                                        "attribute m":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute n":{"bsonType": ... },
+                                        "Related-to": {"bsonType":"array",
+                                                       "items":{"bsonType":"object",
+                                                                "properties":{"CLASS AB":{"bsonType":"object",
+                                                                                          "properties":{"attribute-b 1":{"bsonType": ... },
+                                                                                                        ...            ...         ...  ,
+                                                                                                        "attribute-b m":{"bsonType": ... },
+                                                                                                        "Ref B"        :{"bsonType": ... } },
+                                                                           "required":["attribute-b 1",...,"attribute-b m","Ref B"],
+                                                                                         "additionalProperties":false } },
+                                                                "required":["CLASS AB"],
+                                                                "additionalProperties":false } },
+                          "required":["attribute 1",...,"attribute k","attribute m",...,"attribute n","Related-to"],
+                          "additionalProperties":false} },
+ "required":["_id","CLASS A"],
+ "additionalProperties":false } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 33 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Many-to-many association </h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>JSON Schema
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("class_b",
+                    { "validator":{$jsonSchema:
+{"bsonType":"object"
+ "properties":{"_id":{"bsonType":"string"},
+               "CLASS B":{"bsonType":"object",
+                          "properties":{"attribute 1":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute m":{"bsonType": ... },
+                                        "attribute n":{"bsonType": ... },
+                                        ...            ...         ...  ,
+                                        "attribute p":{"bsonType": ... } },
+                          "required":["attribute 1",...,"attribute m","attribute n",...,"attribute p"],
+                          "additionalProperties":false} },
+ "required":["_id","CLASS B"],
+ "additionalProperties":false } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 34 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Many-to-many association</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Example
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/manytomany5.png" width="500" alt="Conceptual schema" title="Conceptual schema"></p>
+          </ul>
+        </li>
+	<li>Equivalent conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/manytomany6.png" width="750" alt="Equivalent conceptual schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 35 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Many-to-many association</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>Example
+          <ul class="build">
+             <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("lecturer",
+                    { "validator":{$jsonSchema:
+{"bsonType":"object"
+ "properties":{"_id":{"bsonType":"string"},
+               "LECTURER":{"bsonType":"object",
+                           "properties":{"staff number":{"bsonType":"int" },
+                                        "first name":{"bsonType":"string"},
+                                        "last name":{"bsonType":"string" },
+                                        "Performs": {"bsonType":"array",
+                                                     "items":{"bsonType":"object",
+                                                              "properties":{"USAGE":{"bsonType":"object",
+                                                                                     "properties":{"rego":{"bsonType":"string"},
+                                                                                                   "when used":{"bsonType":"date"} },
+                                                                                     "required":["rego","when used"],
+                                                                                     "additionalProperties":false } },
+                                                                "required":["USAGE"],
+                                                                "additionalProperties":false } },
+                          "required":["staff number","first name","last name","Performs"],
+                          "additionalProperties":false} },
+ "required":["_id","LECTURER"],
+ "additionalProperties":false } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+ <!-- slide 36 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">Class</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+        <li>Example
+          <ul>
+             <pre class="prettyprint" data-lang="$jsonSchema validator">
+
+db.createCollection("car",
+                    { "validator":{$jsonSchema:
+  {"bsonType":"object",
+   "properties":{"_id":{"bsonType":"string"},
+                 "CAR":{"bsonType":"object",
+                        "properties":{"rego":{"bsonType":"string" },
+                                      "make":{"bsonType":"string" },
+                                      "model":{"bsonType":"string" } },
+                            "required":["rego","make","model"],
+                            "additionalProperties":false }
+                },
+   "required":["_id","CAR"],
+   "additionalProperties":false
+  } } } );</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 37 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">One-to-many association</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul>
+        <li>Example
+          <ul>
+            <pre class="prettyprint" data-lang="LECTURER Uses CAR">
+
+db.lecturer.insert({"_id":NumberInt("007"),
+                   "LECTURER":{"staff number":NumberInt("007"),
+                              "first name":"James",
+                              "last name":"Bond",
+                              "Performs":[ {"USAGE":{"rego":"AL08UK",
+                                                     "when used":Date("2017-07-08")} },
+                                           {"USAGE":{"rego":"PKR856",
+                                                     "when used":Date("2017-07-09")} },
+                                           {"USAGE":{"rego":"AL08UK",
+                                                     "when used":Date("2017-07-09")} } ]
+                              }
+} );</pre>
+            <pre class="prettyprint" data-lang="LECTURER Uses CAR">
+
+db.car.insert({"_id":"AL08UK",
+                   "CAR":{"rego":"AL08UK","make":"Honda","model":"Legend"}
+} );</pre>
+	                <pre class="prettyprint" data-lang="LECTURER Uses CAR">
+
+db.car.insert({"_id":"PKR856",
+                   "CAR":{"rego":"PKR856","make":"Rolls Royce","model":"Silver Shadow"}
+} );</pre>	    
+          </ul>
+        </li>
+
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 38 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a class="red" href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+ <!-- slide 39 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Generalization - superset method</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+	<p style="text-align:center;"><img src="images/slide-20-1.png" alt="Generalization-superset" title="Generalization-superset"></p>	 
+        <li>A <strong class="red">superset method</strong> transforms entire generalization hierarchy into a single class of objects in the following way:
+          <ul class="build">
+            <li>All attributes from the classes of objects at the lowest level of generalization hierarchy are copied to an immediate higher level and become optional attributes ([0..1] tag) there, e.g. the attributes <strong class="blue prettyprint28">project</strong> and <strong class="blue prettyprint28">thesis</strong> are copied from the classes <strong class="blue prettyprint28">UNDERGRADUATE-STUDENT</strong> and <strong class="blue prettyprint28">POSTGRADUATE-STUDENT</strong> to a class <strong class="blue prettyprint28">STUDENT</strong></li>
+	    <li>An attribute <strong class="blue prettyprint28">type-of-superclass</strong> is added to a superclass, e.g. and attribute <strong class="blue prettyprint28">type-of-students</strong> is added to a class <strong class="blue prettyprint28">STUDENT</strong></li>	
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 40 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Generalization - superset method</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>
+          <ul class="build">
+	    <li>All classes at the lowest level are removed</li>
+	    <li>The steps above are repeated until only one class of objects is left</li>
+	    <p style="text-align:center;"><img src="images/slide-21-1.png" alt="Generalization-superset" title="Generalization-superset"></p>	
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 41 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Generalization - subset method</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+	<p style="text-align:center;"><img src="images/slide-22-1.png" alt="Generalization-subset" title="Generalization-subset"></p>	 
+        <li>A <strong class="red">subset method</strong> transforms entire generalization hierarchy into a number of classes of objects in the following way:
+          <ul class="build">
+            <li>All attributes from the classes of objects at the higher levels of generalization hierarchy are copied to the classes of objects at the lowest levels of generalization hierarchy e.g. the attributes <strong class="blue prettyprint28">s#</strong> and <strong class="blue prettyprint28">first-name</strong> last-name, dob are copied from a class <strong class="blue prettyprint28">STUDENT</strong> to the classes <strong class="blue prettyprint28">POSTGRADUATE-STUDENT</strong> and <strong class="blue prettyprint28">UNDERGRADUATE-STUDENT</strong></li>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 42 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Generalization - subset method</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>
+          <ul class="build">
+	    <li>All classes of objects except those at the lowest levels of generalization hierachy are removed, e.g. a class <strong class="blue prettyprint28">STUDENT</strong> is removed</li>	
+	    <p style="text-align:center;"><img src="images/slide-23-1.png" alt="Generalization-subset" title="Generalization-subset"></p>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 43 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Generalization - association method</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<p style="text-align:center;"><img src="images/slide-24-1.png" alt="Generalization-partitioning" title="Generalization-partitioning"></p>	 
+        <li>An <strong class="red">association method</strong> transforms entire generalization hierarchy into a number of classes of objects in the following way:
+          <ul class="build">
+            <li>One of the identifiers from a superclass is copied to subclasses one level below a superclass, e.g. an attribute <strong class="blue prettyprint">s#</strong> is copied from a class <strong class="blue prettyprint">STUDENT</strong> to the classes <strong class="blue prettyprint">UNDEGRADUATE-STUDENT and POSTGRADUATE-STUDENT</strong></li>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 44 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Generalization - association method</h2>
+    </hgroup>
+    <article>
+      <ul>
+        <li>
+          <ul class="build">
+	    <li>A generalization level is removed from a diagram</li>
+	    <p style="text-align:center;"><img src="images/slide-25-1.png" alt="Generalization-partitioning" title="Generalization-partitioning"></p>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 45 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a class="red" href="#66">Implementation of network structures</a></li>
+	<li><a href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 46 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Implementation of network structures</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide28-1.png" height="300" width="500" alt="ORM" title="ORM"></p>
+	    <pre class="prettyprint" data-lang="Implementation of sample hierarchy">
+	      
+"A"
+   ...
+   "B"
+      ...
+      "C":{"REF":"e"},
+           ...
+           "D"...
+	   "F"...		  
+"E":{"_id":"e", ... }</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 47 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Implementation of network structures</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide29-1.png" height="300" width="500" alt="ORM" title="ORM"></p>
+	    <pre class="prettyprint" data-lang="Implementation of sample hierarchy">
+	      
+"E"
+    ...
+    "C":{"REF":"b"}
+         ...
+         "D"
+         "F"
+"A"
+   ...
+   "B":{"ID":"b", ... }</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 48 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Implementation of network structures</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide28-1.png" height="300" width="500" alt="ORM" title="ORM"></p>
+	    <pre class="prettyprint" data-lang="Implementation of sample hierarchy">
+
+"A"
+   ...
+   "B"
+      ...
+      "C":{"ID":"c"},
+           ...
+           "D"...
+           "F"...
+"E":[{"REF":"c"}, ...]</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 49 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Implementation of network structures</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide29-1.png" height="300" width="500" alt="ORM" title="ORM"></p>
+	    <pre class="prettyprint" data-lang="Implementation of sample hierarchy">
+
+"E"
+    ...
+    "C":{"ID":"c"}
+         ...
+         "D"
+         "F"
+"A"
+   ...
+   "B":[{"REF":"c"}, ... ]</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 50 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">BSON Design</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Class</a></li>
+	<li><a href="#4">Optional attribute</a></li>
+	<li><a href="#6">Multivalued attribute</a></li>
+	<li><a href="#8">Qualification</a></li>
+	<li><a href="#10">One-to-one association</a></li>
+	<li><a href="#66">One-to-many association</a></li>
+	<li><a href="#66">Many-to-many association</a></li>
+	<li><a href="#66">Generalization</a></li>			
+	<li><a href="#66">Implementation of network structures</a></li>
+	<li><a class="red" href="#66">Example</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 51 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Example</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li> Consider the following conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide51-1.png" width="800" alt="ORM" title="ORM"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 52 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Example</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Replacement of <strong class="blue">"many-to-many"</strong> association with <strong class="blue">"one-to-many"</strong> and <strong class="blue">"many-to-one"</strong> associations provides the following conceptual schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide52-1.png" width="500" alt="ORM" title="ORM"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 53 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Example</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Transformation into hierarchical structures and links provides the following a logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide53-1.png" width="500" alt="ORM" title="ORM"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 54 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">Example</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Another transformation into hierarchical structures and links provides the following a logical schema
+          <ul class="build">
+            <p style="text-align:center;"><img src="images/slide54-1.png" width="500" alt="ORM" title="ORM"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 55 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><a href="http://json-schema.org/">JSON Schema</a></li>
+        <li><a href="https://json-schema.org/understanding-json-schema/index.html">Understanding JSON Schema</a></li>
+	<li><a href="https://docs.mongodb.com/manual/core/schema-validation/#json-schema">MongoDB - JSON Schema validation</a></li>
+	<li><a href="https://docs.mongodb.com/manual/reference/operator/query/jsonSchema/#op._S_jsonSchema">MongoDB - $jsonSchema operator</li>	
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+
+  <slide class="backdrop"></slide>
+
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>

@@ -1,0 +1,781 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/Aj_4CVAROOC1ngDVCz4HLW?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>10IntroductionToTransactionProcessing(1)</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Introduction To Transaction Processing(1)</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a class="red" href="#2">An interesting experiment</a></li>	
+	<li><a href="#5">Where is a problem ?</a></li>	
+	<li><a href="#7">Principles of transaction processing</a></li>	
+	<li><a href="#10">Update synchronisation</a></li>	
+	<li><a href="#13">ACID properties</a></li>	
+	<li><a href="#15">Protocols</a></li>			
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+      <aside class="note">
+      <section>
+	<p>We start from an interesting experiment. First we open two command line windows and we start SQLcl and connect to the same database server as the same user in each window. It means that we use SQLcl to create two simultaneous connections to the same user account and on the same database server.</p>
+	<br/>
+	<p>Next in both windows we count the total number of rows in a relational tables SKILL with the following SELECT statement:</p>
+	<br/>
+	<p>SQL> SELECT COUNT(*) FROM SKILL;</p><br/>
+	<p>We are connected to the same database server as the same user and the same relational table is accessed by both SELECT statement. It means that the results from counting of the total number of rows in the same relational table must be the same.</p>
+	<br/>
+	<p>Indeed, the results reported in each connection are the same. When I conducted the experiment a relational table SKILL had 19 rows. It is quite obvious that the results are the same.</p><br/>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">An interesting experiment</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Use SQLcl to create two simultaneous connections to the same user account
+	  <ul class="build">
+<pre class="prettyprint" data-lang="SQLcl">$sqlcl jrg</pre>
+<pre class="prettyprint" data-lang="SQLcl">                                           $sqlcl jrg</pre>
+          </ul>
+	</li>
+	<li>Next, process the same <strong class="green prettyprint">SELECT</strong> statement in both connections
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SQL> SELECT COUNT(*) FROM SKILL;
+
+COUNT(*)
+----------
+19</pre>
+<pre class="prettyprint" data-lang="SQL">
+                                         SQL> SELECT COUNT(*) FROM SKILL;
+
+                                         COUNT(*)
+                                         ----------
+                                         19</pre>
+          </ul>
+	</li>
+	<li>Obviously, the results are the same</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Now, we insert a row with a new skill into a relational table SKILL through one of the connections.</p>
+	<br/>
+	<p>SQL> INSERT INTO SKILL VALUES('singing');</p>
+	<br/>
+	<p>If insert statement is processed successfully then a relational table SKILL must have 20 rows. To confirm it we process in a connection used fro insertion of a new row SELECT statement that counts the total number of rows in a relational table SKILL</p>
+    <br/>
+	<p>SQL> SELECT COUNT(*)FROM SKILL;</p>
+	<br/>
+	<p>COUNT(*)</p>
+	<p>----------</p>
+	<p>20</p>
+	<br/>
+	<p>As we might expect the result is 20 because previously it was 19 and we inserted one new row.</p>
+	<br/>
+	<p>Now, we perform the most interesting and the most surprise step of the experiment. We count the total number of rows in a relational table SKILL visible through another connection, i.e. a connection that has not been used to insert a new row.</p>
+	<br/>
+	<p>SQL> SELECT COUNT(*) FROM SKILL;</p>
+	<br/>
+	<p>COUNT(*)</p>
+	<p>----------</p>
+	<p>19</p>
+	<br/>
+	<p>Surprise, surprise, ... the result of counting is 19 !</p>
+	<p>It means that the other connection does not know anything about a row inserted through the first connection. Why ? Is it correct ? Or maybe it is just a bug in the system ? Well, it is not a bug in the system. The result is actually correct.</p>
+	<br/>
+	<p>Note that insertion performed through the first connection is not committed yet. So, theoretically the following scenario is still possible. If uncommitted insertion performed in the first connection is visible in through second connection then it may happen that insertion is rolled back in the first connection. Then a user in the second connection is left with incorrect information (20) about the total number of rows in a relational table. It is because rollback performed through the first connection is not reported in the second connection.</p>
+	<br/>
+	<p>Of course, someone may ask what if insertion performed through the first connection is immediately committed ? Then, counting of the rows through the second connection returns the result 20. It is because commit it is impossible to roll it back. So, the present contents of the relational table can be visible through the second connection.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">An interesting experiment</h2>
+    </hgroup>
+    <article>
+      <ul class= "build">
+        <li>Now, <strong class="green prettyprint">INSERT</strong> a row into a relational table <strong class="green prettyprint">SKILL</strong> through one of the connections
+	  <ul class="build">    
+	    <pre class="prettyprint" data-lang="SQL">
+SQL> INSERT INTO SKILL VALUES('singing');
+1 row created.</pre>
+          </ul>
+	</li>
+	<li>And now repeat the same <strong class="green prettyprint">SELECT </strong> statements
+	  <ul class="build">
+	      <pre class="prettyprint" data-lang="SQL">
+SQL> SELECT COUNT(*)FROM SKILL;
+
+COUNT(*)	    
+----------
+20</pre>
+<pre class="prettyprint" data-lang="SQL">
+	                                 SQL> SELECT COUNT(*) FROM SKILL;
+
+                                         COUNT(*)
+                                         ----------
+                                         19</pre>
+          </ul>
+        </li>
+        <li><strong class="red">Surprise, surprise, the results are different !</strong> Why ?</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">An interesting experiment</a></li>	
+	<li><a class="red" href="#5">Where is a problem ?</a></li>	
+	<li><a href="#7">Principles of transaction processing</a></li>	
+	<li><a href="#10">Update synchronisation</a></li>	
+	<li><a href="#13">ACID properties</a></li>	
+	<li><a href="#15">Protocols</a></li>		
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Why an insertion performed through the first connection is not visible through the second connection?</p>
+	<p>An answer is quite simple, an insertion performed through the first connection is not committed yet. An uncommitted insertion can be rolled back and because it cannot be visible through the second connection yet.</p>
+	<br/>
+	<p>Another interesting question is: is it correct that we must see through the second connection all modifications  performed by through the first connection ? Yes, it is correct but the modifications performed through the first connection must be committed to be visible through the second connection.</p>
+	<br/>
+	<p>What if a modification performed through the first connection is immediately visible through the second connection and after that the modifications are rolled back in the first connection ? Well, in such situation we get a corrupted view of. database through the second connection. A user accessing a database through the second connection is left with a view of incorrect data !</p>
+	<br/>
+	<p>Hence, we may say that only committed data can be revealed to the other users. Is such conclusion always true ? Well, commit operation takes some time. For example, commit of a long update transaction that modifies a lot of rows in a relational table may take a lot of time and it may delay processing of a database application. So, sometime it is worth to risk a bit an reveal updated data before commit assuming that commit would happen anyway later on.</p>
+	<br/>
+	<p>In a general case concurrent processing of database transaction on a multiuser database system requires a time-sharing operating system and the properties of such operating system. In a time-sharing operating system the individual users are granted short time-slots for processing their applications. In the other words, time os 'shared by the users. As a consequence processing of a single database transaction may not be entirely processed from start to commit/rollback point in one time slot. A transaction is started when an operation system user obtains a time slot and it is stopped when time slot expires. Then another user obtains a time slot fro processing of its application. And so on and so on. As a consequence a database transactions are usually processed over many time slots by a time-sharing operating system and because of that database transactions interleave their operations. As we shall show in the future such uncontrolled processing of database transactions  interleaving their operations over shared data may lead to corruption of a database.</p>
+	<br/>
+	<p>On the other hand processing of database transactions serially one-by-one is not realistic solution due to very poor performance and response time. In the modern on-line electronic business systems response time is one of the most important factors determining a quality of a system.</p>
+	<br/>
+	<p>Hence, an objective of concurrent processing of database transaction on shared data  needs the most efficient synchronisation method for a set of concurrent processes accessing the shared database resources.</p><br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Where is a problem ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Why a modification performed by the first user is not visible to the second user ?</li>
+	<li>Is it correct that the second user must see all modifications performed by the first user ?</li>
+	<li>What if a modification performed by the first user is immediately visible to the second user and after that the first user rolls back the modification ?</li>
+	<li>Then, the second user is left with incorrect data !</li>
+	<li>Hence, only committed data can be revealed to the other users</li>
+	<li>Is such conclusion always true ?</li>
+	<li><strong class="red">Problem statement</strong>
+	  <ul class="build">
+            <li>Given a multiuser database system</li>
+	    <li>Find the most efficient synchronisation method for a set of concurrent processes accessing the shared database resources</li>
+	  </ul>
+	<li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">An interesting experiment</a></li>	
+	<li><a href="#5">Where is a problem ?</a></li>	
+	<li><a class="red" href="#7">Principles of transaction processing</a></li>	
+	<li><a href="#10">Update synchronisation</a></li>	
+	<li><a href="#13">ACID properties</a></li>	
+	<li><a href="#15">Protocols</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>We shall start from a very simplified data model (similar to key-value pair data model) where a database consists of data items each located at a unique address. Data items do not have any internal structure and can access with read and write operations. So, for a while we shall forget about relational tables, rows, attributes, values of attributes and SQL.</p>
+	<br/>
+	<p>We shall access a database with the operations like a=read(x) where x is a unique address of a data item (we shall call it later on as a data item x) and a is a piece of transient memory (RAM) where a value of data item x is stored after reading it from persistent memory. A can be considered as an ordinary variable of an atomic type (int, float, double, ...) available in any general purpose procedural programming language.</p>
+	<br/>
+	<p>The second operation used to transfer values to a database is an operation write(x, a) that takes the value of a transient variable (RAM) a and writes it as a value of persistent storage data item x.</p>
+	<br/>
+	<p>Two remaining operations used are commit and rollback.</p>
+	<br/>
+	<p>An operation abort is a database scheduler operation that stops and automatically rollbacks a transaction.</p>
+	<br/>
+	<p>A transaction is defined in such a data model as "a partially ordered set of read, write operations on the database items" . Why it is a partially ordered set and no linearly ordered set of database operations ? It is because at the very and a transaction is an ordinary computer program and its processing depending on input data and an environment it is processed in. So, depending on input data a computer program may process through one sequence of operations while for different  input data it may process through another sequence of operations. it is why a computer program is a partially ordered set of operations (see a definition of "partial order" in math for computing subject ;) ). In our case we shall use only read, write, commit, rollback and abort operations.</p>
+	<br/>
+	<p>Users interact with a database by executing programs. it simply means that at the every end a transaction is a computer program, for example JDBC (Java + SQL) program.</p>
+	<br/>
+	<p>Execution (processing) of a program is equivalent to execution of a partially ordered set of read, write operations. Well, if a transaction is a partially ordered set of operations than execution of a transaction must be equivalent to processing the operations along one of the possible execution paths.</p>
+	<br/>
+	<p>A database is visible to transactions as a collection of data items. we have already talked about that. Just atomic data items, each one with a unique address and single atomic value.</p>
+	<br/>
+	<p>Concurrently running transactions interleave their operations. It is  because database systems are almost always installed on top if time-sharing operation systems.</p>
+	<br/>
+	<p>Transactions have no impact on execution of their operations. Execution is a sequence of operations and transaction has no impact on processing of the operations.</p>
+	<br/>
+	<p>Each transaction terminates by either commit or abort operation. We have already discussed the operations of database transactions.</p>
+	<br/>
+	<p>Each transaction arrives at a consistent database state and must leave a database in a consistent state as well. It means that correctly implemented transactions MUST NOT corrupt a database.</p><br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Principles of transaction processing</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A partially ordered set of <strong class="blue">read, write</strong>  operations on the database items is called as a <strong class="red">transaction</strong> </li>
+       <li>Users interact with a database by executing programs</li>
+	<li>Execution of a program is equivalent to execution of a partially ordered set of <strong class="blue">read, write</strong> operations</li>
+	<li>A database is visible to <strong class="red">transactions</strong> as a collection of data items</li>
+	<li>Concurrently running <strong class="red">transactions</strong> interleave their operations</li>
+	<li><strong class="red">Transactions</strong> have no impact on execution of their operations</li>
+        <li>Each <strong class="red">transaction</strong> terminates by either <strong class="blue">commit</strong> or <strong class="blue">abort</strong> operation</li>
+	<li>Each <strong class="red">transaction</strong> arrives at a consistent database state and must leave a database in a consistent state as well</li>	
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>in this slide we show a sample concurrent processing of database transactions that corrupts a database. Assume that we have two users of a banking system and both users would like to operate on the same bank account x such that at the moment $100 is deposited on the account. Assume that one user would like to withdraw $10 from the account and the other user wants to deposit $20 at the account. The users interact with a database through execution of database transactions. Assume that execution of database transactions is not controlled in any possible way by a database systems.</p>
+	<br/>
+	<p>Processing of the transactions is visualized as a the sequence of operations  written vertically in two separate columns. Each column represent execution of a transaction. If a diagram consists of two columns than it visualizes a concurrent processing of two transactions. So time axis does from top to bottom of a diagram. A line in a diagram represent a time slot when one of the transactions executes its operation. No two operations of the same or different transactions can be executed in the same time slot. It means that we visualize concurrent execution and not parallel execution.</p>
+	<br/>
+	<p>The first transaction reads the present state of a bank account a=read(x) and saves a value 100 in a transient variable a. in the next time slot, the second transaction  also reads a value of data item x and saves the value in a transient variable b.</p>
+	<br/>
+	<p>The first user supposed to withdraw $10. Hence the first transaction deducts 10 from a value in a transient variable a and writes a value of a into a data item x. At the end of execution of write(x,a-10) a data item x has a value 90.</p>
+	<br/>
+	<p>The second suer supposed to deposit $20. Hence the second transaction adds 20 to a value of a transient variable b  (120) and writes a value of b into a data item x. At the end of execution of write(x,b+20)  a data item x has a value 120.</p>
+	<br/>
+	<p>Finally the transactions commit their operations. The total amount of money on a bank account is $120. Well, a bank would not be happy because $10 is lost (100-10+20=110). It is why in 1980s of the previous century the banks invested a lot of money into research on database transactions to avoid such situation. Sometimes, I call this example "how to become a millionaire", but ... the chances for that are very very slim.</p>
+	<br/>
+	<p>Our sample concurrent processing of database transactions shows that uncontrolled concurrent processing of database transactions may corrupt a database.</p><br/>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Principles of transaction processing</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A sample concurrent processing of database transcations
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="Concurrent processing of database transactions">
+
+T1                      T2                     x: $100</pre> 
+	<pre class="prettyprint">a=read(x)                                      x: $100 a: $100</pre> 
+	<pre class="prettyprint">                        b=read(x)              x: $100 b: $100 </pre> 
+	<pre class="prettyprint">write(x,a-10)                                  x: $90  a: $100</pre> 
+	<pre class="prettyprint">                        write(x,b+20)          x: $120 b: $100</pre> 
+	<pre class="prettyprint">                        commit                 x: $120</pre> 
+	<pre class="prettyprint">commit                                         x: $120</pre> 
+	   </ul>
+	</li>
+	<li>If a state of a bank account is <strong class="green">$100</strong> then withdrawal of <strong class="blue">$10</strong> and deposit of <strong class="red">$20</strong> cannot change a state of bank account to <strong class="green">$120</strong></li>
+	<li>Uncontrolled concurrent processing of database transactions may <strong class="red">corrupt</strong> a database</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 10 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">An interesting experiment</a></li>	
+	<li><a href="#5">Where is a problem ?</a></li>	
+	<li><a href="#7">Principles of transaction processing</a></li>	
+	<li><a class="red" href="#10">Update synchronisation</a></li>	
+	<li><a href="#13">ACID properties</a></li>	
+	<li><a href="#15">Protocols</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Someone may claim that a problem can be solved through delaying updates on a bank account to a point where the transactions commit their operations. Yes, indeed a database transaction can perform update in two different ways:</p>
+	<p>(1) A transaction immediately writes uncommitted values into a database, it is so called "update-in-place"</p>
+	<p>(2) A transaction does not modify a database until the time it commits itself, it is so called "deferred-update"</p>
+	<p>In the last example the transactions applied update-in-place to modify a database.</p>
+	<br/>
+	<p>In the next slide we show that a way how database transactions perform an update (in-place or deferred) has no impact on the final outcomes, e.g. when deferred-update is applied a database still gets corrupted.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Update synchronisation</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Database transaction can perform update in two different ways:
+	  <ul class="build">
+	    <li>A transaction immediately writes uncommitted values into a database - <strong class="red">update-in-place</strong></li>
+	    <li>A transaction does not modify a database until the time it commits itself - <strong class="red">deferred-update</strong></li>
+	  </ul>
+	</li>
+	<li>In the last example the transactions applied <strong class="red">update-in-place</strong> to modify a database</li>
+	<li>A way how the transactions perform an update has no impact on the final outcomes, e.g. when </strong>deferred-update </strong> is applied a database still gets corrupted (see the next example)</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Now, assume that we apply "deferred-update" strategy to modify a database, i.e. a database is permanently changed at commit point.</p>
+	<br/>
+	<p>Like before the first transaction reads a value 100 into a transient variable a. Then the second transaction reads 100 into a transient variable b.</p>
+	<br/>
+	<p>Then, the first transaction deducts 10 from a and writes 90 into persistent storage, but .... this time a value 90 is written to a log file and not into a data item x.</p>
+	<br/>
+	<p>Next the second transaction increases a value in b by 20 and write 120 into persistent storage. like the first on 120 is written into a log file.</p>
+	<br/>
+	<p>Assume that this time the second transaction commits first. It really does not matter, a database is still corrupted, however in a different way than before. The second transaction retrieves the final value of x from a log file and write such value into a data item x.</p>
+	<br/>
+	<p>The first transaction, retrieves the final vale of x from a log file and writes it into  a data item x.</p>
+	<br/>
+	<p>Still a database is corrupted and the only difference is that we loose $10 and not a bank.</p>
+	<br/>
+	<p>If a state of a bank account is $100 then withdrawal of $10 and deposit of $20 cannot change a state of bank account to $90 Deferred-update does not solve the problem.</p>
+	<br/>
+	<p>So, now we can see that completely uncontrolled processing of database transactions over shared data may corrupt a database. It is very important that processing is performed over "shared" data. If database transactions operate on disjoined sets of data items then corruption of a database never happens. Such property of concurrent processing of database transaction provides an opportunities for some interesting solutions of the problems that will be discussed in the future.</p>
+	<br/>
+	<p>To solve the problem, we have to make a number of assumptions about the ways how database systems execute database transactions. We shall do it in the next section of this presentation. </p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Principles of transaction processing</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A sample concurrent processing of database transactions when <strong class="red">deferred-update</strong> is applied
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="Concurrent processing of database transactions">
+
+T1                      T2                     x: $100</pre> 
+	<pre class="prettyprint">a=read(x)                                      x: $100 a: $100</pre> 
+	<pre class="prettyprint">                        b=read(x)              x: $100 b: $100</pre> 
+	<pre class="prettyprint">write(x,a-10)                                  x: $100 log T1:$90</pre> 
+	<pre class="prettyprint">                        write(x,b+20)          x: $100 log T2:$120</pre> 
+	<pre class="prettyprint">                        commit                 x: $120</pre> 
+	<pre class="prettyprint">commit                                         x: $90</pre> 
+	   </ul>
+	</li>
+	<li>If a state of a bank account is <strong class="green">$100</strong> then withdrawal of <strong class="blue">$10</strong> and deposit of <strong class="red">$20</strong> cannot change a state of bank account to <strong class="green">$90</strong></li>
+	<li><strong class="red">Deferred-update</strong> does not solve the problem</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 13 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+         <li><a href="#2">An interesting experiment</a></li>	
+	<li><a href="#5">Where is a problem ?</a></li>	
+	<li><a href="#7">Principles of transaction processing</a></li>	
+	<li><a href="#10">Update synchronisation</a></li>	
+	<li><a class="red" href="#13">ACID properties</a></li>	
+	<li><a href="#15">Protocols</a></li>	
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>We make four assumptions about how database systems execute database transactions. Processing of database transactions must satisfy so called A C I D properties.</p>
+	<br/>
+	<p>The first property of execution of database transactions is atomicity. Atomicity means that  each database operation is treated as a single unit (all-or-nothing).  It means that a database operation cannot be partially processed. It is completely processed or it is not processed at all. You may say that write operation cannot partially processed. But in the future we shall talk about transaction processing with SQL on relational databases. Then INSERT, UPDATE, DELETE are treated as atomic operations. Then, atomicity means that for example UPDATE statement cannot be partially processed, such that some of the rows are updated, while the other rows that supposed to be updated are not.</p>
+	<br/>
+	<p>The second property of execution of database transactions is consistency. Consistency means that concurrent processing of database transactions</p>
+	<p>takes a database from one consistent state to another. In the other words, database transactions cannot corrupt a database.</p>
+	<br/>
+	<p>The third property is isolation. Isolation means that database transactions do not directly communicate one with each other and they do not read the intermediate results of the other transactions. Synchronization of database transactions cannot be implemented through any message exchange protocols.</p>
+	<br/>
+	<p>The fourth property (the last one) is durability. Durability means that the results of committed transactions must be permanent in a database in spite of failures. No matter happens to a database system the results of all committed transactions must be permanently recorded in a database. So if a system fails immediately after commit performed by a transaction the all modifications done by the transaction must be permanently recorded in a database.</p>
+	<br/>
+	<p>The database systems whose transaction processing systems satisfy A C I D properties explained above are call as ACID-compliant database system. ACID properties set some sort of a standard for transaction processing systems.</p><br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">ACID properties</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Processing of database transactions must satisfy <strong class="red">ACID</strong> properties</lI>
+        <li><strong class="red">Atomicity</strong>
+	  <ul class="build">
+	    <li>Each database operation is treated as a single unit (all-or-nothing)</li>
+	  </ul>
+	</li>
+	<li><strong class="red">Consistency</strong>
+	  <ul class="build">
+	    <li>A transaction takes a database from one consistent state to another</li>
+	  </ul>
+	</li>
+	<li><strong class="red">Isolation</strong>
+	  <ul class="build">
+	    <li>Transactions do not directly communicate one with each other and they do not read the intermediate results of the other transactions</li>
+	  </ul>
+	</li>
+	<li><strong class="red">Durability</strong>
+	  <ul class="build">
+	    <li>The results of committed transactions must be permanent in a database in spite of failures</li>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 15 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Transaction Processing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+         <li><a href="#2">An interesting experiment</a></li>	
+	<li><a href="#5">Where is a problem ?</a></li>	
+	<li><a href="#7">Principles of transaction processing</a></li>	
+	<li><a href="#10">Update synchronisation</a></li>	
+	<li><a href="#13">ACID properties</a></li>	
+	<li><a class="red" href="#15">Protocols</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A protocol is a way how a transaction processing system enforce ACID properties.</p>
+	<br/>
+	<p>There are two types of protocols: execution atomicity protocol and failure atomicity protocol.</p>
+	<br/>
+	<p>An execution atomicity protocol ensures Consistency property of ACID. Execution atomicity protocol is responsible for keeping the contents of a database logically consistent.</p>
+	<br/>
+	<p>A failure atomicity protocol ensures Atomicity, Isolation and Durability properties of ACID</p>
+	<br/>
+	<p>An example of concurrent processing where the final state of bank account is incorrect is a case where execution atomicity fails (please see a visualization of concurrent processing i the present slide).</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>An <strong class="red">execution atomicity protocol</strong> ensures <strong class="red">Consistency</strong> property</li>
+        <li>A <strong class="red">failure atomicity protocol</strong> ensures <strong class="red">Atomicity, Isolation</strong> and <strong class="red">Durability</strong> properties</li>
+      </ul>
+      <ul class="build">
+	<li>A sample incorrect <strong class="red">execution atomicity protocol</strong>
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="Concurrent processing of database transactions">
+
+T1                           T2                     x: $100</pre> 
+	     <pre class="prettyprint">a=read(x)                                           x: $100 a: $100</pre> 
+	     <pre class="prettyprint">                             b=read(x)              x: $100 b: $100</pre> 
+	     <pre class="prettyprint">write(x,a-10)                                       x: $90  a: $100</pre> 
+	     <pre class="prettyprint">                             write(x,b+20)          x: $120 b: $100</pre> 
+	     <pre class="prettyprint">                             commit                 x: $120</pre> 
+	     <pre class="prettyprint">commit                                              x: $120</pre> 
+	   </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>This slide shows a visualization of sample concurrent execution of database transactions where failure atomicity protocol returns incorrect results.</p>
+	<br/>
+	<p>Like before assume that we have a bank account with $100. A transaction T1 withdraws $10 and a transaction T2 deposits $20. A transaction t1 reads a value in data item x (10) into transient memory variable a.Then it deducts 10 from a value in a and write 90 as a value in data item x. So far so good.</p>
+	<br/>
+	<p>A transaction T2 reads a value in a data item x (90) into a transient variable b. Then, it increases a value in b by 20 and it writes 110 into a data item x. Next a transaction t2 commits itself. A data item x has a value $110. So far so good.</p>
+	<br/>
+	<p>Now a transaction T1 is aborted . For example a software implementing a transaction T1 has a bug, division by zero, and  T1 must be rolled back. When t1 is rolled back it must reverse all its modifications performed to a database. It means that value in a data item x must be reversed to 100. It wipes out the outcomes of a transaction T2. It violates Durability and Consistency principles.</p>
+	<br/>
+	<p>If a state of a bank account is $100 then withdrawal of $10 and deposit of $20 cannot change a state of bank account to $100.</p>
+	<br/>
+	<p>It means that a special failure atomicity protocol is needed to handle the failures of transactions in a correct way.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A sample incorrect <strong class="red">failure atomicity protocol</strong>
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="Concurrent processing of database transactions">
+
+T1                             T2                      x: $100</pre> 
+	<pre class="prettyprint">a=read(x)                                              x: $100 a: $100</pre> 
+	<pre class="prettyprint">write(x,a-10)                                          x: $90  a: $100</pre> 
+	<pre class="prettyprint">                              b=read(x)                x: $90  b: $90</pre> 
+	<pre class="prettyprint">                              write(x,b+20)            x: $110 b: $90</pre> 
+	<pre class="prettyprint">                              commit                   x: $110</pre> 
+	<pre class="prettyprint">abort                                                  x: $100</pre> 
+	   </ul>
+	</li>
+	<li>If a state of a bank account is <strong class="green">$100</strong> then withdrawal of <strong class="blue">$10</strong> and deposit of <strong class="red">$20</strong> cannot change a state of bank account to <strong class="green">$100</strong></li>	
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>In the future execution atomicity protocols will be called at concurrency control protocols</p>
+	<p>Execution atomicity protocol = Concurrency control protocol</p>
+	<br/>
+	<p>In the future failure atomicity protocols will be called as recovery protocolw</p>
+	<p>Failure atomicity protocol = Recovery protocol</p>
+	<br/>
+	<p>An incorrect concurrent execution when the results produced by a transaction are wiped out is commonly called as "lost update problem".</p>
+	<br/>
+	<p>A concurrent processing of the transactions visualized in the present slide (and already explained in the past) is a perfect case of "lost update problems". The modifications performed by a transaction T1 are wiped out by the modifications performed by a transaction T2.</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Execution atomicity protocol</strong> = Concurrency control protocol</li>
+	<li><strong class="red">Failure atomicity protocol</strong> = Recovery protocol</li>
+      </ul>
+      <ul class="build">
+	<li><strong class="red">Lost update problem</strong>
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="Concurrent processing of database transactions">
+
+T1                        T2                     x: $100</pre> 
+	<pre class="prettyprint">a=read(x)                                        x: $100 a: $100</pre> 
+	<pre class="prettyprint">                          b=read(x)              x: $100 b: $100</pre> 
+	<pre class="prettyprint">write(x,a-10)                                    x: $90  a: $100</pre> 
+	<pre class="prettyprint">                          write(x,b+20)          x: $120 b: $100</pre> 
+	<pre class="prettyprint">                          commit                 x: $120</pre> 
+	<pre class="prettyprint">commit                                           x: $120</pre> 
+	   </ul>
+	</li>
+      </ul>
+      
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Yet another interesting anomaly in a concurrent processing of database transactions is demonstrated in the present slide.</p>
+	<br/>
+	<p>Assume that we have concurrent execution of two database transactions T1 and T2. The transactions operate on the persistent data items x and y. The values in data items x and y are 100 and 50 respectively.</p>
+	<br/>
+	<p>A transaction T1 reads a value in data item x into a transient variable a.Then a transaction t2 reads a value in a data item y into a transient variable b.</p>
+	<br/>
+	<p>Next, a transaction T1 deducts 10 from a and saves a new value in a transient variable a (90) in a data item x.</p>
+	<p>Next, a transaction T2 reads a new value of data item x (90) into a transient variable c. Please note that at this point a transaction T2 has a correct view of the contents of data items x and y (90 and 50).</p>
+	<br/>
+	<p>Next, a transaction T1 changes a value in a data item y to  100 - 30 = 70.</p>
+	<br/>
+	<p>Finally, a transaction T2 adds the values of the transient variables b and c and prints the result (140). A functionality of a transaction T2 is to find a value of x + y. Obviously the result  is incorrect because a value in a data item y comes from a different moment in time than a value in a data item x. At the moment x + y = 160.</p>
+	<br/>
+	<p>A transaction T2 supposed to read both data items in the same moment in time to display a correct result of x + y.</p>
+	<br/>
+	<p>Such case is commonly called as "inconsistent retrieval".</p>
+	<br/>
+      </section>
+    </aside>
+    <hgroup>
+      <h2 class="blue">Protocols</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Inconsistent retrieval problem</strong>
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="Concurrent processing of database transactions">
+
+T1                    T2                   x        y        a         b        c</pre> 
+	<pre class="prettyprint">a=read(x)                                  100      50       100               </pre> 
+	<pre class="prettyprint">                      b=read(y)            100      50       100       50</pre> 
+	<pre class="prettyprint">write(x,a-10)                              90       50       100       50</pre> 
+	<pre class="prettyprint">                      c=read(x)            90       50       100       50       90</pre> 
+	<pre class="prettyprint">write(y,a-30)                              90       70       100       50       90</pre> 
+	<pre class="prettyprint">                      print(b+c)140        90       70       100       50       90</pre> 
+	   </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 20 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>T. Connoly, C. Begg, Database Systems, A Practical Approach to Design, Implementation, and Management, Chapter 22.1 Transaction Support, Chapter 22.2 Concurrency Control, Pearson Education Ltd, 2015</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+<!--
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/UDkACWLV66CvLDA1TKaSx7?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+-->
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

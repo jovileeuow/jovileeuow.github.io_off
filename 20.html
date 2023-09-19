@@ -1,0 +1,1556 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/v3wDCzvkppUP5j5DUXKsN0?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>20 MongoDB Query Language</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>MongoDB Query Language</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a class="red" href="#3">MongoDB query language</a></li>
+	<li><a href="#5">A sample database</a></li>
+	<li><a href="#11">Simple queries</a></li>	
+        <li><a href="#13">Queries with Boolean operations</a></li>
+        <li><a href="#18">Queries on nested documents</a></li>
+        <li><a href="#22">Queries on arrays</a></li>
+        <li><a href="#27">Projections</a></li>
+	<li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+        <li><a href="#33">Iterations over a cursor</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+  <slide>
+     <aside class="note">
+      <section>
+    <p>MongoDB query language is based on a concept of pattern matching.</p>
+    <br/>
+	<p>A query is expressed as a pattern and all documents that match the pattern are included in an answer.</p>
+	<p>A pattern must be a well formed BSON document.</p>
+	<br/>
+	<p>A method "find()" is used to match a pattern with the documents in a collection. In an example below a BSON document</p>
+	<p>{"_id":"ALFKI"}</p>
+	<p>represents a pattern where a document identifier, i.e. a key "_id" is associated with a value (string) "ALFKI".  A patterns is used as an argument of a method "find()" applied to a collection orders:</p>
+	<p>db.orders.find({"_id":"ALFKI"})</p>
+	<br/>
+	<p>All documents that match the pattern i.e. a a document that has a key "_id" associated with a value "ALFKI" is included in the result of a query.</p>
+	<br/>
+	<p>Matching of an empty pattern (empty document) { } with a collection "orders" returns as the result an entire collection, i.e. all documents in. a collection "orders".</p>
+    <br/>
+	<p>The following query finds all documents in a collection "orders"</p>
+	<p>db.orders.find({})</p>
+	<br/>
+	<p>It is possible to limit the total number of documents included into an answer. For example, a method "limit()" with with an argument 3 restricts the total number of documents selected from a collection "orders" to the first 3 documents.</p>
+	<p>db.orders.find({}).limit(3)</p>
+    <br/>
+	<p>To find select all documents from a collection "orders" and to list the results in a nice format  we use the methods 'find({})" and "pretty()" in the following way.</p>
+	<p>db.orders.find({}).pretty()</p>
+	<br/>
+	 </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">MongoDB query language</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li><strong class="red">MongoDB</strong> query language is based on a concept of pattern matching</li>
+        <li>A query is expressed as a <strong class="red">BSON</strong> pattern and all documents that match the pattern are included in an answer</li>
+        <li>A method <strong class="green prettyprint">find()</strong> can be used to match a pattern with the documents in a collection <strong class="green prettyprint28">orders</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">db.orders.find({"_id":"ALFKI"})</pre>
+          </ul>
+        </li>
+	<li>Matching of an empty pattern <strong class="green">{ }</strong> with a collection <strong class="green prettyprint28">orders</strong> returns an entire collection
+          <ul class="build">
+           <pre class="prettyprint" data-lang="find()">db.orders.find({})</pre>
+          </ul>
+        </li>
+	<li>Finding the first 3 documents in a collection <strong class="green prettyprint28">orders</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">db.orders.find({}).limit(3)</pre>
+          </ul>
+        </li>
+	<li>Finding all documents in a collection <strong class="green prettyprint28">orders</strong> and listing the results in a nice format
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">db.orders.find({}).pretty()</pre>
+          </ul>
+        </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">MongoDB query language</a></li>
+	<li><a class="red" href="#5">A sample database</a></li>
+	<li><a href="#11">Simple queries</a></li>	
+        <li><a href="#13">Queries with Boolean operations</a></li>
+        <li><a href="#18">Queries on nested documents</a></li>
+        <li><a href="#22">Queries on arrays</a></li>
+        <li><a href="#27">Projections</a></li>
+	<li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+        <li><a href="#33">Iterations over a cursor</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In this presentation we use a sample database that contains information about suppliers, products supplied by suppliers, customers, orders submitted by customers, and details of orders submitted by customers.</p>
+    <br/>
+	<p>A conceptual schema of a sample. database is given in the present slide.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A conceptual schema of a database with information about <strong class="red">suppliers</strong>, <strong class="red">products</strong>,   <strong class="red">customers</strong>, <strong class="red">orders</strong>, and <strong class="red">details of orders</strong>
+	  <ul class="build">
+    	    <p style="text-align:center;"><img src="database/dbschema.png" width="850" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A conceptual schema given in the previous slide is transformed in a process of logical design into a logical schema of a sample database.</p>
+    <br/>
+	<p>A logical schema consists of a single collection "orders" with two types of documents:</p>
+	<p>- the documents that contain information about suppliers and products supplied by suppliers and </p>
+	<p>- the documents that contain information about customers, orders submitted by customers and contents of orders submitted by customers.</p>
+	<br/>
+	<p>A document that contains information about a supplier and products supplied by a supplier has a two-level nested structure. </p>
+    <br/>
+	<p>Information about a supplier is included in the root of a hierarchy and information about products supplied by a supplier is nested at a lower level of a hierarchy within a description of a supplier. In a logical schema, such two-level nested structure is represented by  a vertically oriented one-to-many association between supplier component of a document and nested products component of a document.</p>
+	<br/>
+	<p>A document that contains information about a customer, orders submitted by a customer and contents of each order has a three-level nested structure.</p>
+	<p>Information about a customer is included in the root of a hierarchy. Information about the orders submitted by a customer is nested within a description of a customer.  Information about the contents of each order is nested within a description of an order at the third level in a hierarchy. In a logical schema, such three level nested structure is represented by a vertically oriented sequence of one-to-many associations between the descriptions of customers, orders, and contents of each order.</p>
+	<br/>
+	<p>Information about a customer is included in the root of a hierarchy. Information about the orders submitted by a customer is nested within a description of a customer.  Information about the contents of each order is nested within a description of an order at the third level in a hierarchy. In a logical schema, such three level nested structure is represented by a vertically oriented sequence of one-to-many associations between the descriptions of customers, orders, and contents of each order.</p>
+    <br/>
+	<p>A fact that both types of documents CUSTOMER and SUPPLIER are included in a single collection "orders" represent by inclusion of both hierarchies into a blob with a label "orders" in its left upper corner.</p>
+	<br/>
+	<p>A formal specification of a transformation of conceptual schema into a logical schema of a collection will be presented in the next presentation.</p>
+	<br/>
+	
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A sample collection <strong class="green prettyprint28">orders</strong></strong>
+	  <ul class="build">
+	    <p style="text-align:center;"><img src="database/bsonschema.png" width="500" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+  <aside class="note">
+      <section>
+    <p>This slide presents a sample document from a collection "orders". The documents describes a customer identified by a customer code "ALFKI". The same value is associated with a key "_id" in order to allow for fast search over a customer code as "_id" is automatically indexed by the system.</p>
+    <br/>
+	<p>The topmost level in the documents a key "CUSTOMER" is associated with a document containing a description of a customer. Inclusion of a key "CUSTOMER" allows for support of "self-describing" structure of a document with information about a customer. It measn that no information from a conceptual schema is lost in a process of its transformation into a logical schema.</p>
+	<br/>
+	<p>A description of a customer (a document associated with a key "CUSTOMER") contains the values of properties such as customer code, company name, contact name , ... etc. The orders submitted by a customer are represented by the documents within an array associated with a key "submits". In the present example a customer submitted no orders and an array of orders is empty.</p>
+	</section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A sample document, that belongs to a class <strong class="green prettyprint28">CUSTOMER</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="CUSTOMER">{
+        "_id" : "ALFKI",
+        "CUSTOMER" : {
+                 "customer code" : "ALFKI",
+                 "company name" : "Alfreds Futterkiste",
+                 "contact name" : "Maria Anders",
+                 "contact title" : "Sales Representative",
+                 "address" : "Obere Str. 57",
+                 "city" : "Berlin",
+                 "region" : null,
+                 "postal code" : "12209",
+                 "country" : "Germany",
+                 "phone" : "030-0074321",
+                 "fax" : "030-0076545",
+                 "submits" : [ ]
+        }
+}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+  <slide>
+  <aside class="note">
+      <section>
+    <p>The current slide shows a skeleton of a document describing a customer who submitted several orders. To save space and to avoid very small font some of key: value pars are replaced with ... ... ... ... ... .</p>
+    <br/>
+	<p>The orders submitted by a customer are represented by the documents associated with a key "ORDER" and stored in an array associated with a key "submits".  A description of an order  is represented by a document associated with a key "ORDER DETAIL" and stored in  an array associated with a key "consists of". The keys "submits" and "consists of" represent information about associations in a conceptual schema. The keys "CUSTOMER", "ORDER" and "ORDER DETAILS" represent a class "CUSTOMER", a class 'ORDER" and an association class "ORDER DETALS" in a conceptual schema. One-to-many association is implemented as an array of documents associated with a key taken from a name of the association. More information about formal process of logical design that transforms a conceptual schema into a logical schema of a collection is provided in the next presentation.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>A sample nested document, that belongs to a class <strong class="green prettyprint28">CUSTOMER</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="CUSTOMER">{"_id" : "FAMIA",
+ "CUSTOMER" : {
+               "customer code" : "FAMIA",
+                ...  ...  ...  ...  ...  ...
+               "submits" : [
+                            {
+                             "ORDER" : {
+                                        "order id" : 328,
+                                         ...  ...  ...  ...  ...
+                                        "consists of" : [
+                                                         {
+                                                          "ORDER DETAIL" : {
+                                                                            "product name" : "Louisiana Fiery Hot Pepper Sauce",
+                                                                            ...  ...  ...  ...  ...
+                                                                           }
+                                                         },
+                                                         {
+                                                          "ORDER DETAIL" : {
+                                                                            "product name" : "Raclette Courdavault",
+	                                                                    ...  ...  ...  ...  ...
+                                                                           }
+                                                         }
+                                                        ]
+                                       }
+                            }
+	                   ]
+	      }	}</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+  <slide>
+  <aside class="note">
+      <section>
+    <p>The current slide shows a skeleton of a document describing a supplier who supplies a number of products. To save space and to avoid very small font some of key: value pars are replaced with ... ... ... ... ... .</p>
+    <br/>
+	<p>The products supplied by a supplier are represented by the documents associated with a key "PRODUCT" and stored in an array associated with a key "supplies". A keys "supplies" represent information about associations in a conceptual schema. The keys "SUPPLIER" and "PRODUCT" represent a class 'CUSTOMER" and a class "PRODUCT" in a conceptual schema. One-to-many association is implemented as an array of documents associated with a key taken from a name of the association. More information about formal process of logical design that transforms a conceptual schema into a logical schema of a collection is provided in the next presentation.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">A sample database</h2>
+    </hgroup>
+    <article class="smallest">
+      <ul class="build">
+        <li>A sample nested document, that belongs to a class <strong class="green prettyprint28">SUPPLIER</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="SUPPLIER">{
+ "_id" : "Karkki Oy",
+ "SUPPLIER" : {
+               "company name" : "Karkki Oy",
+               "contact name" : "Anne Heikkonen",
+               "contact title" : "Product Manager",
+               "address" : "Valtakatu 12",
+               ...  ...  ...  ...  ...  ...
+               "supplies" : [
+                             {
+                              "PRODUCT" : {
+                                           "product name" : "Maxilaku",
+                                           "category name" : "Confections",
+                                            ...  ...  ...  ...  ... 
+                                          }
+                             },
+                             {
+                              "PRODUCT" : {
+                                           "product name" : "Valkoinen suklaa",
+                                           "category name" : "Confections",
+                                           ...  ...  ...  ...  ...
+                                          }
+                             }
+
+                            ]
+              }
+}
+</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+         <li><a href="#3">MongoDB query language</a></li>
+	 <li><a href="#5">A sample database</a></li>
+ 	 <li><a class="red" href="#11">Simple queries</a></li>
+         <li><a href="#13">Queries with Boolean operations</a></li>
+         <li><a href="#18">Queries on nested documents</a></li>
+         <li><a href="#22">Queries on arrays</a></li>
+         <li><a href="#17">Projections</a></li>
+         <li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+         <li><a href="#33">Iterations over a cursor</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>We start from the simple queries. Assume that a default database has been selected with "use" command and that the database contains a collection "orders" described in the previous slides
+</p>
+    <br/>
+	<p>To find the total number of documents in a collection "orders" we apply a method ""count()"  a collection orders in the following way.</p>
+	<p>db.orders.count()</p>
+	<br/>
+	<p>To find information about all customers we must construct a query template such that all documents that have a key "CUSTOMER" in the topmost level of nesting of the document match the template.  To check if a give key exists in a document we use an operator "$exists" associated with a value "true". Then a document {$exists:true} is associated as a value with a key "CUSTOMER".</p>
+	<br/>
+	<p>db.orders.find({"CUSTOMER":{$exists:true}})</p>
+    <br/>
+	<p>All documents in a collection "orders" that have a key "CUSTOMER" at the topmost level of nesting match a query template.</p>
+	<br/>
+	<p>In the same way we create a query template that matches all documents in a collection "orders" that have a key "SUPPLIER" at the topmos leel ina  document, </p>
+	<p>i.e that contain information about a supplier.</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}})</p>
+	<p>All documents in a collection "orders" that have a key "SUPPLIER" at the topmost level of nesting match a query template.</p>
+	<br/>
+	<p>In the next query we find all information about the customers living in Germany. A query template containth a path "CUSTOMER.country" that is associated with a string "Germany".</p>
+	<p>It means that whenever a document has a key "CUSTOMER" and a document associted with the key has a key "country" associated with a string </p>
+	<p>"Germany" then such document matches a query template.</p>
+	<p>db.orders.find({"CUSTOMER.country":"Germany"})</p>
+	<br/>
+	<p>In the next query we find information about supliers living ina city Oviedo.</p>
+	<p>A query template consists of a key "SUPPLIER" to find the suppliers and a key "city" associated with a tring "Oviedo". All documents</p>
+	<p>that have a path "SUPPLIER.city" asociated with a value "Oviedo" are include into an answer.</p>
+	<p>db.orders.find({"SUPPLIER.city":"Oviedo"})</p>
+	<br/>
+	<p>In the last query on the presnet slide we find all information about the suppliers who live in the Netherlands and have a contact title Accounting Manager</p>
+	<p>This time we construct two paths "SUPPLIER.country" associated with a value "Netherlands" and "SUPPLIER. contact title" associated with a value "Accountig Manager".</p>
+	<p>All documents that hve such paths asscitaed with the appropriate values are included into an answer.</p>
+	<p>db.orders.find({"SUPPLIER.country":"Netherlands","SUPPLIER.contact title":"Accounting Manager"})</p>
+	<br/>
+	<p>Note that one of the ways to express a condition being a conjunction of elementary conditions is to provide two or more paths associate with the values and separated with a comma.</p>
+	<p>It is a template of a document that has both paths associted with the given values.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Simple queries</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Find total number of documents in a collection
+          <ul class="build">
+            <pre class="prettyprint" data-lang="count()">db.orders.count()</pre>
+          </ul>
+        </li>
+	<li>Find all information about all customers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Find entire class">db.orders.find({"CUSTOMER":{$exists:true}})</pre>
+          </ul>
+        </li>
+	<li>Find all information about all suppliers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Find entire class">db.orders.find({"SUPPLIER":{$exists:true}})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the customers living in <strong class="green prettyprint28">Germany</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Access path">db.orders.find({"CUSTOMER.country":"Germany"})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the suppliers living in a city of <strong class="green prettyprint28">Oviedo</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Access path">db.orders.find({"SUPPLIER.city":"Oviedo"})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the suppliers who live in the <strong class="green prettyprint28">Netherlands</strong> and have a contact title <strong class="green prettyprint28">Accounting Manager</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="And">db.orders.find({"SUPPLIER.country":"Netherlands",
+	        "SUPPLIER.contact title":"Accounting Manager"})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">MongoDB query language</a></li>
+	<li><a href="#5">A sample database</a></li>
+	<li><a href="#11">Simple queries</a></li>
+        <li><a class="red" href="#13">Queries with Boolean operations</a></li>
+        <li><a href="#18">Queries on nested documents</a></li>
+        <li><a href="#22">Queries on arrays</a></li>
+        <li><a href="#27">Projections</a></li>
+        <li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+        <li><a href="#33">Iterations over a cursor</a></li>			
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Now we look at the ways how to express elementary conditions and how to create Booleam expressions in a language of query templates of MongoDB.</p>
+    <br/>
+	<p>Assume that we would like to express a condition like 'fnd all document where a key "key" is associated with a value "value", i.e. an elementary condition "key=value".</p>
+	<p>The simplesr way is to create a key value pair "key":"value". Then by defalut a relational operator is "=". If we do not want to use a default operator then wecan express it is</p>
+	<p>explicitly with "$eq" in the following way.</p>
+	<p>{"key":{$eq:"value"}}</p>
+	<p>Note that "key" must be associated with an atomic value or with a document. It is why in this case we must provide a document {$eq:"value"} to be associated with "key".</p>
+	<br/>
+	<p>It is possible to use different operator to express other condititin different from equality condition. For example, a comparison "key" > "value" can be expressed in the following way with "$gt" operator.</p>
+	<p>{"key":{$gt:"value"}}</p>
+	<br/>
+	<p>A disjunction of elementary conditions can be expressed with an operator "$or" associated with an array of documents representing the terms of disjunction.</p>
+	<p>For example a disjunction ("key1"="value1") or ("key2"="value2") is represented in the following way.</p>
+	<p>{$or:[{"key1":"value1"},{"key2":"value2"}]}</p>
+    <br/>
+	<p>The same method can be used to represent a conjunction. An operator "$and" is associated with an array of elementary terms of conjunction</p>
+	<p>For example a conjunction ("key1"="value1") and ("key2"="value2") is represented in the following way.</p>
+	<p>{$and:[{"key1":"value1"},{"key2":"value2"}]}</p>
+	<br/>
+	<p>If one of the terms is a subexpression then such subexpression is represented as a document where a Boolean operator is associated with an array of lementary terms, i.e. key-value pairs.</p>
+	<p>For example, a Boolean expression (("key1"="value1") or ("key2"="value2")) and ("key3"="value3") i represnetd in the following way.</p>
+	<p>{$and:[{$or:[{"key1":"value1"},{"key2":"value2"}]},{"key3":"value3"}]}</p>
+	<br/>
+	<p>It is a conjunction of two terms: {"key3":"value3"} and {$or:[{"key1":"value1"},{"key2":"value2"}]}. The second term is a disjunction</p>
+	<p>that also consists of two terms: {"key1":"value1"}, {"key2":"value2"}.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries with Boolean operations</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Comparison <strong class="green prettyprint">"key"="value"</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="=">{"key":"value"}</pre>
+	    <pre class="prettyprint" data-lang="=">{"key":{$eq:"value"}}</pre>
+          </ul>
+        </li>
+	<li>Comparison <strong class="green prettyprint">"key" &gt; "value"</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang=">">{"key":{$gt:"value"}}</pre>
+          </ul>
+        </li>
+	<li>Disjunction <strong class="green prettyprint">("key1"="value1") or ("key2"="value2")</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$or">{$or:[{"key1":"value1"},{"key2":"value2"}]}</pre>
+          </ul>
+        </li>
+	<li>Conjunction <strong class="green prettyprint">("key1"="value1") and ("key2"="value2")</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$and">
+{$and:[{"key1":"value1"},{"key2":"value2"}]}</pre>
+          </ul>
+        </li>
+      </ul>
+      <ul class="build">
+        <li>Boolean expression <strong class="green prettyprint">(("key1"="value1") or ("key2"="value2"))
+and ("key3"="value3")</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Boolean expression"> 	      
+{$and:[{$or:[{"key1":"value1"},{"key2":"value2"}]},{"key3":"value3"}]}</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A negation of equality conditions is represented as a term "key" not ="value" in the following way.</p>
+	<p>{"key":{$not:{$eq:"value"}}}</p>
+	<br/>
+	<p>A negation of an expression not (("key1"="value1") or ("key2"="value2")) is represented with "$nor" operator in the following way.</p>
+	<p>{$nor:[{"key1":"value1"},{"key2":"value2"}]}</p>
+	<br/>
+	<p>An operator "$nor" can also be used to negate an equality condition ("key1"="value1") in the following way.</p>
+	<p>{$nor:[{"key1":"value1"}]}</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries with Boolean operations</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+ 	<li>Negation of a comparison <strong class="green prettyprint">"key" not ="value"</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="not ="> 
+{"key":{$not:{$eq:"value"}}}</pre>
+          </ul>
+        </li>
+	<li>Negation of an expression <strong class="green prettyprint">not (("key1"="value1") or ("key2"="value2"))</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="not or"> 
+{$nor:[{"key1":"value1"},{"key2":"value2"}]}</pre>
+          </ul>
+        </li>
+	<li>Negation <strong class="green prettyprint">nor ("key1"="value1")</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="not ="> 
+{$nor:[{"key1":"value1"}]}</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In this slide we look at the implementations of queries with Boolean operators.</p>
+    <br/>
+	<p>First we implement a query that finds all information about the suppliers who live in the Netherlands and have a contact title Accounting Manager</p>
+	<p>This time we use an operator "$and" to implement a query.</p>
+	<p>A condition "... live in the Netherlands..." is implemented as a key-value pair {"SUPPLIER.country":"Netherlands"} and a condition "... have a contact title Accounting Manager..."</p>
+	<p>is implemented as a key-value pair {"SUPPLIER.contact title":"Accounting Manager"}. The implementations of elementary terms are included in an arraay</p>
+	<p>associated with and operator "$and".</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.country":"Netherlands"},{"SUPPLIER.contact title":"Accounting Manager"}]})</p>
+	<br/>
+	<p>In the next query we replace an operator "$and" with an operator "$or". We implement a query that finds all information about the suppliers who live in the Netherlands or have a contact title Accounting Manager</p>
+	<p>db.orders.find({$or:[{"SUPPLIER.country":"Netherlands"},{"SUPPLIER.contact title":"Accounting Manager"}]})</p>
+    <br/>
+	<p>Next, we implement a query that finds all information about the customers who live in France or in Germany. This time we do not use "$or"operator. Instead we use a set membership operator "$in".</p>
+	<p>db.orders.find({"CUSTOMER.country":{$in:["France","Germany"]}})</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries with Boolean operations</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Find all information about the suppliers who live in the <strong class="green prettyprint28">Netherlands</strong> <strong class="red">and</strong> have a contact title <strong class="green prettyprint28">Accounting Manager</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$and"> 
+db.orders.find({$and:[{"SUPPLIER.country":"Netherlands"},
+	              {"SUPPLIER.contact title":"Accounting Manager"}]})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the suppliers who live in the <strong class="green prettyprint28">Netherlands</strong> <strong class="red">or</strong> have a contact title <strong class="green prettyprint28">Accounting Manager</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$or"> 	    
+db.orders.find({$or:[{"SUPPLIER.country":"Netherlands"},
+	             {"SUPPLIER.contact title":"Accounting Manager"}]})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the customers who live in <strong class="green prettyprint28">France</strong>  <strong class="red">or</strong> in <strong class="green prettyprint28">Germany</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$in"> 
+db.orders.find({"CUSTOMER.country":{$in:["France","Germany"]}})</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In this slide we look at the implementations of queries with negated Boolean operators.</p>
+    <br/>
+	<p>First we implement a query that finds all information about the customers who do not live in Germany. If a customer does not live in Geremany thena path "CUSTOMER.country" must be associated with a value not equla to a string "Germany".</p>
+	<p>Such condition can be expressed as a negation of "$eq"m operator with and operator "$not" in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.country":{$not:{$eq:"Germany"}}})</p>
+	 <br/>
+	<p>In the next query we find all information about the customers who do not both live in Netherlands or have a contact title Accounting Manager.</p>
+	<p>Such can aslo be expressed as find all information about the customers who do not live in Netherlands and do not have a contact title Accounting Manager.</p>
+	<p>It means that we should implement a search condition $and:[ {"SUPPLIER.country":{$not:{$eq:"Netherlands"}}},{"SUPPLIER.contact title":{$not:{$eq:"Accounting Manager"}}}].</p>
+	<p>Application of De Morgan's Law (not p and not q) being equivalent to not(p or q) allows fro simplification of a search condition with an operator $nor.</p>
+	<p>db.orders.find({$nor:[{"SUPPLIER.country":"Netherlands"},{"SUPPLIER.contact title":"Accounting Manager"}]})</p>
+    <br/>
+	<p>An operator $nor can also be used to implement a query find all information about the customers who do not live in Germany in a simple way as follows.</p>
+	<p>db.orders.find({$nor:[{"CUSTOMER.country":"Germany"}]})</p>
+    <br/>
+	<p>It is consistent with the following transfromations of Boolean expression</p>
+	<p>First p is equivalent to p or false, then not (p or false) is equlivalent to not(p) and true, which is equivalent to not(p).</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries with Boolean operations</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Find all information about the customers who do not live in <strong class="green prettyprint28">Germany</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$not"> 
+db.orders.find({"CUSTOMER.country":{$not:{$eq:"Germany"}}})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the customers who do not <strong class="red">both</strong> live in <strong class="green prettyprint28">Netherlands</strong> <strong class="red">or</strong> have a contact title <strong class="green prettyprint28">Accounting Manager</strong>
+	<li>Find all information about the customers who do not live in <strong class="green prettyprint28">Netherlands</strong> <strong class="red">and</strong> do not have a contact title <strong class="green prettyprint28">Accounting Manager</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$nor">
+db.orders.find({$nor:[{"SUPPLIER.country":"Netherlands"},
+	       {"SUPPLIER.contact title":"Accounting Manager"}]})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the customers who do not live in <strong class="green prettyprint28">Germany</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$nor"> 
+db.orders.find({$nor:[{"CUSTOMER.country":"Germany"}]})</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">MongoDB query language</a></li>
+	<li><a href="#5">A sample database</a></li>
+	<li><a href="#11">Simple queries</a></li>
+        <li><a href="#13">Queries with Boolean operations</a></li>
+        <li><a class="red" href="#18">Queries on nested documents</a></li>
+        <li><a href="#22">Queries on arrays</a></li>
+        <li><a href="#27">Projections</a></li>
+	<li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+        <li><a href="#33">Iterations over a cursor</a></li>			
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Before presentation of queries on nested documents we review a logical schema of a sample database.</p>
+    <br/>
+	<p>A logical schema consists of a single collection "orders" that contains two types of documents:</p>
+	<p>- the documents that contain information about suppliers and products supplied by suppliers</p>
+	<p>- the documents that contain information about customers, orders submitted by customers and contents of orders submitted by customers.</p>
+	<br/>
+	<p>A document that contain information about a supplier and products supplied by a supplier is a two-level nested structure. </p>
+	<p>Information about a supplier is included in the root of a hierarchy and information about products supplied by a supplier is nested at a lower level of a hierarchy within a description of a supplier. In logical schema, such two-level nested structure is represented by  a vertically oriented one-to-many association between supplier component of a document and nested products component of a document.</p>
+	<br/>
+	<p>A document that contain information about a customer, orders submitted by a customer and contents of each order is three-level nested structure.</p>
+	<p>A document that contain information about a customer, orders submitted by a customer and contents of each order is three-level nested structure.</p>
+	<br/>
+	<p>A document that contain information about a customer, orders submitted by a customer and contents of each order is three-level nested structure.</p>
+    <br/>
+	<p>A fact that both types of documents CUSTOMER and SUPPLIER are included in a single collection "orders" represent by inclusion of both hierarchies into a blob with a label "orders" in its left upper corner.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on nested documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A sample collection <strong class="green prettyprint28">orders</strong></strong>
+	  <ul class="build">
+	    <p style="text-align:center;"><img src="database/bsonschema.png" width="500" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The present slide show three queries that use "long paths" to formulate search condition. We start from a query that finds all information about suppliers who supply a product named Laughing Lumberjack Lager.</p>
+	<p>To create a condition where a key "product name" is associated with a string "Laughing Lumberjack Lager" we must provide a path in a nested document describing a supplier from root to a key "product name".</p>
+	<p>To ctreate such path we look at a logical schema of a sample collection given in the previous slide (slide 18). To get to a product name we must pass thropugh a class "SUPPLIER" then through an association "supplies" then access a clss "PRODUCT" and pick a property "product name".</p>
+	<p>Such "travel" through the classes and association contributes to a path "SUPPLIER.supplies.PRODUCT.product name". To create a search condition we associate a path with a string "Laughing Lumberjack Lager".</p>
+	<p>The final version of a query is the following.</p>
+	<p>db.orders.find({"SUPPLIER.supplies.PRODUCT.product name":"Laughing Lumberjack Lager"})</p>
+	<br/>
+	<p>The next query retrieves information about suppliers living in London who supply a product named Chai.</p>
+	<p>We construct to paths. The first one implements condition "living in London" and the second implements a condition :"who supply product named Chai. The first condition needs a short path "SUPPLIER.city" associated with a string "London.</p>
+	<p>The second condition needs a bit longer path "SUPPLIER.supplies.PRODUCT.product name" associated with a string "Chai". Then we build a conjunction of both paths. The final version of the query is as follows.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.city":"London"},{"SUPPLIER.supplies.PRODUCT.product name":"Chai"}]})</p>
+	<br/>
+	<p>The next query is an extension of the previous query,. We would like to find all information about suppliers living in London who supply a product named Chai or a product named Chang.</p>
+	<p>The first path implementing a condition "living in London" is the same as before. Then, we create to identical paths "SUPPLIER.supplies.PRODUCT.product name" and associate the first one</p>
+	<p>with a string "Chai" and the second with a string "Chang". The paths are joined using "$or" operator and later on joined with the first path using $and operator. A complete query is given below.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.city":"London"},{$or:[{"SUPPLIER.supplies.PRODUCT.product name":"Chai"},{"SUPPLIER.supplies.PRODUCT.product name":"Chang"}]}]})</p>
+	<br/>
+	<p>Application of set membership operator "$in" allows for simplification of a query due to elimination pf repeated path "SUPPLIER.supplies.PRODUCT.product name" in the first query.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.city":"London"},{"SUPPLIER.supplies.PRODUCT.product name":{$in:["Chai","Chang"]}}]})</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on nested documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Find all information about suppliers who supply a product named <strong class="green prettyprint28">Laughing Lumberjack Lager</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path"> 
+db.orders.find({"SUPPLIER.supplies.PRODUCT.product name":"Laughing Lumberjack Lager"})</pre>
+          </ul>
+        </li>
+	<li>Find all information about suppliers living in <strong class="green prettyprint28">London</strong> who supply a product named <strong class="green prettyprint28">Chai</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path and path"> 
+db.orders.find({$and:[{"SUPPLIER.city":"London"},
+                      {"SUPPLIER.supplies.PRODUCT.product name":"Chai"}]})</pre>
+          </ul>
+        </li>
+	<li>Find all information about suppliers living in <strong class="green prettyprint28">London</strong> who supply a product named <strong class="green prettyprint28">Chai</strong> <strong class="red">or</strong> a product named <strong class="green prettyprint28">Chang</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="(path or path) and path"> 
+db.orders.find({$and:[{"SUPPLIER.city":"London"},
+                      {$or:[{"SUPPLIER.supplies.PRODUCT.product name":"Chai"},
+                            {"SUPPLIER.supplies.PRODUCT.product name":"Chang"}]}]})</pre>
+            <pre class="prettyprint" data-lang="path and path">
+db.orders.find({$and:[{"SUPPLIER.city":"London"},
+                      {"SUPPLIER.supplies.PRODUCT.product name":{$in:["Chai","Chang"]}}]})</pre>
+          </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>The next query finds all information about suppliers living in London who supply a product named Chai and a product named Chang. The only difference between the present query and the previous one</p>
+	<p>is operator "$and" used now. A document that describes a supplier who supplies both products Chai and Chang must have both  paths "SUPPLIER.supplies.PRODUCT.product name" associated with a string "Chai" and</p>
+	<p>"SUPPLIER.supplies.PRODUCT.product name" associated with a string "Chang". A complete query is the following.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.city":"London"},{"SUPPLIER.supplies.PRODUCT.product name":"Chai"},{"SUPPLIER.supplies.PRODUCT.product name":"Chang"}]})</p>
+    <br/>
+	<p>The next query finds all information about suppliers who supply at least one product. To be a supplier who supplies at least one product a documnt that represents a supplier must </p>
+	<p>have a key "supplies" and such key must be associated with a nonempty array. A condition that equires existence of a key "supplies"</p>
+	<p>can be expressed  in a well know way as {"SUPPLIER.supplies":{$exists:true}}. The second condition requeires an array associted witha key "supplies"</p>
+	<p>to be not empty, i.e. {"SUPPLIER.supplies":{$ne:[]}}. Then we implement a conjunction of these conditions and a query is ready.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.supplies":{$exists:true}},{"SUPPLIER.supplies":{$ne:[]}}]})</p>
+    <br/>
+	<p>The next query finds all supplier who supply no products. In this case the second condition must associate a path "SUPPLIER.supplies" with an empty array.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.supplies":{$exists:true}},{"SUPPLIER.supplies":{$eq:[]}}]})</p>
+    <br/>
+	<p>We assume that if a supplier supplies no products then a document representing such supplier must have a key "supplies". </p>
+	<p>It is possible that a document that contains information about a supplier does not have exit</p>
+	<p>a key "supplies". In such  a caseit is a matter of interpretation  what does a missing key "supplies". Does it mean that </p>
+	<p>a supplies supplies no products ? or maybe it means. that we do not know if a supplier supplies no products. Interpretation of a missing key is up to a database designer.</p>
+	<p>It is a similar situation as with interpretation of NULL in the entries of relational tables.</p>
+    <br/>
+	<p>In the last example, we create a long path to find all information about customers who submitted an order for at least one </p>
+	<p>product called Flotemysost. Again we look at a logical schema and we find that to gett to a product name in a class "ORDER DETAIL" we must bass through a class </p>
+	<p>"CUSTOMER", then through an association "submits", then through a class "ORDER", then through and association "consists of", then through a class "ORDER DETAIL </p>
+	<p>to get to a key "product name". So a path is "CUSTOMER.submits.ORDER.consists of.ORDER DETAIL.product name" and it should be associated with a string </p>
+	<p>"Flotemysost". A complete query is given below.</p>
+	<p>db.orders.find({"CUSTOMER.submits.ORDER.consists of.ORDER DETAIL.product name":"Flotemysost"})</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on nested documents</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Find all information about suppliers living in <strong class="green prettyprint28">London</strong> who supply a product named <strong class="green prettyprint28">Chai</strong> <strong class="red">and</strong> a product named <strong class="green prettyprint28">Chang</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path and path and path">
+db.orders.find({$and:[{"SUPPLIER.city":"London"},
+                      {"SUPPLIER.supplies.PRODUCT.product name":"Chai"},
+                      {"SUPPLIER.supplies.PRODUCT.product name":"Chang"}]})</pre>
+          </ul>
+        </li>
+        <li>Find all information about suppliers who supply at least one product
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path and path"> 
+db.orders.find({$and:[{"SUPPLIER.supplies":{$exists:true}},
+                      {"SUPPLIER.supplies":{$ne:[]}}]})</pre>
+          </ul>
+        </li>
+        <li>Find all information about suppliers who do not supply any products
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path and path"> 
+db.orders.find({$and:[{"SUPPLIER.supplies":{$exists:true}},
+                     {"SUPPLIER.supplies":{$eq:[]}}]})</pre>
+          </ul>
+        </li>
+	<li>Find all information about customers who submitted an order for at least one product <strong class="green prettyprint28">Flotemysost</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="long path"> 
+db.orders.find({"CUSTOMER.submits.ORDER.consists of.ORDER DETAIL.product name":"Flotemysost"})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 21 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#3">MongoDB query language</a></li>
+       <li><a href="#5">A sample database</a></li>
+       <li><a href="#11">Simple queries</a></li>
+       <li><a href="#13">Queries with Boolean operations</a></li>
+       <li><a href="#18">Queries on nested documents</a></li>
+       <li><a class="red" href="#22">Queries on arrays</a></li>
+       <li><a href="#27">Projections</a></li>
+       <li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+       <li><a href="#33">Iterations over a cursor</a></li>		
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 22 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In this section we show how to express the conditions on the values being arrays.</p>
+    <br/>
+	<p>Assume that we have a key "array" and such key is associated with an array of numbers. A condition that compares</p>
+	<p>a value associated with a key "array" on equality with a given array of numbers [1,2,3,4,5] is the following.</p>
+	<p>{"array":{$all:[1,2,3,4,5]}}</p>
+	<br/>
+	<p>All documents that have a key "array" associated with an array of numbers [1,2,3,4,5] validates well agains a template given above.</p>
+    <br/>
+	<p>The next condition that is frequently used is verification if an array contains a given element.</p>
+	<p>For example if we would like to check if an array associated with a key "array" contains an element that satisfies a given condition</p>
+	<p>For example if we would like to check if an array associated with a key "array" contains an element that satisfies a given condition</p>
+	<p>The following example checks if an array associated with a key "array" contains at least one element equal to 2.</p>
+    <p>{"array":{$elemMatch:{$eq:2}}}</p>
+	<br/>
+	<p>The following example checks if an array associated with key "array" contains at least one element that is greater than 2 and less than 4.</p>
+	<p>{"array":{$elemMatch:{$gt:2,$lt:4}}}</p>
+    <br/>
+	<p>The following example checks if an array contains a document that satisfies a condition such that it contains</p>
+	<p>key "key" associated with a value 2.</p>
+	<p>{"array":{$elemMatch:{"key":{$eq:2}}}}</p>
+    <br/>
+	<p>In the next example, we check if an aray contains a document that satisfies a condition where a value associated with a key "key" is greater than 2 and less than 4.</p>
+	<p>{"array":{$elemMatch:{"key":{$gt:2,$lt:4}}}}</p>
+	<br/>
+	<p>Testing if an array contains 5 elements can be done in the following way.</p>
+	<p>{"array":{$size:5}}</p>
+    <br/>
+	<p>Testing if an array contains no elements, i.e. an array is empty can be done in the following way</p>
+	<p>{"array":{$size:0}}</p>
+	<br/>
+	<p>or in the following way.</p>
+	<p>{"array":[]}</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on arrays</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Array equal to <strong class="green prettyprint">[1,2,3,4,5]</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">{"array":{$all:[1,2,3,4,5]}}</pre>
+          </ul>
+        </li>
+	<li>Array includes an element that satisfies a condition
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">{"array":{$elemMatch:{$eq:2}}}</pre>
+	    <pre class="prettyprint" data-lang="find()">{"array":{$elemMatch:{$gt:2,$lt:4}}}</pre>
+          </ul>
+        </li>
+	<li>Array includes a document satisfies a condition
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">{"array":{$elemMatch:{"key":{$eq:2}}}}</pre>
+	    <pre class="prettyprint" data-lang="find()">{"array":{$elemMatch:{"key":{$gt:2,$lt:4}}}}</pre>
+          </ul>
+        </li>	
+	<li>Size of an array
+          <ul class="build">
+            <pre class="prettyprint" data-lang="find()">{"array":{$size:5}}</pre>
+            <pre class="prettyprint" data-lang="find()">{"array":{$size:0}}</pre>
+            <pre class="prettyprint" data-lang="find()">{"array":[]}</pre>	    
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 23 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Now we look at more complex queries using conditions involving arrays and elements in arrays.</p>
+    <br/>
+	<p>We start from a query "find all information about customers who submitted an order that contains only a product Boston Crab Meat </p>
+	<p>at unit price 14.7 in quantity 20 with discount equal to 0.</p>
+	<br/>
+	<p>In this case we compare the contents of an array associated with a key "consists of" with a given document.</p>
+	<p>An implementation of the query is the following.</p>
+	<p>An implementation of the query is the following.</p>
+	<p>{$eq:[{"ORDER DETAIL":{"product name":"Boston Crab Meat","unit price":14.7,"quantity":20,"discount":0}}]}})</p>
+	<br/>
+	<p>Next we implement a query that finds all information about suppliers such that the second supplied product is named Chang.</p>
+	<p>The second supplied product means that we have to check if an element with index 1 in an array associated with a key "supplies" is a product </p>
+	<p>that has a name Chang. The second element has an index 1 because the first element has an index 0.</p>
+	<p>A query is implemented in the following way.</p>
+	<p>db.orders.find({"SUPPLIER.supplies.1.PRODUCT.product name":"Chang"})</p>
+	<br/>
+	<p>We extend the previous query and we try to find all information about suppliers such that the first supplied product is named Chai</p>
+	<p>and the second supplied product is named Chang.</p>
+	<p>A sample solution is given below.</p>
+	<p>db.orders.find({$and:[{"SUPPLIER.supplies.0.PRODUCT.product name":"Chai"},</p>
+	<p>{"SUPPLIER.supplies.1.PRODUCT.product name":"Chang"}]})</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on arrays</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Find information about all customers who submitted an order that contains only a product <strong class="green prettyprint28">Boston Crab Meat</strong> at unit price <strong class="green prettyprint28">14.7</strong> in quantity <strong class="green prettyprint28">20</strong> with discount equal to <strong class="green prettyprint28">0</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="= array">
+db.orders.find({"CUSTOMER.submits.ORDER.consists of":
+	                          {$eq:[{"ORDER DETAIL":{"product name":"Boston Crab Meat",
+                                                         "unit price":14.7,
+                                                         "quantity":20,
+                                                         "discount":0}}]}})
+          </ul>
+        </li>
+        <li>Find information about all suppliers such that their second supplied product is named <strong class="green prettyprint28">Chang</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path.n.path"> 
+db.orders.find({"SUPPLIER.supplies.1.PRODUCT.product name":"Chang"})</pre>
+          </ul>
+        </li>
+        <li>Find information about all suppliers such that their first supplied product is named  <strong class="green prettyprint28">Chai</strong> and the second supplied product is named <strong class="green prettyprint28">Chang</strong>
+
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path.n.path and path.n.path"> 
+db.orders.find({$and:[{"SUPPLIER.supplies.0.PRODUCT.product name":"Chai"},
+                      {"SUPPLIER.supplies.1.PRODUCT.product name":"Chang"}]})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 24 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In the next query we find information about all customers who purchased at least one product with discount greater than 0.2</p>
+	<p>At least one product means that any element of an array associated with a key "consists of" can be greater than 0.2. In such situation</p>
+	<p>there is no need to provide an index in an array. A sample implementation of the query is the following.</p>
+	<p>db.orders.find({"CUSTOMER.submits.ORDER.consists of.ORDER DETAIL.discount":{$gt:0.2}})</p>
+	<br/>
+	<p>The last query can also be implemented with "$elemMatch" operator in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.submits.ORDER.consists of":{$elemMatch:{"ORDER DETAIL.discount":{$gt:0.2}}}})</p>
+	<br/>
+	<p>In such implementation  an array of documents associated with a key "consists of" must contain a document that has a path "ORDER DETAIL.discount" associated with a value greater than 0.2.</p>
+	<br/>
+	<p>In the next query we find information about all customers who purchased at least one product with discount equal to 0.25 and quantity equal to 16. We use operator "$elemMatch" associated with a template of a document that has a path "ORDER DETAIL.discount" associated with 0.25 and a path "ORDER DETAIL.quantity" associated with 16. The query is implemented in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.submits.ORDER.consists of":{$elemMatch:{"ORDER DETAIL.discount":{$eq:0.25}, "ORDER DETAIL.quantity":{$eq:16}}}})</p>
+	<p>In the next query we find information about all customers who purchased 4 products in one order. If precisely 4 products are included in one order than the total number of elements in an array associated with a path "CUSTOMER.submits.ORDER.consists of" must be equal to 4. An operator "$size" is used to express a condition on the total number elements in an array.</p>
+	<br/>
+	<p>db.orders.find({"CUSTOMER.submits.ORDER.consists of":{$size:4}})</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on arrays</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Find information about all customers who purchased at least one product with discount greater than <strong class="green prettyprint28">0.2</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path &gt; v"> 
+db.orders.find({"CUSTOMER.submits.ORDER.consists of.ORDER DETAIL.discount":{$gt:0.2}})</pre>
+           <pre class="prettyprint" data-lang="path &elemMatch v"> 
+db.orders.find({"CUSTOMER.submits.ORDER.consists of":{$elemMatch:{"ORDER DETAIL.discount":{$gt:0.2}}}})</pre>
+          </ul>
+        </li>
+	<li>Find information about all customers who purchased at least one product with discount equal to <strong class="green prettyprint28">0.25</strong> and quantity equal to <strong class="green prettyprint28">16</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path &elemMatch v1, ...,vn"> 
+db.orders.find({"CUSTOMER.submits.ORDER.consists of":{$elemMatch:{"ORDER DETAIL.discount":{$eq:0.25},
+	                                                          "ORDER DETAIL.quantity":{$eq:16}}}})</pre>
+          </ul>
+        </li>
+	<li>Find information about all customers who purchased 4 products in one order
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$size"> 
+db.orders.find({"CUSTOMER.submits.ORDER.consists of":{$size:4}})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 25 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>In the final query we find information about all customers who purchased more than 4 products in one order. If a customer purchased more than 4 products in one order then it means that array associated with a path "CUSTOMER.submits.ORDER.consists of" must have at least 5 elements. Hence the element number 5 must exists in an array associated with a path "CUSTOMER.submits.ORDER.consists of". A query can be implemented in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.submits.ORDER.consists of.4":{$exists:true}})</p>
+	<p>A path "CUSTOMER.submits.ORDER.consists of.4" associated with a document of a document "{$exists:true}" expresses a condition where element number 4 exists in an array associated with a key "consists of".</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries on arrays</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Find information about all customers who purchased more than 4 products in one order
+          <ul class="build">
+            <pre class="prettyprint" data-lang="path.n $exists"> 
+db.orders.find({"CUSTOMER.submits.ORDER.consists of.4":{$exists:true}})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 26 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">MongoDB query language</a></li>
+        <li><a href="#5">A sample database</a></li>
+        <li><a href="#11">Simple queries</a></li>
+        <li><a href="#13">Queries with Boolean operations</a></li>
+        <li><a href="#18">Queries on nested documents</a></li>
+        <li><a href="#22">Queries on arrays</a></li>
+        <li><a class="red" href="#27">Projections</a></li>
+	<li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+        <li><a href="#33">Iterations over a cursor</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 27 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>A conceptual schema given in the previous slide is transformed in a process of logical design into a logical schema of a sample database.</p>
+    <br/>
+	<p>A logical schema consists of a single collection "orders" with two types of documents:</p>
+	<p>- the documents that contain information about suppliers and products supplied by suppliers and </p>
+	<p>- the documents that contain information about customers, orders submitted by customers and contents of orders submitted by customers.</p>
+	<br/>
+	<p>A document that contains information about a supplier and products supplied by a supplier has a two-level nested structure. </p>
+	<p>Information about a supplier is included in the root of a hierarchy and information about products supplied by a supplier is nested at a lower level of a hierarchy within a description of a supplier. In a logical schema, such two-level nested structure is represented by  a vertically oriented one-to-many association between supplier component of a document and nested products component of a document.</p>
+	<br/>
+	<p>A document that contains information about a customer, orders submitted by a customer and contents of each order has a three-level nested structure.</p>
+	<p>Information about a customer is included in the root of a hierarchy. Information about the orders submitted by a customer is nested within a description of a customer.  Information about the contents of each order is nested within a description of an order at the third level in a hierarchy. In a logical schema, such three level nested structure is represented by a vertically oriented sequence of one-to-many associations between the descriptions of customers, orders, and contents of each order.</p>
+	<br/>
+	<p>Note that information about the details of products included in each order is represented by a link from a description of an order component to a description of a product. Such link is visualized in a logical schema as a dashed arrow leading from a ORDER DETAIL component of  CUSTOMER documents to PRODUCT component  of SUPPLIER document. </p>
+    <br/>
+	<p>A fact that both types of documents CUSTOMER and SUPPLIER are included in a single collection "orders" represent by inclusion of both hierarchies into a blob with a label "orders" in its left upper corner.</p>
+	<br/>
+	<p>A formal specification of a transformation of conceptual schema into a logical schema of a collection will be presented in the next presentation.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Projections</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>A sample collection <strong class="green prettyprint28">orders</strong></strong>
+	  <ul class="build">
+	    <p style="text-align:center;"><img src="database/bsonschema.png" width="500" alt="Logical schema" title="Logical schema"></p>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 28 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>All queries implemented so far retrieved the complete documents from a collection orders that satisfied certain conditions expressed as the BSON templates. In practice, it is pretty rare that we are interested in all information included in the retrieved documents. Typically we are interested with the values associated with few keys in the documents. To select the individual keys we use the second argument of a method find().</p>
+	<br/>
+	<p>We start from a simple query that finds a company name and contact name for all suppliers. A template "SUPPLIER":{$exists:true}}" used as the first argument of  "find()" select all documents from a collection "orders" that have a path "SUPPLIER".The second arguments determines which "key:value" pairs from the selected arguments will be included into an answer. if a key is a associated with a value 1 in the second argument of 'find()" the respective "key:value" pairs will be included into n answer. if the second argument contains at least one "key" associted with 1 then it means all other "key:value" pairs except "_id" are not included into an answer. If all keys in the second argument are associated with 0 it means that all other "key:value" pairs must be included into an answer. If "_id" is associated with 0 then it is not include in into an answer together with a value associated with "_id".</p>
+	<br/>
+	<p>Implementation of a query is given below.</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.company name":1,"SUPPLIER.contact name":1})</p>
+	<p>Only the paths SUPPLIER.company name", "SUPPLIER.contact name" and the values associated with the paths are include into an answer. The keys "_id" and the values associated with "_id" are not included into an answer.</p>
+	<br/>
+	<p>In the next query we find all information about suppliers except a company name, contact name and _id.</p>
+	<p>The second argument of '"find()" method is a document with "_id" associated with 0 and two paths "SUPPLIER.company name" and "SUPPLIER.contact name"also associated with 0. If there is no single key or path associated with one then it means that we would like to select all data from each document except those associated with 0 in the second argument of "find()" method. implementation of the query is the following.</p>
+	<p>The second argument of '"find()" method is a document with "_id" associated with 0 and two paths "SUPPLIER.company name" and "SUPPLIER.contact name"also associated with 0. If there is no single key or path associated with one then it means that we would like to select all data from each document except those associated with 0 in the second argument of "find()" method. implementation of the query is the following.</p>
+	<p>{"_id":0,"SUPPLIER.company name":0,"SUPPLIER.contact name":0})</p>
+	<br/>
+	<p>The next query like the previous one lists information to be excluded. Find all information about suppliers except products supplied by suppliers and "_id" (document identifier).</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},</p>
+	<p>{"_id":0,"SUPPLIER.supplies":0}))</p>
+	<br/>
+	<p>Implementation of a query that finds only information about products supplied by suppliers excludes "_id" from the results and includes only the values associated at the end of a path "SUPPLIER.supplies". </p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},</p>
+	<p>{"_id":0,"SUPPLIER.supplies":1}))</p>
+	<br/>
+	<p>Entire array associated with a key "supplies" is included into an answer.</p>
+	<br/>
+	<p>It is possible to include into an answer only the documents included in an array associated with a path "SUPPLIER.supplies".  In such case we must extend a path to "SUPPLIER.supplies.PRODUCT".</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},</p>
+	<p>{"_id":0,"SUPPLIER.supplies.PRODUCT":1}))</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Projections</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Find only a company name and contact name for all suppliers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection"> 
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.company name":1,"SUPPLIER.contact name":1})</pre>
+          </ul>
+        </li>
+        <li>Find all information about suppliers except a company name, contact name and <strong class="green prettyprint28">_id</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection"> 
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.company name":0,"SUPPLIER.contact name":0})</pre></pre>
+          </ul>
+        </li>
+        <li>Find all information about suppliers except products supplied by suppliers and <strong class="green prettyprint28">_id</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection"> 
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.supplies":0}))</pre></pre>
+          </ul>
+        </li>
+        <li>Find only information about products supplied by suppliers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection"> 
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.supplies":1}))</pre></pre>
+          </ul>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection"> 
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.supplies.PRODUCT":1}))</pre></pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 29 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+	<p>The next query finds only the names of products supplied by suppliers. A path to the names of products "SUPPLIER.supplies.PRODUCT.product name" is associate with 1. A pair "_id:0" excludes document identifiers from an answer.</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.supplies.PRODUCT.product name":1})</p>
+    <br/>
+    <p>The next query adds one more path associated with a name of category to the second parameters of "find()" method. </p>
+	<p>Find only the names of products and categories of products supplied by suppliers</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},</p>
+	<p>{"_id":0,"SUPPLIER.supplies.PRODUCT.product name":1,</p>
+	<p>"SUPPLIER.supplies.PRODUCT.category name":1})</p>
+    <br/>
+	<p>In the last query we find only company names of suppliers and the names of products supplied by suppliers. Both paths leading to company names and product name are associated with 1. It means that no other components of the documents describing supplier are required in an answer. Again, "_id" associated with 0 measn that there is no need for dcoument identifier as well.</p>
+	<p>db.orders.find({"SUPPLIER":{$exists:true}},</p>
+	<p>{"_id":0,"SUPPLIER.company name":1,</p>
+	<p>"SUPPLIER.supplies.PRODUCT.product name":1})</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Projections</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Find only the names of products supplied by suppliers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection">  
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.supplies.PRODUCT.product name":1})</pre>
+          </ul>
+        </li>
+        <li>Find only the names of products and categories of products supplied by suppliers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection">  
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.supplies.PRODUCT.product name":1,
+	                                            "SUPPLIER.supplies.PRODUCT.category name":1})</pre>
+          </ul>
+        </li>
+        <li>Find only company names of suppliers and the names of products supplied by suppliers
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Projection">  
+db.orders.find({"SUPPLIER":{$exists:true}},{"_id":0,"SUPPLIER.company name":1,
+                                                    "SUPPLIER.supplies.PRODUCT.product name":1})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 30 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">MongoDB query language</a></li>
+	<li><a href="#5">A sample database</a></li>
+	<li><a href="#11">Simple queries</a></li>
+        <li><a href="#13">Queries with Boolean operations</a></li>
+        <li><a href="#18">Queries on nested documents</a></li>
+        <li><a href="#22">Queries on arrays</a></li>
+        <li><a href="#27">Projections</a></li>
+	<li><a class="red" href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+      <li><a href="#33">Iterations over a cursor</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 31 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>This slide looks at implementation of missing, unknown and not applicable information in BSON documents and about the way we can search</p>
+	<p>for documents where the keys are associated with nulls or where the keys are missing.</p>
+	<br/>
+	<p>There are two ways to express a fact that the real world object represented by a BSON documents does not have a value of a property or such value is missing. The first way is to associate nothing with a key where nothing is represented by a symbol "null".</p>
+	<p>For example a fact that some customers have no region information can be represented with a symbol "null" associated with a  path "CUSTOMER.region". Then a query that finds all information about the customers who have no region information can be implemented tin the following way.</p>
+	<p>db.orders.find({"CUSTOMER.region":null})</p>
+	<br/>
+	<p>A negation of a search condition in the previous query, i.e. trying to find all information about the customers who have region information can be implemented in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.region":{$not:{$eq:null}}})</p>
+	<br/>
+	<p>The other way to express a fact that the real world object does not have a property or a fact that a value of property is missing is do not use  a key in a body of a document. For example a query that finds all information about the customers who have PO Box in their description can be expressed in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.PO Box":{$exists:true}})</p>
+	<br/>
+	<p>The opposite search condition  that finds all information about the customers who do not have PO Box in their description can be expressed in the following way.</p>
+	<p>db.orders.find({"CUSTOMER.PO Box":{$exists:false}})</p>
+	<p>db.orders.find({"CUSTOMER.PO Box":{$exists:false}})</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Queries about nulls and missing keys</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+        <li>Find all information about the customers who have no <strong class="green prettyprint28">region</strong> information
+          <ul class="build">
+            <pre class="prettyprint" data-lang="null"> 
+db.orders.find({"CUSTOMER.region":null})</pre>
+          </ul>
+        </li>
+        <li>Find all information about the customers who have <strong class="green prettyprint28">region</strong> information
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$not null"> 
+db.orders.find({"CUSTOMER.region":{$not:{$eq:null}}})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the customers who have <strong class="green prettyprint">PO Box</strong> in their description
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$exists"> 
+db.orders.find({"CUSTOMER.PO Box":{$exists:true}})</pre>
+          </ul>
+        </li>
+	<li>Find all information about the customers who do not have <strong class="green prettyprint">PO Box</strong> in their description
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$exists"> 
+db.orders.find({"CUSTOMER.PO Box":{$exists:false}})</pre>
+          </ul>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="$ not $exists">
+db.orders.find({"CUSTOMER.PO Box":{$not:{$exists:true}}})</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 32 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Query language</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+         <li><a href="#3">MongoDB query language</a></li>
+	 <li><a href="#5">A sample database</a></li>
+	 <li><a href="#11">Simple queries</a></li>
+         <li><a href="#13">Queries with Boolean operations</a></li>
+         <li><a href="#18">Queries on nested documents</a></li>
+         <li><a href="#22">Queries on arrays</a></li>
+         <li><a href="#27">Projections</a></li>
+     	 <li><a href="#31">Queries about <strong class="green prettyprint">NULL</strong>s and missing keys</a></li>
+         <li><a class="red" href="#33">Iterations over a cursor</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 33 ================================================================================= -->
+<slide>
+<aside class="note">
+      <section>
+    <p>Like in relational database systems MongoDB has a host language that extends a query language implement through "find()" method. </p>
+	<p>JavaScript is used as a host language. It is possible to create a cursor and iterate over the documents included in a cursor area.</p>
+	<p>For example, a cursor can be created in the following way.</p>
+	<p>var cursor = db.orders.find({"SUPPLIER":{$exists:true}})</p>
+	<br/>
+	<p>Then iteration and listing the documents included in a cursor are can be performed in the following way.</p>
+	<p>while(cursor.hasNext())</p>
+	<p>{ print(tojson(cursor.next())); }</p>
+	<br/>
+	<p>Below we create a cursor in the same way and iterate with "forEach()" method.</p>
+	<p>var cursor = db.orders.find({"SUPPLIER":{$exists:true}})</p>
+	<p>cursor.forEach(printjson)</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Iterations over a cursor</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>Create a cursor and display all information about suppliers
+          <ul class="build">
+	    <pre class="prettyprint" data-lang="cursor"> 
+var cursor = db.orders.find({"SUPPLIER":{$exists:true}})
+while(cursor.hasNext())
+{ print(tojson(cursor.next())); }</pre>
+	    <pre class="prettyprint" data-lang="cursor">
+var cursor = db.orders.find({"SUPPLIER":{$exists:true}})
+cursor.forEach(printjson)</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 34 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><a href="https://protect-au.mimecast.com/s/cGTnCANpDDtmkDk0t9AuuN?domain=docs.mongodb.com">MongoDB Reference, Operators, Query and Projection Operators</a></li>
+	<li>Banker K., Bakkum P., Verch S., Garret D., Hawkins T., MongoDB in Action, 2nd ed., Manning Publishers, 2016</li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/ofseCBNqBBtZYLYqtjTTYF?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

@@ -1,0 +1,581 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: https://code.google.com/p/io-2012-slides
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>29 NoSQL, NewSQL, and Other Database Systems</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>NoSQL, NewSQL, and Other Database Systems</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">XML Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Native XML database systems</strong>: XML document management systems
+	  <ul class="build">
+	    <li><strong class="blue">eXistDB</strong>: Java-based open source XML database; supports indexing, XPath, XQuery, XML:DBI (Java API)</li>
+	    <li><strong class="blue">BaseX</strong>: Java-based system that stores XML documents in a tabular representation; support indexing, conversion to JSON, XML:DB API</li>
+	  </ul>
+	<li><strong class="red">XML support</strong> in relational a database systems: columns of type <strong class="red">XMLType</strong>, e.g. ANSI SQL definition (<strong class="red">SQL/XML</strong>) and Oracle, Postgres, DB2, MySQL, and SQL Server</li>
+        </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a class="red" href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Key-value Stores and Document Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Key-value</strong> pair is a tuple of two strings <strong class="green prettyprint">("key","value")</strong></li>
+	<li>A <strong class="red">key-value store</strong> stores key-value pairs</li>
+        <li>A value is retrieved by specifiying a key</li>
+	<li>A <strong class="red">key-value store</strong> is a prototype of a <strong class="red">schemaless</strong> database system</li>
+	<li>It is possible to put any <strong class="red">key-value</strong> into a store and no restrictions are enforced on a format or structure of a value</li>
+        <li>A <strong class="red">key-value store</strong> offers three operations: <strong class="blue">put</strong>, <strong class="blue">get</strong>, and <strong class="blue">delete</strong></li>
+	<li>A value in <strong class="red">key-value</strong> pair main contain other <strong class="red">key-value</strong> pairs or sequences of keys</li>
+        <li><strong class="red">Dynamo DB</strong> is a <strong class="red">key-value database</strong> implemented by Amazon</li>	
+	<li><strong class="red">Redis</strong> is an advanced <strong class="red">in-memory key-value</strong> store with command line interface; it supports several data types and data structures like strings, linked lists, unsorted sets, sorted sets, hash maps, bit arrays</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 06 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Key-value Stores and Document Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A <strong class="red">document database</strong> stores and retrieves documents,
+which can be in JSON, BSON, etc format</li>
+        <li>Documents are self-describing, hierchical data structures</li>
+	<li>The structures of documents are similar to each other but not exactly the same</li>
+        <li>Documents are stored as the value part of <strong class="red">key-value</strong> store
+          <ul class="build">
+            <pre class="prettyprint" data-lang="JSON">
+{
+ "firstname": "James",
+ "likes": ["biking", "hiking", "viking"],
+ "city": "Boston",
+ "friend": null,
+ "addresses":[{"state": "NSW", "city": "Sydney"},
+              {"state": "Vic", "city": "Melbourne"} ]
+}</pre>
+          </ul>	  
+        <li>
+	<li><strong class="red">MongoDB</strong> and <strong class="red">RavenDB</strong> are the document database systems based on <strong class="blue">BSON</strong> storage data model</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a class="red" href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue3">Graph databases</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Graph databases</strong> store entities and relationships between the entities</li>
+        <li><strong class="red">Nodes</strong> are instances of objects in the applications</li>
+        <li><strong class="red">Edges</strong> have properties and have directional significance
+          <ul class="build">
+<pre class="prettyprint" data-lang="Graph data model">Node james = graphDb.createNode();
+james.setProperty("name", "James");
+Node harry = graphDb.createNode();
+harry.setProperty("name", "Harry");
+james.createRelationship(harry, FRIEND);
+harry.createRelationship(james, FRIEND);</pre>
+          </ul>
+        </li>
+	<li><strong class="red">Graph databases</strong> ensure consistency through <strong class="red">ACID</strong>-compliant transactions</li>
+	<li><strong class="red">Graph databases</strong> use domain specific languages for traversing graph structures</li>
+        <li>Properties of nodes can be indexed</li>
+        <li>A commonly used technique for horizontal scaling is <strong class="red">sharding</strong></li>
+	<li>Any link-rich domain is well suited for <strong class="red">graph databases</strong></li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Graph databases</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Neo4j</strong> is a Java-based graph database based on <strong class="red">Property Graph</strong> data model</li>
+        <li><strong class="red">Property Graph</strong> data model provides a richer model for representing complex data than <strong class="red">RDF</strong> (presented later) by associating both nodes and relationships with attributes</li>
+	<li><strong class="red">Neo4j</strong> supports billions of nodes, <strong class="blue">ACID</strong> compliant transactions, and multiversion consistency</li>
+        <li><strong class="red">Neo4j</strong> implements a declarative graph query language <strong class="red">Cypher </strong>comparable to <strong class="blue">SQL</strong> or <strong class="red">SPARQL </strong>(query language for <strong class="red">RDF</strong>)</li>
+        <li><strong class="red">Oracle Spatial and Graph</strong>: it includes high performance, enterprise-scale, commercial spatial and graph database and analytics for Oracle Database 12 it supports large-scale Geographic Information Systems (<strong class="blue">GIS</strong>)</li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a class="red" href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Column stores</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Column store</strong> (or columnar database management system) is a database management system (<strong class="blue">DBMS</strong>) that stores data tables by column rather than by row</li>
+	<li>Practical use of a column store versus a row store differs little in the relational DBMS world</li>	
+        <li>To reduce overhead imposed DML operations columnar databases generally implement some form of <strong class="red">write-optimized delta store</strong></li>
+        <li><strong class="red">Delta store</strong> is optimized for frequent writes like tables stored in row-by-row format</li>
+	<li><strong class="red">Delta store </strong>is merged with the main columnar-oriented store</li>
+        <li>The merge will occur periodically, or whenever the amount of data in the delta store exceeds a threshold</li>
+        <li>Prior to the merge, queries access both the delta store and the column store in order to return complete and accurate results</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Column stores</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">KDB</strong> was the first commercially available column-oriented database developed in 1993 followed in 1995 by <strong class="red">Sybase IQ</strong></li>
+        <li><strong class="red">Sybase IQ </strong>(mid 1990) (“Intelligent Query”) data warehousing platform implemented relational tables in column-by-column mode</li>
+        <li><strong class="red">C-Store</strong> and later on <strong class="red">Vertica </strong>(2005-2011) implemented a native columnar database</li>
+        <li><strong class="red">MonetDB</strong> was released under an open-source license in 2004</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a class="red" href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue3">Extensible Record Stores</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	    <li><strong class="blue">Extensible Record Store</strong> organizes data into <strong class="red">extensible tables</strong></li>
+        <li><strong class="blue">Extensible table</strong> consists of <strong class="red">rows</strong></li>
+        <li>Each <strong class="blue">row</strong> is uniquely identified by a <strong class="red">row key</strong></li>
+	<li>Data within a <strong class="blue">row</strong> is grouped by a <strong class="red">column family</strong></li>
+        <li><strong class="blue">Column families</strong> have an important impact on the <strong class="red">physical implementation</strong> of <strong class="blue">extensible table</strong></li>
+        <li>Every <strong class="blue">row</strong> has the same <strong class="blue">column families</strong> although some of them can be <strong class="red">empty</strong></li>
+	<li>Data within a <strong class="red">column family</strong> is addressed via its <strong class="red">column qualifier</strong>, or simply, <strong class="red">column name</strong></li>
+        <li>Hence, a combination of <strong class="blue">row key, column family</strong>, and <strong class="blue">column qualifier</strong> uniquely
+identifies a <strong class="red">cell</strong></li>
+        <li><strong class="red">Values in cells</strong> do not have a data type and are always treated as <strong class="red">sequences of bytes</strong></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Extensible Record Stores</h2>
+    </hgroup>
+    <article>
+      <ul>
+	<p style="text-align:center;"><img src="images/slide-25.png" width="900" height="450" alt="ORM" title="ORM"></p>
+      </ul>
+      <ul class="build">
+	<li><strong class="blue">Values</strong> within a <strong class="blue">cell</strong> have<strong class="red"> multiple versions</strong></li>
+        <li><strong class="blue">Versions</strong> are identified by their <strong class="red">version number</strong>, which by default is a <strong class="red">timestamp</strong> when the cell was written</li>
+   </ul>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Extensible Record Stores</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Foundation of <strong class="red">Extensible Record Stores</strong> is Google's system called <strong class="red">Big Table</strong></li>
+	<li>The other systems include
+	  <ul class="build">
+	    <li><strong class="red">Apache Cassandra</strong>: it stores column families in so called "keyspace"; cretae table command creates a new column family in the keyspace; indexes can be creted on columns</li>
+	    <li><strong class="red">Apache HBase</strong>: it stores tables in namespaces; it offers command line interface, SQL interface called <strong class="blue">Phoenix</strong>; and <strong class="blue">Java API</strong></li>
+	  </ul>
+	</ul>
+	</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 17 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a class="red" href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue3">In-Memory Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A more paradigm-shifting trend has been the increasing practicality of storing complete databases in<strong class="red"> main memory</strong> (RAM)</li>
+        <li>Architectural problems of main memory databases:
+          <ul class="build">
+            <li><strong class="red">Cache-less architecture</strong>: there is no point caching in memory what is already stored in memory</li>
+	    <li><strong class="red">Alternative persistence model</strong>: data in memory disappears when the power is turned off</li>
+          </ul>
+        <li>In-memory databases either
+          <ul class="build">
+            <li>replicate data to other members of a cluster or</li>
+	    <li>write complete database images to disk files or</li>
+            <li>write out out transaction/operation records to an append-only disk file (called a transaction log or journal)</li>
+          </ul>
+        </li>	
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">In-Memory Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>The most popular in-memory systems include:
+	  <ul class="build">
+            <li><strong class="red">TimesTen</strong>: (owned by Oracle since 2005); it is entirely based on transactional relational database architecture; it can be used as a standalone in-memory database or as a caching database supplementing the traditional disk-based Oracle RDBMS; when the database is started, all data is loaded from checkpoint files into main memory; periodically or when required database data is written to checkpoint files</li>
+            <li><strong class="red">Redis</strong>: (owned by VMware since 2013); it is an in-memory key-value store; it uses a <strong class="blue">snapshot files to </strong>store the copies of the entire system at a given point in time; <strong class="blue">append only file</strong> keeps a journal of changes that can be used to “roll forward” the database from a snapshot in the event of a failure; configuration options allow the users to configure writes to the <strong class="blue">append files</strong> after every operation, at one-second intervals, or based on operating-system-determined flush intervals</li>
+	    <li><strong class="red">VoltDB</strong>: it is a <strong class="red">hybrid</strong> (in-memory/HDD) ACID-compliant relational database based on <strong class="blue">shared nothing</strong> (<strong class="blue">sharding</strong>) architecture; it supports SQL access from within pre-compiled Java stored procedures; it relies on horizontal partitioning down to the individual hardware thread to scale</li>	    
+	  </ul>
+	<li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">In-Memory Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul>
+	<li>The most popular in-memory systems include:
+	  <ul class="build">
+            <li><strong class="red">SAP HANA</strong>: (owned by SAP, 2010) it is a relational database that combines in- memory technology with a columnar storage option, installed on an optimized hardware configuration; relational tables in <strong class="red">HANA</strong> can be configured for row-oriented or columnar storage; on start-up, row-based tables and selected column tables are loaded from the database files and other column tables can be loaded on demand; reads and writes to row-oriented tables are applied directly; updates to column-based tables are buffered in the delta store; queries against column tables must read from both the delta store and the main column store</li>
+	    <li><strong class="red">DB2 with BLU acceleration</strong>: (owned by IBM) it is a hybrid relational database that stores frequently used data on <strong class="blue">SSD</strong>; it allows for better performance at a price closer to <strong class="blue">HDD</strong> based systems than purely <strong class="blue">SDD</strong> based systems, e.g. Oracle's Exadata database machine</li>
+	  </ul>
+	</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 21 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a class="red" href="#21">Data Stream Processing Systems</a></li>
+	<li><a href="#40">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 22 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">Data Stream Processing Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">data stream</strong> is an infinite sequence of transient values and when recorded persistent values</li>
+	<li><strong class="red">Data streams</strong> can be produced by sensor networks or by network traffic monitoring, stock exchange monitoring, etc</li>
+	<li><strong class="red">Data Stream Management System</strong> (<strong class="red">DSMS</strong>) processes data streams by interminably running <strong class="red">continuous queries</strong> over and over again</li>
+	<li><strong class="red">DSMS</strong> must handle the queries that might be running for days,months, or even years</li>
+	<li><strong class="red">DSMS</strong> must aggregate data from the entire stream, e.g. overall average of all values, or from a subset of data called as sliding window, e.g. an average of values in the last 30 days</li>
+	<li>Majority of <strong class="red">DSMS</strong> are based on the relational data model and their continuus query languages are similar to SQL</li>
+	<li>In such a case  data items from the streams is represented as a pair <strong class="red">(timestamp,tuple)</strong> where tuple corresponds to a row in an infinite relational table</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 23 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">NoSQL, NewSQL, and Other Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#02">XML Database Systems</a></li>
+    <li><a href="#04">Key-value Stores and Document Database Systems</a></li>
+	<li><a href="#07">Graph Database Systems</a></li>
+	<li><a href="#10">Column Stores</a></li>
+	<li><a href="#14">Extensible Record Stores</a></li>
+	<li><a href="#17">In-Memory Database Systems</a></li>
+	<li><a href="#21">Data Stream Processing Systems</a></li>
+	<li><a class="red" href="#24">NewSQL Database Systems</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+ <!-- slide 24 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue3">NewSQL Database Systems</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A term <strong class="red">NewSQL</strong> describes adoption of the design principles underlying <strong class="blue">NoSQL</strong> systems to build new distributed relational database systems with SQL interface</li>
+	<li>Such re-design of conventional relational DBMSs would make then <strong class="red">scalable</strong>, i.e. it would be possible to store relational data in a number of server while efficiently processing SQL queries</li>
+	<li>Additionally, <strong class="red">NewSQL</strong> systems suppose to transparently handle hardware failures in a network while still maintaining <strong class="blue">ACID</strong> compliant transction protocols</li>
+	<li>The first type of <strong class="red">NewSQL</strong> systems are completely new database platforms designed to operate in a distributed cluster of shared-nothing nodes, in which each node owns a subset of the data, e.g. <strong class="red">Google Spanner</strong>, <strong class="red">CockroachDB</strong>, <strong class="red">Clustrix</strong>, <strong class="red">VoltDB</strong>, <strong class="red">MemSQL</strong>, <strong class="red">NuoDBand</strong>, and <strong class="red">Trafodion</strong></li>
+        <li>The second type are highly optimized storage engines for SQL that provide the same programming interface as SQL, but scale better than built-in engines, e.g. <strong class="red">MySQL Cluster</strong>, <strong class="red">Infobright</strong>, <strong class="red">TokuDB</strong>, and <strong class="red">MyRocks</strong></li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 25 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue3">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Wiese L. Advanced Data Management for SQL, NoSQL, Cloud and Distributed Databases, De Gruyter Oldenburg, 2015</li>
+        <li>Harrison G., Next Generation Databases NoSQL NewSQL Big Data, Apress, 2015</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>

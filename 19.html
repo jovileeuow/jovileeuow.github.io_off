@@ -1,0 +1,1001 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/ZR_DCE8wRRtAzkYgIw_y5X?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>19MongoDBDatabases,Collections,Documents</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!--
+  <slide class="logoslide nobackground">
+    <article class="flexbox vcenter">
+      <span><img src="images/ISIT311.png"></span>
+    </article>
+  </slide>
+-->
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>MongoDB Databases, Collections, Documents</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a class="red" href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+	<li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+  <slide>
+     <aside class="note">
+      <section>
+    <p>MongoDB is a database system that belong to a class of so called NoSQL database systems based on a data model different from the relational model and data definition, manipulation, retrieval, and administration languages different from SQL</p>
+    <br/>
+	<p>MongoDB data model (BSON) is based a on concept of key:value pairs grouped into documents and arrays.</p>
+	<br/>
+	<p>MongoDB database system operates on a number of databases.</p>
+	<br/>
+	<p>A MongoDB database is a set of collections.</p>
+	<br/>
+	<p>A MongoDB collection is a set of documents.</p>
+    <br/>
+	<p>A MongoDB document is a set of key:value pairs.</p>
+	<br/>
+	<p>A MongoDB value is either an atomic value or a document or an array.</p>
+	<br/>
+	<p>A MongoDB atomic value is of one of the types included BSON specification like number, string, date, and so on.</p>
+	<br/>
+	<p>A MongoDB array is a sequence of values.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Basics</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">MongoDB</strong> is a database system that belong to a class of so
+called <strong class="blue">NoSQL</strong> database systems based on a data model
+different from the <strong class="blue">relational model</strong> and data definition,
+manipulation, retrieval, and administration languages
+different from <strong class="blue"> SQL</strong></li>
+		<li>MongoDB data model (<strong class="red">BSON</strong>) is based a on concept of
+<strong class="red">key:value</strong> pairs grouped into <strong class="red">documents</strong> and <strong class="red">arrays</strong></li>
+		<li>MongoDB database system operates on a number of
+<strong class="red">databases</strong></li>
+		<li>A MongoDB <strong class="red">database</strong> is a set of <strong class="red">collections</strong></li>
+		<li>A MongoDB <strong class="red">collection</strong> is a set of <strong class="red">documents</strong></li>
+		<li>A MongoDB <strong class="red">document</strong> is a set of<strong class="red"> key:value</strong> pairs</li>
+		<li>A MongoDB <strong class="red">value</strong> is either an <strong class="red">atomic value</strong> or a
+		  <strong class="red">document</strong> or an <strong class="red">array</strong></li>
+	        <li>A MongoDB <strong class="red">atomic value</strong> is of one of the types included BSON specification like <strong class="red">number</strong>, <strong class="red">string</strong>, <strong class="red">date</strong>, and so on</li>
+		<li>A MongoDB <strong class="red">array</strong> is a sequence of <strong class="red">values</strong></li>
+             </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Each MongoDB key:value pair must have a unique key at each nesting level in a document.</p>
+	<p>It means that the keys can be used at different nesting levels in a document.</p>
+	<br/>
+	<p>Each MongoDB document must have a unique identifier within a collection. A value of identifier is associated with a key "_id".</p>
+	<br/>
+	<p>Each MongoDB collection must have a unique name within a database</p>
+	<br/>
+	<p>A document listed below has an identifier automatically generated by a method ObjectId().</p>
+	<p>{"_id": ObjectId(),</p>
+	<br/>
+	<p>A key "full name" is associated with a document that consists of 3 key value pairs. Note that there is no need to create a new document</p>
+	<p>identifier for a document associated with a key "full name".</p>
+	<p>"full name": {"first name":"James",</p>
+	<p>"initials":null,</p>
+	<p>"last name":"Bond"},</p>
+	<br/>
+	<p>A key "employee number" is associated with a value "007"</p>
+	<p>"employee number":"007",</p>
+    <br/>
+	<p>A key "skills" is associated with an array of strings.</p>
+	<p>"skills":["cooking", "painting", "gardening"],</p>
+	<br/>
+	<p> A key "cars owned is associated with an array of documents. Each document in the array consists of two key:value pairs.</p>
+	<p>"cars owned":[ {"rego":"007-1",</p>
+	<p>"made":"Porsche"},</p>
+	<p>{"rego":"007-2",</p>
+	<p>"made":"Ferrari"} ],</p>
+	<br/>
+	<p>A key "secret codes" is an array of two arrays of numbers. It can also be interpreted as a 2-dimensional array of 2 rows and 4 columns.</p>
+	<p>"secret codes":[ [1,2,3,4],</p>
+	<p>[9,8,7,5] ],</p>
+	<br/>
+	<p>A key "date of birth" is associate with a value of type "date". To create such value a constructor Date must be used.</p>
+	<p>"date of birth":new Date("1960-01-01")</p>
+	<p>}</p>
+	<br/>
+	<p></p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Basics</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+		<li>Each MongoDB <strong class="red">key:value</strong> pair must have a unique <strong class="red">key</strong>
+within <strong class="red">document</strong></li>
+		<li>Each MongoDB <strong class="red">document</strong> must have a unique identifier
+within a <strong class="red">collection</strong></li>
+		<li>Each MongoDB <strong class="red">collection</strong> must have a unique name
+		  within a <strong class="red">database</strong>
+		  <ul class="build">
+		    <pre class="prettyprint" data-lang="A sample BSON document">
+
+{"_id": ObjectId(),
+ "full name": {"first name":"James",
+               "initials":null,
+               "last name":"Bond"},
+ "employee number":"007",
+ "skills":["cooking", "painting", "gardening"],
+ "cars owned":[ {"rego":"007-1",
+                 "made":"Porsche"},
+                {"rego":"007-2",
+                 "made":"Ferrari"} ],
+ "secret codes":[ [1,2,3,4],
+                  [9,8,7,5] ],
+ "date of birth":new Date("1960-01-01")
+}</pre>
+          </ul>
+        </li>		
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#3">Basics</a></li>
+	<li><a class="red" href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+        <li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>MongoDB flexible storage architecture automatically manages the movement of data between storage engine technologies using native replication.</p>
+    <br/>
+	<p>MongoDB stores data as documents in a binary representation called BSON (Binary JSON).</p>
+	<br/>
+	<p>MongoDB query model is implemented as methods or functions within the API of a specific programming language, as opposed to a completely separate language like SQL.</p>
+	<br/>
+	<p>MongoDB provides horizontal scale-out for databases on low cost, commodity hardware or cloud infrastructure using a technique called sharding, which is transparent to applications.</p>
+	<br/>
+	<p>In-Memory storage engine enables performance advantages of in-memory computing for operational and real-time analytics workloads.</p>
+    <br/>
+	<p>MongoDB Enterprise Advanced provides extensive capabilities to defend, detect, and control access to data (data security).</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>MongoDB <strong class="red">flexible storage architecture</strong> automatically
+manages the movement of data between storage engine
+technologies using native <strong class="red">replication</strong></li>
+        <li>MongoDB stores data as documents in a <strong class="red">binary
+representation</strong> called <strong class="red">BSON (Binary JSON)</strong></li>
+		<li>MongoDB <strong class="red">query model</strong> is implemented <strong class="red">as methods or
+functions within the API of a specific programming
+language</strong>, as opposed to a completely separate language
+like <strong class="blue">SQL</strong></li>
+        <li>MongoDB provides <strong class="red">horizontal scale-out </strong>for databases on
+low cost, commodity hardware or cloud infrastructure using
+a technique called <strong class="red">sharding</strong>, which is transparent to
+	  applications</li>
+        <li><strong class="red">In-Memory storage engine</strong> enables performance advantages
+of <strong class="red">in-memory computing</strong> for <strong class="red">operational</strong> and <strong class="red">real-time
+analytics workloads</strong></li>
+        <li>MongoDB <strong class="red">Enterprise Advanced</strong> provides extensive
+capabilities to defend, detect, and control access to data
+(<strong class="red">data security</strong>)</li>	
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>MongoDB Ops Manager makes easy for operation teams to deploy, monitor, backup and scale the system (system management).</p>
+    <br/>
+	<p>MongoDB Atlas provides all of the features of Database as a Service cloud computing model.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>MongoDB <strong class="red">Ops Manager</strong> makes easy for operation teams to
+deploy, monitor, backup and scale the system (system
+management)</li>
+        <li>MongoDB <strong class="red">Atlas</strong> provides all of the features of <strong class="red">Database as a
+Service</strong> cloud computing model</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a class="red" href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+	<li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 09 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>The present installation of MongoDB version 4.2 on Ubuntu running on a virtual machine requires manal starting of MongoDB server.</p>
+    <br/>
+	<p>Start Terminal program and to start MongoDB server with the parameters --dbpath, --port, and --bind_ip process the following command in Terminal window.</p>
+	<p>mongod --dbpath data --port 4000 --bind_ip 10.0.2.100</p>
+	<br/>
+	<p>A parameter --dbpath determines a location of a folder with MongoDB database files. In the example above a name of a folder is "data" and a folder is located in the current folder of Terminal window.</p>
+	<p>The folder with MongoDB database files can be created with a Linux command "mkdir data" in any folder. It is important that when starting MongoDB server the current folder of Terminal window</p>
+	<p>must contains  the folder created for database files or an appropriate path to such folder is provided in --dbpath parameter. For example,</p>
+	<p>--dbpath /users/csci235/data</p>
+	<br/>
+	<p>A parameter --port determines a port number a database server listens to communicate with MongoDB client.</p>
+	<br/>
+	<p>A parameter --bind_ip provides MongoDB server with information about IP address of a computer system the server is running on.</p>
+    <br/>
+	<p>If a MongoDB server runs on the local host then it can be started in the following way.</p>
+	<p>mongod --dbpath data --port 4000 --bind_ip localhost</p>
+	<br/>
+	<p>or simply in the following way.</p>
+	<p>mongod --dbpath data --port 4000</p>
+    <br/>
+	<p>If MongoDB server expects the communications with a client on port 4000 then a command line client "mongo" can be started in the following way.</p>
+	<p>mongo --port 4000</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Server</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Starting MongoDB server with options <strong class="green prettyprint28">--dbpath</strong>, <strong class="green prettyprint28">--port</strong>, and <strong class="green prettyprint28">--bind_ip</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Starting MongoDB server">
+
+mongod --dbpath data --port 4000 --bind_ip 10.0.2.100</pre>
+          </ul>
+	</li>
+	<li>Starting MongoDB server with options <strong class="green prettyprint28">--dbpath</strong>, <strong class="green prettyprint28">--port</strong>, and server running on a <strong class="green prettyprint28">localhost</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Starting MongoDB server">
+
+mongod --dbpath data --port 4000 --bind_ip localhost</pre>
+          </ul>
+	</li>
+	<li>or simply ...
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Starting MongoDB server">
+
+mongod --dbpath data --port 4000</pre>
+          </ul>
+	</li>
+	<li>Starting MongoDB command based shell
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Starting MongoDB command client">
+
+mongo --port 4000</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 10 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>For a good start a command "help" can be used to get  help from MongoDB server after starting a command line client "mongo".</p>
+    <br/>
+	<p>Getting the first help from MongoDB shell</p>
+	<br/>
+	<p>help</p>
+	<br/>
+	<p>The first few lines of help are the following.</p>
+	<p>db.help()help on db methods</p>
+	<p>show dbs show database names</p>
+	<p>show collections show collections in current database</p>
+	<p>use db_name  set current database</p>
+	<p>... ... ...  ... ... ...</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Server</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Getting the first help from MongoDB shell
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Getting MongoDB help">
+
+help</pre>
+	    <pre class="prettyprint" data-lang="MongoDB help messages">
+
+db.help()        help on db methods
+show dbs         show database names
+show collections show collections in current database
+use db_name      set current database
+... ... ...      ... ... ...</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 11 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a class="red" href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+        <li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 12 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>Mongo DB uses the same concept of a default database as MySQL. A command</p>
+	<p>use database-name</p>
+	<p>processed through command line interface "mysql"  provides a handle "db" to the currently used database.</p>
+	<br/>
+	<p>For example, if to use a database "local" we process the following command.</p>
+	<p>use local</p>
+    <br/>
+	<p>It may happen that a database we would like to use as a default database does not exists. Then to create and to switch to a database "mydb" process the following command.</p>
+	<p>use mydb</p>
+	<br/>
+	<p>To list the available databases process the following command.</p>
+	<p>show dbs</p>
+    <br/>
+	<p>MongoDB system just after installation comes with a database "local".</p>
+	<p>local 0.000GB</p>
+	<p>mydb 0.000GB</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Databases</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Setting a default database
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Setting 'database-name' as a default database">
+
+use database-name</pre>
+          </ul>
+        </li>
+	<li>For example using a database <strong class="green prettyprint28">local</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Setting 'local' as a default database">
+
+use local</pre>
+          </ul>
+        </li>
+	<li>Creating and switching to a new database <strong class="green prettyprint28">mydb</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Setting 'mydb' as a default databas">
+
+use mydb</pre>
+          </ul>
+        </li>
+	<li>Listing the databases
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Listing all databases">
+
+show dbs</pre>
+	    <pre class="prettyprint" data-lang="Databases">
+
+local 0.000GB
+mydb 0.000GB</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a class="red" href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+        <li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 14 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>In MongoDB system a database consists of collections. In relational database a concept of relational table is similar to a concept of collection in MongoDB database.</p>
+    <br/>
+	<p>A new collection can be automatically created through insertion of a new document to such database. For example, insertion of an empty document {} to a collection "mycol".</p>
+	<p>db.mycol.insert({})</p>
+	<br/>
+	<p>In a statement above an object "db" represents a handle to a default database earlier nominated with a command "use".</p>
+	<br/>
+	<p>To list the contents of a collection we use a method "find()" with no arguments or with an empty document as an argument find({}). Much more about a method find() will be explained in the next presentation.</p>
+	<p>db.mycol.find()</p>
+	<br/>
+	<p>The result of processing a statement above is the following.</p>
+	<p>{ "_id" : ObjectId("57e385f8ffc660a351b58010") }</p>
+	<p>An empty document still must have a unique identifier.</p>
+    <br/>
+	<p>To list all collections in a default database we can use</p>
+	<p>show collections</p>
+	<p>command.</p>
+	<br/>
+	<p>The result is</p>
+	<p>mycol</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Collections</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Creating a new collection with an empty document
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Creating a new collection mycol">
+
+db.mycol.insert({})</pre>
+          </ul>
+        </li>
+	<li>Listing the contents of a collection
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Listing a collection mycol">
+
+db.mycol.find()</pre>
+		   <pre class="prettyprint">{ "_id" : ObjectId("57e385f8ffc660a351b58010") }</pre>
+          </ul>
+        </li>
+		<li>Listing the collections
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Listing the names of collections">
+
+show collections</pre>
+		   <pre class="prettyprint">mycol</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 15 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a class="red" href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+        <li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 16 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>A method insert can be used to insert a non empty document to a collection. We insert a document that consists of two</p>
+	<p>key:value pairs into an already created collection "mycol".</p>
+	<p>db.mycol.insert({"one":"1", "many ones":[1,1,1,1]})</p>
+	<br/>
+	<p>To list the contents of a collection "mycol" we use a method find() with no arguments.</p>
+	<p>db.mycol.find()</p>
+    <br/>
+	<p>The results are the following.</p>
+	<p>{ "_id" : ObjectId("57e385f8ffc660a351b58010") }</p>
+	<p>{ "_id" : ObjectId("57e38cbeffc660a351b58012"),</p>
+	<p>"one" : "1", "many ones" : [ 1, 1, 1, 1 ] }</p>
+    <br/>
+	<p>To list the results of a query in a nice format we use a method "pretty()", see the next section.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Documents</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Creating a new non empty document
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Inserting a document into a collection mycol">
+
+db.mycol.insert({"one":"1", "many ones":[1,1,1,1]})</pre>
+          </ul>
+        </li>
+		<li>Listing the contents of a collection
+          <ul class="build">
+            <pre class="prettyprint" data-lang="MongoDB Shell">
+
+db.mycol.find()</pre>
+	    <pre class="prettyprint">
+{ "_id" : ObjectId("57e385f8ffc660a351b58010") }
+{ "_id" : ObjectId("57e38cbeffc660a351b58012"),
+  "one" : "1", "many ones" : [ 1, 1, 1, 1 ] }</pre>
+          </ul>
+        </li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 17 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a class="red" href="#18">Formatting</a></li>
+	<li><a href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 18 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>To get an output from "find() we use a method "pretty()". The method returns nicely formatted contents of each document retrieved with "find() (see a slide)</p>
+    <br/>
+	<p>db.mycol.find().pretty()</p>
+	<br/>
+	<p>{ "_id" : ObjectId("57e385f8ffc660a351b58010") }</p>
+	<p>{ "_id" : ObjectId("57e38cbeffc660a351b58012"),</p>
+	<p>"one" : "1",</p>
+	<p>"many ones" : [ 1,
+                           1,
+                           1,
+                           1
+                         ]
+}</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Formatting</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Listing the nicely formatted contents of a collection
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Listing a nicely formatted collection">
+
+db.mycol.find().pretty()</pre>
+	    <pre class="prettyprint">
+{ "_id" : ObjectId("57e385f8ffc660a351b58010") }
+{ "_id" : ObjectId("57e38cbeffc660a351b58012"),
+  "one" : "1",
+  "many ones" : [ 1,
+                  1,
+                  1,
+                  1
+                ]
+}</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+    <hgroup>
+      <h2 class="blue">MongoDB Databases, Collections, Documents</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#3">Basics</a></li>
+	<li><a href="#6">Architecture</a></li>
+        <li><a href="#9">Server</a></li>
+	<li><a href="#12">Databases</a></li>
+	<li><a href="#14">Collections</a></li>
+	<li><a href="#16">Documents</a></li>
+	<li><a href="#18">Formatting</a></li>
+	<li><a clss="red" href="#20">Simple DDL and DML</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide> 
+<!-- slide 20 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>In this slide we present few simple data definition methods.</p>
+    <br/>
+	<p>To remove the documents from a collection we use a method "remove()". To remove all documents an argument of "remove()" should be an empty document, see an example below.</p>
+	<br/>
+	<p>To remove some documents we use a non-empty document that represents a document template. All documents consistent with a template a re removed from a collection.</p>
+	<br/>
+	<p>Application of</p>
+	<p>db.mycol.remove({})</p>
+	<p>removes all documents from a collection "mycol" and the result is an empty collection</p>
+	<br/>
+	<p>To remove a collection together with all documents we use a method "drop()", see below.</p>
+	<br/>
+	<p>Application of</p>
+	<p>db.mycol.drop()</p>
+	<p>removes a collection "mycol".</p>
+	<br/>
+	<p>To remove entire database we use a method "dropDatabase()".</p>
+	<br/>
+	<p>Application of</p>
+	<p>db.dropDatabase()</p>
+	<p>removes a default database.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Simple DDL and DML</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Removing all documents from a collection
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Removing all documents from a collection">
+
+db.mycol.remove({})</pre>
+          </ul>
+        </li>
+		<li>Removing a collection
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Dropping a collection">
+
+db.mycol.drop()</pre>
+          </ul>
+        </li>
+		<li>Removing a database
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Dropping a database">
+
+db.dropDatabase()</pre>
+          </ul>
+        </li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 21 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>A method "dbload()" can be used to to process a script that contains a sequence of method invocations.</p>
+    <br/>
+	<p>Assume that a file "dbload.js" contains the following invocations of a method "insert()".</p>
+	<p>db.mycol.insert({"CITY": {"name":"Wollongong", "population":"80K", "country":"Australia", "state":"New South Wales"} });</p>
+	<p>db.mycol.insert({"EMPLOYEE":{"enum":1234567, "full-name":"Janusz R.Getta", "salary": "200K", "hobbies":["cooking","painting","gardening"]} });</p>
+	<br/>
+	<p>To process a script in a file "dbload.js" we use a method "load()" in the following wayProcessing a script inserts two documents into a collection mycol</p>
+	<p>load("dbload.js")</p>
+	<p>Processing of the script inserts two documents into a collection "mycol". It is because "insert()" methods apply to a collection "mycol".</p>
+	<br/>
+	<p>To list a collection "mycol" in a nice format we use the methods "find()" and "pretty()" in the following way.</p>
+	<p>db.mycol.find().pretty()</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Simple DDL and DML</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Let a file <strong class="green prettyprint28">dbload.js</strong> contains the following <strong class="green prettyprint28">insert</strong> methods
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Inserting documents into a collection mycol">
+
+db.mycol.insert({"CITY": {"name":"Wollongong",
+                          "population":"80K",
+                          "country":"Australia",
+                          "state":"New South Wales"} });
+db.mycol.insert({"EMPLOYEE":{"enum":1234567,
+                             "full-name":"Janusz R.Getta",
+                             "salary": "200K",
+                             "hobbies":["cooking",
+                                        "painting",
+                                        "gardening"]} });</pre>
+          </ul>
+        </li>
+	<li>Processing a script inserts two documents into a collection <strong class="green prettyprint28">mycol</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Processing a script dbload.js">
+
+load("dbload.js")</pre>
+          </ul>
+	</li>
+        <li>Listing a collection <strong class="green prettyprint28">mycol</strong>
+          <ul class="build">
+            <pre class="prettyprint" data-lang="Listing a nicely formatted collection mycol">
+
+db.mycol.find().pretty()</pre>
+	  </ul>
+	</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 22 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+    <p>The results of listing a collection"mycol" are the following.</p>
+    <br/>
+	<p>{
+              "_id" : ObjectId("57e3c817fe6a1bfd5105022a"),
+              "CITY" : {
+                        "name" : "Wollongong",
+                        "population" : "80K",
+                        "country" : "Australia",
+                        "state" : "New South Wales"
+                       }
+        }</p>
+	<br/>
+	<p>{
+              "_id" : ObjectId("57e3c817fe6a1bfd5105022b"),
+              "EMPLOYEE" : {
+                            "enum" : 1234567,
+                            "full-name" : "Janusz R.Getta",
+                            "salary" : "200K",
+                            "hobbies" : [
+                                         "cooking",
+                                         "painting",
+                                         "gardening"
+                                        ]
+                           }
+        }</p>
+	<br/>
+	<p>Note that unique identifiers, i.e. the values associated with a key "_id" are automatically generated by MongoDB system.</p>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Simple DDL and DML</h2>
+    </hgroup>
+    <article>
+      <ul>
+	</li>
+         <ul>
+           <pre class="prettyprint">{
+      "_id" : ObjectId("57e3c817fe6a1bfd5105022a"),
+      "CITY" : {
+                "name" : "Wollongong",
+                "population" : "80K",
+                "country" : "Australia",
+                "state" : "New South Wales"
+               }
+}
+{
+      "_id" : ObjectId("57e3c817fe6a1bfd5105022b"),
+      "EMPLOYEE" : {
+                    "enum" : 1234567,
+                    "full-name" : "Janusz R.Getta",
+                    "salary" : "200K",
+                    "hobbies" : [
+                                 "cooking",
+                                 "painting",
+                                 "gardening"
+                                ]
+                   }
+}</pre>
+	   </ul>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 23 ================================================================================= -->
+ <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><a href="https://protect-au.mimecast.com/s/73SwCGv066UyP260upTKaS?domain=mongodb.com">MongoDB Architecture</a></li>			
+        <li>Banker K., Bakkum P., Verch S., Garret D., Hawkins T., MongoDB in Action, 2nd ed., Manning Publishers, 2016</li>
+      </ul>
+      <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+  <slide class="backdrop"></slide>
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/K_5gCJyB66i42gV1CLO31j?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

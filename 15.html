@@ -1,0 +1,1040 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/FM6hCgZ0JJU5KLE7sohHBY?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>15DistributedDatabase</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside>
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Distributed Database</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a class="red" href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 03 ================================================================================= -->
+<slide>
+    <aside class="note">
+      <section>
+    <p>A Distributed DataBase System (DDBS) is a collection of multiple logically related databases distributed over a computer network.</p>
+    <br/>
+	<p>DDBS is a collection of database systems together with software providing a required set of operations on data and management features.</p>
+	<br/>
+	<p>We distinguish two type of distributed database systems: homogeneous DDBS and heterogeneous DDBS.</p>
+	<br/>
+	<p>Homogeneous DDBS is a collection of identical database systems where database management software is coming from the same vendor and distributed over a computer network, e.g. a collection of Oracle database systems.</p>
+	<br/>
+	<p>Heterogeneous DDBS is a collection of different database systems where a database management software is coming from different vendors and it is distributed over a computer network, e.g. a collection of Oracle + MySQL + DB/2 + MongoDB + XML native database systems + Excel spreadsheets + ... , some other systems.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed database ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Distributed database system</strong> (DDBS) is a collection of multiple logically related databases distributed over a computer network</li>
+	<li><strong class="red">Distributed database management system </strong>(DDBMS) is a collection of database systems together with software
+providing a required set of operations on data and management features</li>
+	<li><strong class="red">Homogeneous DDBS</strong> is a collection of identical database systems distributed over a computer network, e.g. a
+collection of Oracle database systems</li>
+	<li><strong class="red">Heterogeneous DDBS</strong> is a collection of different database systems distributed over a computer network, e.g. a collection of Oracle + MySQL + DB/2 + MongoDB + XML native database systems + Excel spreadsheets + ... , systems</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 04 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The current slide shows a sample organization of heterogeneous distributed database system. A heterogeneous database systems integrate a relational database system, NoSQL database system, XML native database systems and ordinary file system. NoSQL database system is a database system that provides a logical view of data different from relational view.  XML native database system is a system that provides XML as logical view of data.</p>
+    <br/>
+	<p>All components of distributed database system are geographically distributed over different locations all over the world. Each system is connected to its own local area network. It is possible that there are more heterogeneous database systems connected to a local area network. Local area networks are connected to wide area network that allows for communication of geographically distributed local database systems.</p>
+	<br/>
+	<p>Heterogeneity of different database systems has a number of dimensions. Database systems participating in a distributed database system can provide different logical views of data stored in each system. It is so called data model heterogeneity.</p>
+	<br/>
+	<p>Database systems participating in a distributed database system can be implemented with software provided by different vendors.  It is so call interpretation heterogeneity. Data kept in database systems participating in a distributed database system may have different semantics, for examplea distance can be measured in kilometres  in one database and and in miles in another database.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed database ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>A sample organization of <strong class="red">heterogeneous distributed</strong> database system
+	  <p style="text-align:center;"><img src="images/database1.png" width="800" height="500" alt="ORM" title="ORM"></p>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 05 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a class="red" href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>The database schemas of centralized database system show data at several level of abstraction. At the lowest level of abstraction and the closest to pure hardware level, a physical schema shows a database as a collection of files located at a number of persistent storage devices. The internal structures of such files determine persistent storage allocation strategy, a way how rows are stored in data blocks (row-by-row method versus column-by column method), persistent storage structures of indices or clusters, etc.</p>
+    <br/>
+	<p>At logical level a database systems provide an abstract view of data in the terms of particular data structures like tables, data graphs, trees, etc.</p>
+	<br/>
+	<p>A conceptual schema level provides the topmost view of data in terms of real world objects described by the attributes, associations between the classes of objects and generalizations over the classes of objects. A conceptual schema, usually a diagram, provides information about the contents of a database in the terms of a fragment of the reality described by a database.</p>
+	<br/>
+	<p>Entire conceptual schema is usually to extensive for the individual users. For example a conceptual schema of an entire industrial organization is too large for users from finance department, hr department, manufacturing department and so on. It is why entire conceptual schema of a centralized database is partitioned into the external schemas and such external schemas are presented to the individual groups of users.</p>
+	<br/>
+	<p>In a centralized database schema model the users are provided their personal external schemas (views) of data</p>
+    <br/>
+	<p>The external schemas are integrated into a single conceptual schema later on transformed into a logical schema and implemented as a physical schema</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Centralized database schema model</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In a <strong class="red">centralized database schema model</strong> the users are provided their <strong class="red">personal external schemas</strong> (views) of data</li>
+	<li>The <strong class="red">external schemas</strong> are integrated into a <strong class="red">single conceptual schema</strong> later on transformed into a <strong class="red">logical schema</strong> and implemented as a <strong class="red">physical schema</strong></li>
+		<p style="text-align:center;"><img src="images/database2.png" width="550" alt="ORM" title="ORM"></p>
+		</li>
+	      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 07 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a class="red" href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 08 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>We start a review of different architectures of centralized and distributed database systems from mainframe application architecture typical for a period of time between 1960s to early 1980s.</p>
+    <br/>
+	<p>In such approach database systems architecture was strongly determined by the available hardware. In a typical hardware configuration so called "dumb terminals" are directly connected to a mainframe computer. A single centralized database server is located at a mainframe computer. The users in front of "dumb terminals are directly connected to a database server.</p>
+	<br/>
+	<p>All presentation logic of database applications (command line and sometimes graphical interface) and business logic (implementation of database application) are located on a mainframe computer. All data is located on the persistent storage devices directly connected to a mainframe computer.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Mainframe application architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">mainframe application architecture</strong> "dumb" terminals are connected to a <strong class="blue">single database server</strong>
+	  <p style="text-align:center;"><img src="images/database3.png" width="700" height="450" alt="ORM" title="ORM"></p>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 09 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a class="red" href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>In a client-server architecture "dumb terminals" are replaced with the limited computational power personal computers (starting in mid 1980s). Then entire presentation logic (user interface) moved to a personal computer playing mainly a role of an intelligent terminal. Some simple components of business logic have been also moved to personal computer.</p>
+    <br/>
+	<p>Entire functionality of a database system is implemented as a database server. A database server is a dedicated piece of software responsible for storing and maintenance of data. The remaining components of the business logic are stored in a data dictionary of a database server. Distribution of business logic between clients running on personal computers and database server running on a powerful hardware system allowed for a better balance of overall workload and reduction of the amounts of data transferred from a database server to a client (due to some business logic earlier stored and now running on a database server).</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Client-server architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">client-server architecture</strong> personal systems communicate with a <strong class="blue">single database server</strong>
+	  <p style="text-align:center;"><img src="images/database4.png" width="800" height="550" alt="ORM" title="ORM"></p>
+	</li>
+      </ul>
+     <footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 11 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a class="red" href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 12 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>At this point in time, together with the progresses of networking technologies, it was quite easy to upgrade a typical client-server architecture to distributed client-server architecture.</p>
+    <br/>
+	<p>In distributed client server architecture we add more database servers to the system and we allow the clients to connect to any number of database servers at a time. Like before, presentation logic is entirely located at the clients and business logic is distributed between the clients and database servers.</p>
+	<br/>
+	<p>An important improvement when compared with pure client-server architecture is the ability of database servers to communicated with each other and to transfer data from one database to another. For example if two or more database servers support a relational database model then it is possible to join two or more  relational tables located at different database servers.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed client-server architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">distributed client-server architecture</strong> personal systems communicate with <strong class="blue">many database servers</strong>
+	  <p style="text-align:center;"><img src="images/database5.png" width="800" height="550" alt="ORM" title="ORM"></p>
+	</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 13 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a class="red" href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>An important progress step in the development of distributed database systems is Web based architecture.</p>
+    <br/>
+	<p>Like in the previous two cases of client-server and distributed  client-server architectures all presentation logic is removed from database servers.</p>
+	<br/>
+	<p>In Web based database architecture presentation logic is distributed between the client systems and Web servers also called as application servers. </p>
+	<br/>
+	<p>Business logic is distributed between application servers and database servers. Application servers are build on top of ordinary Web servers. The clients access application servers and pass their request to access/process data to application servers. Then application servers "cooperate" with database servers on passing the clients' requests and on transferring data back to the clients.</p>
+	<br/>
+	<p>Like in the client-server architecture database servers have the abilities to communicate and to pass data between each other.</p>
+    <br/>
+	<p>A layer of application servers between clients and database servers reduces processing load on database servers and provides more persistent  and transient storage to be used for data caching.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Web based architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">Web based architecture</strong> personal systems communicate with the Web servers that communicate with a <strong class="blue">single database server</strong>
+		<p style="text-align:center;"><img src="images/database6.png" width="750" height="550" alt="ORM" title="ORM"></p>
+		</li>
+	      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 15 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a class="red" href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Distributed Web based architecture is a modification of a single application server architecture discussed in the previous slide.</p>
+    <br/>
+	<p>This time in distributed Web based architecture personal systems communicate with the Web servers that on the other side communicate with many database servers.</p>
+	<br/>
+	<p>Presentation logic is distributed over client systems and many application servers. Application servers communicate with clients and database servers. A role of application servers is the same as in centralized Web based architecture. The increased number of Web servers allow to handle more intensive workloads.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed Web based architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">Distributed Web based architecture</strong> personal systems communicate with the Web servers that communicate with <strong class="blue">many database servers</strong>
+		<p style="text-align:center;"><img src="images/database7.png" width="750" height="550" alt="ORM" title="ORM"></p>
+		</li>
+	      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 17 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a class="red" href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Distributed database schema architecture integrates the local conceptual schemas of each database system participating in distributed database system into a single global conceptual schema. However, the local physical, logical, and conceptual schmas remain without changes.</p>
+    <br/>
+	<p>A new global conceptual schema hides the distribution details of individual database systems participating in a distributed database system. The users are unable to distinguish between individual database systems while looking at a global conceptual schema.</p>
+	<br/>
+	<p>Individual users obtain external views of a global conceptual schema depending on their interests in the particular subsets of global conceptual schema.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed database schema architecture</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>In <strong class="red">distributed database schema architecture</strong> a <strong class="red">global conceptual schema</strong> hides distribution from the users</li>
+	<li>The users can see a <strong class="red">distributed database system</strong> as a <strong class="blue">single monolithic database system</strong>
+		<p style="text-align:center;"><img src="images/database8.png" width="600" height="450" alt="ORM" title="ORM"></p>
+		</li>
+	      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 19 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a class="red" href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 20 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>A very important concept in organization of distributed database system is "transparency".</p>
+    <br/>
+	<p>Transparency means hiding information from end users. Ther are few very different categories of transparency such as: data organization transparency, replication transparency, fragmentation transparency, design transparency and execution transparency.</p>
+	<br/>
+	<p>Data organization (distribution or network) transparency means hiding network related information and data placement information; it is either location or naming transparency. In location transparency the users do not know the location details distributed database systems.</p>
+	<br/>
+	<p>A global naming procedure is applied to the data objects located in different database systems. It is an example of naming transparency.</p>
+	<br/>
+	<p>Location transparency hides information about the locations of data fragments in the database systems participating in a distributed system. Location transparency allows the operations to be independent on the locations of data objects.</p>
+    <br/>
+	<p>Replication transparency hides from the users information about data replicated in many database systems of a distributed system. Replication transparency means that users are unaware of the existence of multiple copies of the same data objects  </p>
+	<br/>
+	<p>Fragmentation transparency hides from the users information about fragmentation data objects, for example vertical projections of one relational table located at different sites of distributed system. Fragmentation transparency means that users are unaware of data fragmentation over many sites. It is implement as combination of vertical and horizontal fragmentation.</p>
+	<br/>
+	<p>Vertical fragmentation picks selected columns from a relational table together with a primary key column(s). Vertical fragments are located at the database systems depending on how frequently are used. Vertical fragments can be replicated in many database systems.</p>
+	<br/>
+	<p>Horizontal fragmentation picks subsets of the rows from a relational table. The horizontal fragments are located at the database systems depending on how frequently are used. Horizontal fragments can be replicated in many database systems.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Transparency</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Transparency</strong> means hiding information from end users</li>
+	<li><strong class="red">Data organization (distribution or network) transparency</strong> means hiding network related information and data placement information; it is either <strong class="red">location</strong> or <strong class="red">naming transparency</strong></li>
+	<li><strong class="red">Naming transparency</strong> allows for global naming of data objects</li>
+	<li><strong class="red">Location transparency</strong> allows the operations to be independent on the locations of data objects</li>
+	<li><strong class="red">Replication transparency</strong> means that users are unaware of the existence of multiple copies of the same data objects</li>
+        <li><strong class="red">Fragmentation transparency</strong> means that users are unaware of data fragmentation over many sites; it includes <strong class="red">vertical</strong> and <strong class="red">horizontal fragmentation</strong></li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 21 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Design transparency hides from the users information about how database was designed. No global conceptual schema is revealed to the users.</p>
+    <br/>
+	<p>Execution transparency means that the users are unaware how database transactions are processed. For example, the users are unaware of the situations when one of sub-transaction of a distributed transaction must be aborted, rolled back  and re-submitted again.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Transparency</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li><strong class="red">Design transparency</strong> means that users are unaware of how distributed database was designed</li>
+	<li><strong class="red">Execution transparency</strong> means that users are unaware of how database transactions are processed</li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 22 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a class="red" href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 23 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Another very important concept in organization of distributed database system is a level of "autonomy" granted to each database system participating a distributed system.</p>
+    <br/>
+	<p>Autonomy determines a level of independence of individual nodes in distributed database system. A database system being a member of distributed database system may have very low  degree of autonomy. Then, all its actions depend on a coordinator node of a distributed database system. High degree autonomy is required for flexibility and customized maintenance of distributed database system.</p>
+	<br/>
+	<p>The dimensions of autonomy include: design, communication and execution autonomy.</p>
+	<br/>
+	<p>Design autonomy means a level of independence of data model usage and transaction management technique between the nodes. </p>
+	<br/>
+	<p>Communication autonomy means a level of independence to which a node can share information with other nodes</p>
+    <br/>
+	<p>Execution autonomy means a level of independence to which users act as they please.</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Autonomy</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li><strong class="red">Autonomy</strong> determines a level of independence of individual nodes in distributed database system</li>
+		<li><strong class="red">High degree autonomy</strong> is required for flexibility and
+customized maintenance of distributed database system</li>
+		<li><strong class="red">Design autonomy</strong> means a level of independence of data
+model usage and transaction management technique between the nodes</li>
+		<li><strong class="red">Communication autonomy</strong> means a level of independence
+to which a node can share information with other nodes</li>
+         <li><strong class="red">Execution autonomy</strong> means a level of independence to which users act as they please</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 24 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a class="red" href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 25 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Distributed database systems have their advantages and disadvantages.</p>
+    <br/>
+	<p>The advantages include:</p>
+	<p>Higher level of reliability and availability</p>
+	<p>Improved ease and flexibility of application development</p>
+	<p>Improved performance</p>
+	<p>Easier expansion</p>
+	<br/>
+	<p>Higher level of reliability and availability is possible when some data is replicated in different sites of distributed database system. Then, if one of the sites is unavailable due to heavy load or network problem it is always possible to get data from another site. If data is replicated in another site then such replication can be considered as some sort of a distributed backup that can be used in emergency situation.</p>
+	<br/>
+	<p>Improved easy and flexibility of application development is possible when data is replicated in several site and some of these site are considered as productions sites while the other are development sites. Then there is no need suspend a production system because of application testing.</p>
+    <br/>
+	<p>Distribution of data over many sites allows for parallelization of data processing in a number of sites. Also if data is not available at one site then it can be accessed in another site. Parallelization of data processing allows for improved performance.</p>
+	<br/>
+	<p>A distributed database system always implement simple the expansion mechanisms through addition of new database sites. </p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Advantages and disadvantages of DDBS</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Higher level of <strong class="red">reliability</strong> and <strong class="red">availability</strong></li>
+		<li>Improved <strong class="red">ease</strong> and <strong class="red">flexibility</strong> of application development</li>
+		<li>Improved <strong class="red">performance</strong></li>
+		<li>Easier <strong class="red">expansion</strong></li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 26 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>Distributed database systems have their advantages and disadvantages.</p>
+    <br/>
+	<p>The disadvantages include:</p>
+	<p>Keeping track of data distribution</p>
+	<p>Distributed query processing</p>
+	<p>Distributed transaction management</p>
+	<p>Replicated data management</p>
+	<p>Distributed database recovery</p>
+	<p>Security</p>
+	<p>Distributed directory (catalog) management</p>
+    <br/>
+	<p>Whenever data is distributed over a number of sites in a distributed database system it is necessary to keep information about the locations and replications of data items. Such information must be frequently updated when data is transferred between the sites and/or new replicates are created and/or old replicase a removed. Maintenance of information on data distribution takes additional time and imposed an additional workload on the database systems participating in a distributed system.</p>
+	<br/>
+	<p>Optimization of query processing in a distributed system is a complex problem. Distribution and replication contributes to more query processing plans generate and evaluated by a query optimizer. It slows down optimization of query processing.</p>
+	<br/>
+	<p>Distributed transaction processing is a difficult problem because of synchronization of many different transaction processing systems. For example, synchornization of transaction scheduling based on 2phase locking protocol in one database site and timestamp ordering protocol at another database site.</p>
+	<br/>
+	<p>Another difficult problem is management of replicated data. Enforcement of strict consistency constraints on replicated data significantly slows dow distributed transaction processing.</p>
+	<br/>
+	<p>The same performance problems occur in distributed database recovery. If one of subtransaction of distributed database transactions fails and it must be rolled back then all other subtransactions must be rolled back as well. A failure of a database site participating  in a distributed system may require synchronization with the contents of the other sites during a recovery process.</p>
+	<br/>
+	<p>Due to data replication more data is exposed to security risks. Data security protection can be implemented  many different ways database sites participating in a distributed system. It makes coordination of data security policies and processes much harder than in a single centralized system.</p>
+	<br/>
+	<p>The importance of distributed directory was already mentioned in a context of keeping information about location and replication of data items.</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Advantages and disadvantages of DDBS</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>Keeping track of data distribution</li>
+		<li>Distributed query processing</li>
+		<li>Distributed transaction management</li>
+		<li>Replicated data management</li>
+		<li>Distributed database recovery</li>
+		<li>Security</li>
+		<li>Distributed directory (catalog) management</li>
+      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+ <!-- slide 27 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Distributed Relational Database Systems</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+	<li><a href="#2">Distributed database ? What is it ?</a></li>
+	<li><a href="#5">Centralized database schema model</a></li>
+	<li><a href="#7">Mainframe application architecture</a></li>
+	<li><a href="#9">Client-server architecture</a></li>
+	<li><a href="#11">Distributed client-server architecture</a></li>
+	<li><a href="#13">Web based architecture</a></li>
+	<li><a href="#15">Distributed Web based architecture</a></li>
+	<li><a href="#17">Distributed database schema architecture</a></li>
+	<li><a href="#19">Transparency</a></li>
+	<li><a href="#22">Autonomy</a></li>
+	<li><a href="#24">Advantages and disadvantages of DDBS</a></li>
+	<li><a class="red" href="#27">Distributed database system Oracle 19c</a></li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 28 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>In Oracle  a global database name is used to uniquely identify database sites in a distributed database system.</p>
+    <br/>
+	<p>It is possible to find what is a global database name of a system you use just now. To list a global database name process the following SELECT statement:</p>
+	<br/>
+	<p>SELECT * FROM GLOBAL_NAME;</p>
+	<br/>
+	<p>If we are connected to data-pc07 system then a data dictionary view GLOBAL_NAME contains the following value:</p>
+	<br/>
+	<p>GLOBAL_NAME</p>
+    <br/>
+	<p>------------------------------------------------------</p>
+	<br/>
+	<p>DB.DATA-PC07</p>
+	<br/>
+	<p>If we connect as a database administrator (SYSTEM or SYS users) then it is possible to change a global database name with ALTER DATABASE statement:</p>
+	<br/>
+	<p>ALTER DATABASE RENAME GLOBAL_NAME TO jrg.f8y792s.informatics.uow.edu.au;</p>
+    <br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed Database System Oracle 19c</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+		<li><strong class="red">Global database name</strong> uniquely identifies a database in the system
+		<ul class="build">
+		  <pre class="prettyprint" data-lang="Listing the contents of a system view GLOBAL_NAME">
+
+SELECT * FROM GLOBAL_NAME;</pre>
+		<pre class="prettyprint">GLOBAL_NAME
+------------------------------------------------------
+DB.DATA-PC07</pre>
+		</ul>
+		</li>
+		<li>It is possible to change a <strong class="red">global database name</strong> when connected as a database administrator
+		<ul class="build">
+		  <pre class="prettyprint" data-lang="Renaming global database name">
+
+ALTER DATABASE RENAME GLOBAL_NAME TO jrg.f8y792s.informatics.uow.edu.au;</pre>
+		</ul>
+		</li>
+	      </ul>
+     <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	 <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 29 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>A database link is a connection between two physical database servers that allow a user to access them as one logical database. A data dictionary view contains the names of database links. It is possible to list it in the following way:
+</p>
+    <br/>
+	<p>SELECT * FROM USER_DB_LINKS;</p>
+	<br/>
+	<p>Assume, that we are connected as a user scott to a database server DATA-PC01. Then, it is possible to create a database link to a user jrg located at a database server DATA-PC07 in the following way
+</p>
+	<br/>
+	<p>CREATE DATABASE LINK "DB.DATA-PC07"</p>
+	<p>CONNECT TO jrg</p>
+	<p>IDENTIFIED BY rat</p>
+	<p>USING 'data-pc07.adeis.uow.edu.au:1521/db';</p>
+	<br/>
+	<p>A name of database link ( "DB.DATA-PC07" ) to a database must be the same as a global database name of the database linked to</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed Database System Oracle 19c</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+		<li><strong class="red">Database link</strong> is a connection between two physical
+database servers that allow a user to access them as one logical database
+		<ul class="build">
+		  <pre class="prettyprint" data-lang="Listing the existing database links">
+
+SELECT * FROM USER_DB_LINKS;</pre>
+		<pre class="prettyprint" data-lang="Message">no rows selected</pre>
+		</ul>
+		</li>
+		<li>Assume, that we are connected as a user <strong class="blue prettyprint28">scott</strong> to a database server <strong class="blue prettyprint28">DATA-PC01</strong>. Then, it is possible to create a <strong class="red">database link</strong> to a user  <strong class="blue prettyprint28">jrg</strong> located at a database server <strong class="blue prettyprint28">DATA-PC07</strong> in the following way
+		<ul class="build">
+		  <pre class="prettyprint" data-lang="Creating a database link">
+
+CREATE DATABASE LINK "DB.DATA-PC07"
+CONNECT TO jrg
+IDENTIFIED BY rat
+USING 'data-pc07.adeis.uow.edu.au:1521/db';</pre>
+		</ul>
+		</li>
+		<li>A name of <strong class="red">database link</strong> ( <strong class="blue prettyprint28">"DB.DATA-PC07"</strong> ) to a database must be the same as a <strong class="red">global database name</strong> of the database linked to</li>
+	      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 30 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+    <p>A connection string ( 'data-pc07.adeis.uow.edu.au:1521/db' ) determines a physical location of the database linked to. It consists of host name in a network (data-pc07.adeis.uow.edu.au) where a database server is located, port number (1521) a listener is listening to, and system identifier (db) of a database system we would like to create a link to.</p>
+    <br/>
+	<p>When a database link is created it is possible to access a relational table located in a database system linked to in the following way:</p>
+	<br/>
+	<p>SELECT *</p>
+	<p>FROM EMP@"DB.DATA-PC07";</p>
+	<br/>
+	<p>A global database name must be included with double quotations because a name contains a character '-'.</p>
+    <br/>
+	<p>SELECT statement accesses a relational table EMP located at a database server and owned by a user determined by a database link "DB.DATA-PC07".</p>
+	<br/>
+	<p>To hide infomation about a location of a relational table EMP@"DB.DATA-PC07" we can create a synony</p>
+	<br/>
+	<p>A synonym can be used to implement location transparency in the following way:</p>
+	<br/>
+	<p>CREATE SYNONYM EMP07 FOR EMP@"DB.DATA-PC07";</p>
+    <br/>
+	<p>Then if we would like to access a relational table  EMP located at "DB.DATA-PC07" a synonuym can be used in SELECT statement:</p>
+	<br/>
+	<p>SELECT *</p>
+	<br/>
+	<p>FROM EMP07;</p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">Distributed Database System Oracle 19c</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A connection string ( <strong class="blue prettyprint28">'data-pc07.adeis.uow.edu.au:1521/db'</strong> ) determines a physical location of the database linked to</li>		
+	<li>When a <strong class="red">database link</strong> is created it is possible to access a relational table located in a database system linked to
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Accessing a relational table over a database link">
+
+SELECT *
+FROM EMP@"DB.DATA-PC07";</pre>
+	  </ul>
+	</li>
+	<li>Relational table name used: <strong class="blue prettyprint28">EMP</strong></li>
+	<li>Database link: <strong class="blue prettyprint28"> "DB.DATA-PC07"</strong></li>
+	<li>A synonym can be used to implement <strong class="red">location transparency</strong>
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="Creating a synonym">
+
+CREATE SYNONYM EMP07 FOR EMP@"DB.DATA-PC07";</pre>
+	    <pre class="prettyprint" data-lang="Using a synonym">
+
+SELECT *
+FROM EMP07;</pre>
+	  </ul>
+	</li>	
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 32 ================================================================================= -->
+  <slide>
+   <aside class="note">
+      <section>
+    <p></p>
+    <br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+    <br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+    <br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+	<p></p>
+	<br/>
+      </section>
+    </aside>    
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+        <li>T. Connoly, C. Begg, Database Systems, A Practical Approach to Design, Implementation, and Management, Chapter 24 Distributed DBMs - Concepts and Design, Chapter 25.7 Distribution in Oracle, Pearson Education Ltd, 2015</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+</slides>
+<!--
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/h7V0Ck81RRt3AM2pI9kR0E?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+-->
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+

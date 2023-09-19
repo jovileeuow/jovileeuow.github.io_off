@@ -1,0 +1,1224 @@
+<!--
+Google IO 2012/2013 HTML5 Slide Template
+
+Authors: Eric Bidelman <ebidel@gmail.com>
+         Luke Mahé <lukem@google.com>
+
+URL: <a href="https://protect-au.mimecast.com/s/DpeBCL7E99TLNrBqiqZbxq?domain=code.google.com">https://code.google.com/p/io-2012-slides</a>
+-->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>06IntroductionToIndexing</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">-->
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+  <!--This one seems to work all the time, but really small on ipad-->
+  <!--<meta name="viewport" content="initial-scale=0.4">-->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="stylesheet" media="all" href="theme/css/default.css">
+  <link rel="stylesheet" media="only screen and (max-device-width: 480px)" href="theme/css/phone.css">
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->
+  <script data-main="js/slides" src="js/require-1.0.8.min.js"></script>
+</head>
+<body style="opacity: 0">
+
+<slides class="layout-widescreen"> 
+
+<!-- slide 01 ================================================================================= -->
+  <slide class="title-slide segue nobackground">
+    <aside class="gdbar">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;XBAU3014N Database Systems</aside> 
+    <!-- The content of this hgroup is replaced programmatically through the slide_config.json. -->
+    <hgroup class="auto-fadein">
+      <h1 class="black" data-config-title>Introduction To Indexing</h1>
+      <h2 class="black" data-config-subtitle><!-- populated from slide_config.json --></h2>
+      <p class="black" data-config-presenter><!-- populated from slide_config.json --></p>
+    </hgroup>
+  </slide>
+<!-- slide 02 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a class="red" href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>  
+<!-- slide 03 ================================================================================= -->
+<slide>
+  <aside class="note">
+      <section>
+	<p>An important problem of query processing in database systems is response time. Response time is defined as time spent from a moment when a query is submitted  for processing by a database system to a moment when the results of search are returned to a user. It is obvious that we always try to minimize response time.</p>
+	<br/>
+	<p>One of the ways how response time can be minimized is creation of the additional persistent storage storage structures that can speed up pocessing of the queries. For example, we can create an index, we can cluster relational tables, we can create materialized view etc. In this presentation we look at how indexing can be used to speed up processing of the queries. We picked indexing as the main method of optimization of query processing because indexing can provide us with the pretty good results in a pretty short period of time. So, when  the improvements in performance are very urgent then indexing is a way to go.</p>
+	<br/>
+	<p>What is an index ? </p>
+	<br/>
+	<p>An index is a data structure that organizes data records in persistent storage to optimize certain kinds of retrieval operations. An index can be used to efficiently retrieve all records that satisfy a search condition on the search key fields of the index.</p>
+	<br/>
+	<p>A index is a function f: K-> P(idR)where K is a set of keys and ℘(idR) is a powerset (a set of all sets) of identifiers (addresses) idR of the records in a set R.</p>
+	<br/>
+	<p>As a simple example of improvements in performance with an index, consider a relational table EMP created over a relational schema (header) Employee(enumber, name, department).</p>
+	<br/>
+	<p>Then, Fdepartment: domain(department) -> P(idEMP) is a function that maps the names of departments in domain(DEPARTMENT) into the sets of identifiers of rows P(idEMP) in relational table EMP.</p>
+	<br/>
+	<p>When applied to a name of department 'Sales' Fdepartment('Sales') returns the identifiers of all rows where a value of attribute department is equal to 'Sales'.</p>
+	<br/>
+	<p>Processing of a function needs 2-3 reads of data blocks from an index when compared with reading of many blocks in  an attempt to scan entire relational table EMP block by block.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Index ? What is it ?</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>An <strong class="red">index</strong> is a data structure that organizes data records on disk to optimize certain kinds of retrieval operations</li>
+	<li>An <strong class="red">index</strong> is used to efficiently retrieve all records that satisfy a search condition on the search key fields of the index</li>	
+	<li>An index is a function <strong class="red">f : K &rarr; &weierp;(id<sub class="subscript">R</sub>)</strong> where <strong class="red">K</strong> is set of keys and</li>
+	<li><strong class="red">&weierp;(id<sub class="subscript">R</sub>)</strong> is a powerset (a set of all sets) of identifiers (addresses) <strong class="red">id<sub class="subscript">R</sub></strong> of the records in a set <strong class="red">R</strong></li>
+	<li>Let <strong class="green prettyprint">EMP</strong> be a relational table over a relational schema <br><strong class="green prettyprint">Employee(enumber, name, department)</strong></li>
+	<li>Then, <strong class="red">F<sub class="subscript">department</sub>domain(department) &rarr; &weierp;(id<sub class="subscript">EMP</sub>)</strong> is a function that maps the names of departments in <strong class="red">domain(DEPARTMENT)</strong> into the sets of identifiers of rows <strong class="red">&weierp;(id<sub class="subscript">EMP</sub>)</strong> in relational table <strong class="green prettyprint">EMP</strong></li>
+	<li><strong class="red">F<sub class="subscript">department</sub>(d)</strong> returns the identifiers of all rows where a value of attribute <strong class="green prettyprint">department</strong> is equal to <strong class="red">d</strong></li> 	
+	</ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 04 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a class="red" href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 05 ================================================================================= -->
+  <slide>
+   <aside class="note">
+      <section>
+	<p>What is a difference between an index and indexed file organization ?</p>
+	<br/>
+	<p>An indexed file organization (index organized file or index organized table) is a function</p>
+	<br/>
+	<p>f : K -> P(R) where K is a set of keys and P(R) is a powerset (a set of sets) of records in R (or rows in R)</p>
+	<br/>
+	<p>It means that a difference between an index and index organized file is in mapping of index keys. An index maps a key into a set of record/row identifiers. An index organized file/table maps a key into a record/row.</p>
+	<br/>
+	<p>A relational table can be indexed or it can be index organized.</p>
+	<br/>
+	<p>An indexed relational table consists of several index(es) created separately from implementation of a relational table itself.</p>
+	<br/>
+	<p>On the other hand an index organized relational table consists only of implementation of one index where an index key is the same as a relational schema of an index organized table.</p>
+	<br/>
+	<p>An important property of indexing is transparency to data manipulation and data retrieval operations. It means that a database system automatically modifies an index and automatically decides whether an index is used for search. </p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Index versus indexed file organization</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>An <strong class="red">indexed file organization</strong> (<strong class="red">index organized file</strong>) is a function <br/> <strong class="red">f : K &rarr; &weierp;(R</sub>)</strong> where <strong class="red">K</strong> is a set of keys and <strong class="red">&weierp;(R</sub>)</strong> is a powerset (a set of sets) of records <strong class="red">R</strong></li>
+	<li>An <strong class="blue">index</strong> maps a <strong class="blue">value</strong> into <strong class="blue">set of row identifiers</strong></li>
+	<li>An <strong class="red">index organized file</strong> maps a <strong class="blue">value</strong> into a <strong class="red">set of records</strong></li>
+	<li>A <strong class="blue">relational table</strong> can be <strong class="red">indexed</strong> or it can be <strong class="red">index organized</strong>
+	<li>An <strong class="red">indexed relational table</strong> consists of several <strong class="red">index(es)</strong> created separately from implementation of a <strong class="blue">relational table</strong> itself</li>
+	<li>An <strong class="red">index organized relational table</strong> consists only of implementation of one <strong class="red">index</strong> where an <strong class="red">index key</strong> is the same as a <strong class="blue">relational schema</strong> of an <strong class="red">index organized table</strong></li>
+	<li>Indexing in database systems is <strong class="red">transparent to data manipulation and data retrieval operations</strong></li>
+	<li>It means that a database system automatically <strong class="red">modifies an index</strong> and automatically decides whether an <strong class="red">index is used for search</strong></li>
+      </ul>
+      <footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+	  <a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 06 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a class="red" href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 07 ================================================================================= -->
+ <slide>
+  <aside class="note">
+      <section>
+	<p>In this lecture, we consider two types of indexes: primary (also called as unique) index and secondary (also called as nonunique) index.</p>
+	<br/>
+	<p>A primary (unique) index is an index on a set of attributes being a primary or candidate key.</p>
+	<br/>
+	<p>A primary index is a function f : K → idR where K is a set of key values and idR is a set of identifiers (physical addresses) of rows in a relational table R.</p>
+	<br/>
+	<p>An important property of a primary index is such that it maps and index key into a single row identifier (physical address of a row) </p>
+	<br/>
+	<p>For example, and index that maps the employee numbers into physical addresses of the rows that have a respective value of employee number can be represented as a function Fenum: domain(enum) → idEMPLOYEE.</p>
+	<br/>
+	<p>Then application of a function Fenum to employee number 007, i.e. Fenum(007) returns a physical address (pointer) of a row with information about an employee whose number is 007. A physical address consists of a file name, data block number, and offset within a data block when a row is located.</p>
+	<br/>
+	<p>In a diagram an index is represented as a triangle because of its default implementation as B*-Tree. At leaf level of b*-Tree the keys are associated with the pointers to the rows with the respective values of the keys.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Primary (unique) index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">primary</strong> (<strong class="red">unique</strong>) <strong class="red">index</strong> is an index on a set of attributes equal to <strong class="blue">primary</strong> or <strong class="blue">candidate key</strong></li>
+	<li>A <strong class="red">primary index</strong> is a function <strong class="red">f : K &rarr; id<sub class="subscript">R</sub></strong> where <strong class="red">K</strong> is a set of <strong class="red">key values</strong> and <strong class="red">id<sub class="subscript">R</sub></strong> is a set of identifiers (physical addresses) of rows in a relational table <strong class="red">R</strong></li>
+	<li>A <strong class="red">primary index </strong> maps and <strong class="red">index key</strong> into a <strong class="red">single row identifier</strong> (physical address of a row)</li>
+      </ul>
+      <ul class="build">
+	    <p style="text-align:center;"><img src="images/Primary.png" width="350" alt="primary index" title="primary index"></p>
+	<li><strong class="red">F<sub class="subscript">enum</sub>: domain(enum) &rarr; id<sub class="subscript">EMPLOYEE</sub></strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+ <!-- slide 08 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A primary key in a relational table is always automatically indexed by a database system. It is because an index allows for a quick verification of a primary key constraint when a new row is inserted into a relational table or a value of primary key is updated in  an already existing row. Then there is no need to read entire relational table to find if a new value of primary key is unique. It is enough to apply an index. If the result is not empty then a new value violates a primary key constraint.</p>
+	<br/>
+	<p>The same applies to verification of a foreign key constraint. An index allows to quickly check if a a give value is already recorded as a value of a foreign key.</p>
+	<br/>
+	<p>For example, a relational table EMPLOYEE created over a relational schema Employee(enum, name, department) where enum is a primary key has an index automatically created on an attribute (enum).</p>
+	<br/>
+	<p>For example, a relational table ENROLMENT created over a relational schema Enrolment(snumber,code,edate) where (snumber,code) is a primary key has an index automatically created on a set of attributes (snumber,code).</p>
+	<br/>
+	<p>A primary key index on (snumber,code) is also an index with a composite key. In such a case the values of student number and subject code are concatenated before application as an index key. Later on search is performed in exactly the same way as for a single attribute index key.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Primary (unique) index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">      
+	<li>A <strong class="blue">primary key</strong> in a <strong class="blue">relational table</strong> is always <strong class="red">automatically indexed</strong> by a database system</li>
+	<li>For example, a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <strong class="green prettyprint">Employee(enum, name, department)</strong> where <strong class="green prettyprint">enum</strong> is a <strong class="blue">primary key</strong> has an index automatically created on an attribute (<strong class="green prettyprint">enum</strong>)</li>
+	<li>For example, a relational table <strong class="green prettyprint">ENROLMENT</strong> created over a relational schema <strong class="green prettyprint">Enrolment(snumber,code,edate)</strong> where (<strong class="green prettyprint">snumber,code)</strong> is a <strong class="blue">primary key</strong> has an index automatically created on a set of attributes (<strong class="green prettyprint">snumber,code</strong>)</li>
+	<li>An index on (<strong class="green prettyprint">snumber,code</strong>) is a <strong class="red">composite index</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 09 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+         <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a class="red" href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 10 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A secondary index is an index which is not primary.</p>
+	<br/>
+	<p>A secondary index is a function f : K -> P(idR) where K is a set of key values and idR is a set of identifiers (physical addresses) of rows in a relational table R. P(idR) is a powerset (set of sets) of identifiers of rows in R.</p>
+	<br/>
+	<p>A secondary index maps and index key into a set of row identifiers (a set of physical addresses of the rows).</p>
+	<br/>
+	<p>For example, an index that maps the names of departments into physical addresses of the rows that have a respective value of department name can be represented as a function Fdepartment: domain(department) → P(idEMPLOYEE).</p>
+	<br/>
+	<p>Then application of a function Fdepartment to Sales department, i.e. Fdepartment('Sales') returns a physical address (pointer) of a row with information about an employee who belongs to Sales department. Like before, for a unique index a physical address consists of a file name, data block number, and offset within a data block when a row is located.</p>
+	<br/>
+	<p>In a diagram an index is represented as a triangle because of its default implementation as B*-Tree. At leaf level of B*-Tree the keys are associated with the sets of pointers to the rows with the respective values of the keys.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Secondary (nonunique) index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">secondary index</strong> is an index which is not <strong class="blue">primary</strong></li>
+	<li>A <strong class="red">secondary index</strong> is a function <strong class="red">f : K &rarr; &weierp;(id<sub class="subscript">R</sub>)</strong> where <strong class="red">K</strong> is a set of <strong class="red">key values</strong> and <strong class="red">id<sub class="subscript">R</sub></strong> is a set of identifiers (physical addresses) of rows in a relational table <strong class="red">R</strong></li>
+	<li>A <strong class="red">secondary index </strong> maps and <strong class="red">index key</strong> into   <strong class="red">a set of row identifiers</strong> (a set of physical addresess of the rows)</li>
+     </ul>
+      <ul class="build">
+	<p style="text-align:center;"><img src="images/Secondary.png" width="350" alt="secondary" title="secondary"></p>
+	<li><strong class="red">F<sub class="subscript">department</sub>: domain(department) &rarr;  &weierp;(id<sub class="subscript">EMPLOYEE</sub>)</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 11  ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>For example, an index on an attribute (name) in a relational table EMPLOYEE created over a relational schema Employee(enum, name, department) is a secondary (nonunique) index. An index is secondary because at table EMPLOYEE may contain more than onev employees with the same name. Then an index key is associated with two row identifiers (pointers) of two rows in the table.</p>
+	<br/>
+	<p>For example, an index on a set of attributes (name, department) in a relational table EMPLOYEE created over a relational schema Employee(enum, name, department) is a secondary index. The index is a composite index key because each key is a concatenation of employee name and department name. Like before the index is secondary because a table EMPLOYEE may contain information about two employees with the same name assigned to the same department.</p>
+	<br/>
+	<p>For example, an index on an attribute (snumber) in a relational table ENROLMENT created over a relational schema Enrolment(snumber,code,edate) is a secondary index. The index is secondary because a student is allowed to have many enrolments. Then the same (key) student number is associated with several identifiers of the rows that contain information about the enrolments performed by a student.</p>
+	<br/>
+	<p>An index on a set of attributes (enum,name) in a relational table EMPLOYEE created over a relational schema Employee(enum, name, department) is still a primary index because (enum,name) is a superkey.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Secondary (nonunique) index</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<li>For example, an index on an attrtibute (<strong class="green prettyprint">name</strong>) in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <strong class="green prettyprint">Employee(enum, name, department)</strong> is a <strong class="red">secondary</strong> (<strong class="red">nonunique</strong>) <strong class="red">index</strong></li>
+	<li>For example, an index on a set of attrtibutes (<strong class="green prettyprint">name, department</strong>) in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <strong class="green prettyprint">Employee(enum, name, department)</strong> is a <strong class="red">secondary index</strong></li>
+	<li>For example, an index on an attribute (<strong class="green prettyprint">snumber</strong>) in a relational table <strong class="green prettyprint">ENROLMENT</strong> created over a relational schema <strong class="green prettyprint">Enrolment(snumber,code,edate)</strong> is a <strong class="red">secondary index</strong></li>
+	<li>An index on a set of attributes (<strong class="green prettyprint">enum,name</strong>) in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <strong class="green prettyprint">Employee(enum, name, department)</strong> is still a <strong class="blue">primary index</strong> because (<strong class="green prettyprint">enum,name</strong>) is a <strong class="blue">superkey</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 12 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a class="red" href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>	
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 13 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>If an index key is associated with many row identifiers then then the improvements in performance depend on the total number of row identifiers. It is because each row identifier needs an access to a data block that contains the rows in a relational table. If application of an index provides a lot of row identifiers then a lot of data blocks must be accessed to get the rows from a relational table. It is possible to speed up access to the rows by sorting a table over an index key. Then, the rows that have the same value of an index key are located in the same data block or in the adjacent data blocks. It speeds up access to the rows because we do not need to read so many data blocks.</p>
+	<br/>
+	<p>Such organization of an index is called as a clustered index.</p>
+	<br/>
+	<p>A clustered index is an index organized such that the ordering of rows in a relational table is the same as ordering of keys in the index.</p>
+	<br/>
+	<p>A clustered index is a function f: K -> idR where K is a set of keys and idR is a set of row identifiers (addresses) in a relational table R such that f(v) returns row identifier (address) of the first row in a sequence of rows such that a value of attribute K is equal to v.</p>
+	<br/>
+	<p>For example, a clustered index over an attribute department in a relational table EMPLOYEE is a function:</p>
+	<br/>
+	<p>fdepartment: domain(department) -> idEMPLOYEE.</p>
+	<br/>
+	<p>When applied with a given index key, for example 'Sales' the index return a row identifier of the first row that contains information about an employee assigned to Sales department. Then, the rows from the remaining employees in Sales department can be accessed in the same and in the few adjacent data blocks.</p>
+	<br/>
+	<p>A clustered index reduces the total number of read block operations when after traversal of an index an access to a relational table is required.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Clustered index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>A <strong class="red">clustered index</strong> is an index organized such that the ordering of rows is the same as ordering of keys in the index</li>
+        <li>A clustered index is a function <strong class="red">f: K &rarr; id<sub class="subscript">R</sub></strong> where <strong class="red">K</strong> is a set of keys and <strong class="red">id<sub class="subscript">R</sub></strong> is a set of row identifiers (addresses) in arelational table <strong class="red">R</strong> such that <strong class="red">f(v)</strong> returns row identifier (address) of the first row in a sequence of rows such that a value of atribute <strong class="red">K</strong> is equal to <strong class="red">v</strong></li>
+      </ul>
+      <ul class="build">
+	    <p style="text-align:center;"><img src="images/Clustered.png" width="350" alt="clustered index" title="clustered index"></p>
+	<li><strong class="red">f<sub class="subscript">department</sub>: domain(department) &rarr; id<sub class="subscript">EMPLOYEE</sub></strong> </li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+ </slide>
+<!-- slide 14 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>It is important to note that every primary index is equivalent to a clustered index because every key in  an index is associated with only one row identifier.</p>
+	<br/>
+	<p>As it was already mentioned clustered index provides faster access to data than non clustered secondary index. It is true especially when the index keys are associated with many row identifiers.</p>
+	<br/>
+	<p>Clustered index has a very negative impact on performance of INSERT and UPDATE SQL statements. When a new row is inserted then to preserve an order of index keys in a table it may happen that a large part of a table must be rewritten to make space for a new row. The same situation may happen when an index key is updated an a row must be moved to another location in a table to preserve ordering of the rows in a table.</p>
+	<br/>
+	<p>Therefore, clustered indexes should be mainly applied to read-only data or data that is very rarely updated.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Clustered index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Every <strong class="blue">primary index</strong> is <strong class="red">clustered</strong></li>
+	<li><strong class="red">Clustered index</strong> provides faster access to data than <strong class="blue">nonclustered secondary</strong> index</lI>
+	<li><strong class="red">Clustered index</strong> has a very negative impact on performance of <strong class="green prettyprint">INSERT</strong> and <strong class="green prettyprint">UPDATE</strong> SQL statements</li>
+	<li>Therefore, <strong class="red">clustered indexing</strong> should be applied to mainly to <strong class="red">read-only data</strong></li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 15 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a class="red" href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>		
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 16 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>A diagram  at the top of the present slide is (very) simplified view of B*-Tree. The main properties of B*-Tree are the following: (1) a B*-Tree is always perfectly balanced, it means that a length of path from root to any of leaf nodes is exactly the same, (2) leaf level nodes are linked with forward and backward pointers such that traversal of leaf level node in B*-tree in both directions is possible, (3) B*-tree structure has three entry points: through a root node, through a left lower corner leaf node and through right lower corner leaf node.</p>
+	<br/>
+	<p>It means that B*-tree can be traversed either:</p>
+	<br/>
+	<p>vertically from root to leaf level of a tree,</p>
+	<br/>
+	<p>horizontally either from left corner of leaf level to right corner of leaf level or the opposite,</p>
+	<br/>
+	<p>vertically and later on horizontally either towards left lower corner or right lower corner of leaf level.</p>
+	<br/>
+	<p>Assume that B*-tree visible is used to search for an employee whose last name is "Martin". A vertical traversal of B*-tree is performed in the following way. We access a root node and because a string "Martin" > "M" we pick a link on the right -hand side of "M". Next because "Martin" < "MI" we pick the leftmost link that leads us to a leaf note with a key "Martin". Next we pick the three row identifiers associated with the key and we access three data blocks with the rows.</p>
+	<br/>
+	<p>A size of a non-leaf node is usually equal to a size of data block. It means that a non-leaf  node may contain  long value1-key1-value2-key2- ... valuen-keyn. As a consequence high of B*-tree is almost always not higher than 3 non-leaf nodes. We need a lot of keys to have 3 non-leaf nodes. It is why a B*-tree is pretty flat and wide.</p>
+	<br/>
+	 </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">B*-tree index implementation</h2>
+    </hgroup>
+    <article class="smaller">
+      <ul class="build">
+	<p style="text-align:center;"><img src="images/b-tree-index.png" alt="ORM" title="ORM" width="650"></p>
+	<li><strong class="red">B*-tree</strong> can be traversed either:
+	  <ul class=:"build">
+	    <li><strong class="red">vertically</strong> from <strong class="blue">root</strong> to <strong class="blue">leaf level</strong> of a tree</li>
+	    <li><strong class="red">horizontally</strong> either from <strong class="blue">left corner</strong> of <strong class="blue">leaf level</strong> to <strong class="blue">right corner</strong> of <strong class="blue">leaf level</strong> or the opposite</li>
+	    <li><strong class="red">vertically</strong> and later on <strong class="red">horizontally</strong> either towards <strong class="blue">left lower corner</strong> or <strong class="blue">right lower corner</strong> of <strong class="blue">leaf level</strong></li>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 17 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+       <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a class="red" href="#17">Traversals of B*-tree index</a></li>
+	<li><a href="#26">Examples</a></li>			
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 18 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Now we look at how different types of queries where the performance of processing of queries is improved with indexes. Assume that a relational table EMPLOYEE was created over a relational schema Employee(enum, name, department, salary). An index on a primary key (enum) in a relational table EMPLOYEE is always built automatically by a database system. A name of such index is the same as a name of primary key constraint in a relational table EMPLOYEE.</p>
+	<br/>
+	<p>The following queries:</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE enum = 007;</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE enum = 007 AND department = 'MI6';</p>
+	<br/>
+	<p>SELECT enum FROM EMPLOYEE WHERE enum = 007;</p>
+	<br/>
+	<p>are processed through a vertical traversal of an index on (enum) </p>
+	<br/>
+	<p>A query processing plan for a statement SELECT * FROM EMPLOYEE WHERE enum = 007 AND department = 'MI6'; is the following. Vertically traverse an index on primary key, and if a key is found access a relational table (read one data block from a relational table), find a row and check the validity of of a condition department = 'MI6'.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>An index on a primary key (<strong class="green prettyprint">enum</strong>) in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema<br/> <strong class="green prettyprint">Employee(enum, name, department, salary)</strong> <br/>is always built automatically by a database system</li>
+	<li>A name of an index is the same as a name of primary key constraint in a relational table <strong class="green prettyprint">EMPLOYEE</strong></li>
+	<li>The following queries are processed through a <strong class="red">vertical traversal</strong> of an index on (<strong class="green prettyprint">enum</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE enum = 007;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE enum = 007 AND department = 'MI6';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT enum
+FROM EMPLOYEE
+WHERE enum = 007;</pre>
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 19 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>The following queries are processed through a horizontal traversal of leaf level of an index on (enum)</p>
+	<br/>
+	<p>SELECT COUNT(*) FROM EMPLOYEE; </p>
+	<br/>
+	<p>SELECT COUNT(enum) FROM EMPLOYEE; </p>
+	<br/>
+	<p>SELECT COUNT(name)  /* Only if name IS NOT NULL */ FROM EMPLOYEE;</p>
+	<br/>
+	<p>SELECT enum FROM EMPLOYEE;</p>
+	<br/>
+	<p>SELECT enum, COUNT(*) FROM EMPLOYEE GROUP BY enum;</p>
+	<br/>
+	<p>SELECT enum FROM EMPLOYEE ORDER BY enum;</p>
+	<br/>
+	<p>The first query is process by accessing an index from left (or right) lower corner, reading block by block at leaf levelof an index and counting keys (or orw identifiers). If an index is build on a primary key then the total number of keys is equal to the total number of rows in a relational table.</p>
+	<br/>
+	<p>The same way of processing is applied to  an query:</p>
+	<br/>
+	<p>SELECT COUNT(name)  /* Only if name IS NOT NULL */ FROM EMPLOYEE;</p>
+	<br/>
+	<p>The total number of values in a column that is NOT NULL is the same as the total number of rows in a relational table. Note, that the query does not use DISTINCT keyword in SELECT clause.</p>
+	<br/>
+	<p>The queries with GROUP BY clause are processed through traversal of leaf level of an index on a key and counting the total number of row identifiers associated with each key.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">	
+        <li>The following queries are processed through a <strong class="red">horizontal traversal</strong> of leaf level of an index on (<strong class="green prettyprint">enum</strong>)
+	   <ul class="build">
+	     <pre class="prettyprint" data-lang="SQL">
+SELECT COUNT(*)
+FROM EMPLOYEE; </pre>
+	     <pre class="prettyprint" data-lang="SQL">
+SELECT COUNT(enum)
+FROM EMPLOYEE; </pre>	     
+	     <pre class="prettyprint" data-lang="SQL">
+SELECT COUNT(name)  /* Only if name IS NOT NULL */
+FROM EMPLOYEE;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT enum
+FROM EMPLOYEE;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT enum, COUNT(*)
+FROM EMPLOYEE
+GROUP BY enum;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT enum
+FROM EMPLOYEE
+ORDER BY enum;</pre>	  
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 20 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Assume that we created an index on attribute (name) in a relational table EMPLOYEE created over a relational schema</p>
+	<br/>
+	<p>Employee(enum, name, department, salary)</p>
+	<br/>
+	<p>The following queries will be processed through a vertical traversal of an index on (name):</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE  name = 'James';</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name = 'James' and department = 'MI6';</p>
+	<br/>
+	<p>SELECT count(*) FROM EMPLOYEE WHERE name = 'James'</p>
+	<br/>
+	<p>The first query is processed through a vertical traversal of an index on an attribute name. When a key is found at leaf level of an index the row identifiers associated with a key are used to access a relational table to get the rows where nam is equal to James.</p>
+	<br/>
+	<p>The second query is processed in the same way. When the rows where a name is equal to James are found the second condition  department='MI6' is evaluated on such rows.</p>
+	<br/>
+	<p>The last query is processed through a veritical traversal of an index on. an attribute name and when a key James  is found the row identifiers associated with the key are counted.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Assume that we created an index on attribute (<strong class="green prettyprint">name</strong>) in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <br>  <strong class="green prettyprint">Employee(enum, name, department, salary)</strong> </li>
+	<li>The following queries will be processed through a <strong class="red">vertical traversal</strong> of an index on (<strong class="green prettyprint">name</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE  name = 'James';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name = 'James' and department = 'MI6';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT count(*)
+FROM EMPLOYEE
+WHERE name = 'James'</pre>	    
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 21 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Assume that we created an index on the attributes (name, department) in a relational table EMPLOYEE created over a relational schema (header)</p>
+	<br/>
+	<p>Employee(enum, name, department, salary)</p>
+	<br/>
+	<p>The following queries are processed through a vertical traversal of an index on (name, department)</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name = 'James' and department = 'MI6';</p>
+	<br/>
+	<p>SELECT count(*) FROM EMPLOYEE WHERE name = 'James' and department = 'MI6';</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name = 'James' and department = 'MI6' and salary > 1000;</p>
+	<br/>
+	<p>In all SELECT statements listed above, a composite key is created through concatenation of the strings 'James' and 'MI6'. A key obtained from concatenation of the values is used fro vertical traversal of an index on (name,department). When a key is found at leaf level of an index the row identifiers associated wit the key are used to access the rows in a relational table.</p>
+	<br/>
+	<p>In the second case, a table is not accessed and instead the row identifiers are counted.</p>
+	<br/>
+	<p>In the last case after selection the rows from the data blocks implementing a relational table EMPLOYEE a condition is verified on each row  salary > 1000.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Assume that we created an index on the attributes <br/><strong class="green prettyprint">(name, department)</strong><br/> in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <br>  <strong class="green prettyprint">Employee(enum, name, department, salary)</strong> </li>
+	<li>The following queries are processed through a <strong class="red">vertical traversal</strong> of an index on (<strong class="green prettyprint">name, department</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name = 'James' and department = 'MI6';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT count(*)
+FROM EMPLOYEE
+WHERE name = 'James' and department = 'MI6';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name = 'James' and department = 'MI6' and salary > 1000;</pre>	    
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 22 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Assume that we created an index on the attributes (enum) in a relational table EMPLOYEE created over a relational schema (header)</p>
+	<br/>
+	<p>Employee(enum, name, department, salary)</p>
+	<br/>
+	<p>The following queries can be processed through a vertical traversal and later on horizontal traversal of an index on (enum)</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE enum > 300; </p>
+	<br/>
+	<p>SELECT count(*) FROM EMPLOYEE WHERE enum < 007; </p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE enum > 300 and salary > 1000;</p>
+	<br/>
+	<p>In the first query a constant 300 is used as a key for a vertical traversal of an index on an attribute enum. When a key is frond then the data blocks at leaf level of an index are traversed horizontally towards the right lower corner of the index. Each time a value of a key greater than 300 is found the row identifiers associated with a key are used to access the rows in a relational table.</p>
+	<br/>
+	<p>The second query is processed in a similar way. After a vertical traversal of an index the leaf level blocks are traversed horizontally towards left lower corner. Each time a value of a key less than 007 is found the total number of row identifiers associated with a key is added ro an intermediate result.</p>
+	<br/>
+	<p>The third query is processed like the first query. Each time a value of a key is greater than 300, the row identifiers associated with a key are used to access the rows in a relational table and used to evaluate the second condition salary > 1000s</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>The following queries <strong class="red">can be processed</strong> through a <strong class="red">vertical traversal</strong> and later on <strong class="red">horizontal traversal</strong> of an index on (<strong class="green prettyprint">enum</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE enum > 300;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT count(*)
+FROM EMPLOYEE
+WHERE enum < 007; </pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE enum > 300 and salary > 1000;</pre>	    
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 23 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Assume that we created an index on the attributes (name, department) in a relational table EMPLOYEE created over a relational schema</p>
+	<br/>
+	<p>Employee(enum, name, department, salary)</p>
+	<br/>
+	<p>The following queries can be processed through a vertical traversal and later on horizontal traversal of an index on (name, department):</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name > 'James';</p>
+	<br/>
+	<p>SELECT count(*) FROM EMPLOYEE WHERE name <= 'James';</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name = 'James' and department > 'MI6';</p>
+	<br/>
+	<p>The first query is processed through a vertical traversal of an index on (name, department) with a key 'James' concatenated with an empty string ''.</p>
+	<br/>
+	<p>Whenever a key with a prefix greater than 'James' is found at leaf level the query is processed through horizontal traversal of leaf-level of an index towards right lower corner of an index. The row identifiers associated with the index keys are used to access the rows in a relational table.</p>
+	<br/>
+	<p>In the second query, a vertical traversal of an index on (name, department) finds a the largest key smaller or equal to 'James'. Then, leaf level of an index is traversed horizontally towards left lower corner and the row identifiers associated with the index keys are counted.</p>
+	<br/>
+	<p>The third query is processed in a similar way as the first query. A key 'James' is used to find the highest index key that has a prefix 'James' and suffix greater than 'MI6'. Then a leaf level of an index is horizontally traversed until prefix of a key selected from an index is different from 'James'. All row identifiers associated with the keys are used to access the rows in a relational table.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Assume that we created an index on the attributes <br/><strong class="green prettyprint">(name, department)</strong><br/> in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <br>  <strong class="green prettyprint">Employee(enum, name, department, salary)</strong> </li>
+	<li>The following queries <strong class="red">can be processed</strong> through a <strong class="red">vertical traversal</strong>  and later on <strong class="red">horizontal traversal</strong> of an index on (<strong class="green prettyprint">name, department</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name > 'James';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT count(*)
+FROM EMPLOYEE
+WHERE name <= 'James';</pre>	    
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name = 'James' and department > 'MI6';</pre>	    
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 24 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Assume that we created an index on the attributes (name, department) in a relational table EMPLOYEE created over a relational schema Employee(enum, name, department, salary)</p>
+	<br/>
+	<p>The following queries can be processed through a vertical traversal and later on horizontal traversal of an index on (name, department)</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name > 'James' and salary > 1000;</p>
+	<br/>
+	<p>SELECT name, count(*) FROM EMPLOYEE WHERE name > 'James' and salary > 1000 GROUP BY name;</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE name > 'James' and salary > 1000 ORDER BY name;</p>
+	<br/>
+	<p>The first query is processed through a vertical traversal of an index on (name, department) in order to find the smallest key with a prefix 'James' at leaf level of an index. Then, a leaf level is traversed towards the right lower corner and the row identifiers associated with the retrieved index keys are used to access a relational table. The rows selected from a relational table are used to evaluate a condition salary > 100.</p>
+	<br/>
+	<p>The second query is processed through a vertical traversal of an index on (name, department) in order to find the smallest key with a prefix 'James' at leaf level of an index. Then, a leaf level is traversed towards the right lower corner and the row identifiers associated with the retrieved index keys are used to access a relational table. The rows selected from a relational table are used to evaluate a condition salary > 1000.  All rows that have the same value of attribute name are counted. It is how grouping and group function count(*) are processed.</p>
+	<br/>
+	<p>The third query is processed through a vertical traversal of an index on (name, department) in order to find the smallest key with a prefix 'James' at leaf level of an index. Then, a leaf level is traversed towards the right lower corner and the row identifiers associated with the retrieved index keys are used to access a relational table. The rows selected from a relational table are used to evaluate a condition salary > 1000.  All rows that satisfy the condition will be included into an answer.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Assume that we created an index on the attributes <br/><strong class="green prettyprint">(name, department)</strong><br/> in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <br>  <strong class="green prettyprint">Employee(enum, name, department, salary)</strong> </li>
+	<li>The following queries <strong class="red">can be processed</strong> through a <strong class="red">vertical traversal</strong>  and later on <strong class="red">horizontal traversal</strong> of an index on (<strong class="green prettyprint">name, department</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name > 'James' and salary > 1000;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT name, count(*)
+FROM EMPLOYEE
+WHERE name > 'James' and salary > 1000
+GROUP BY name;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE name > 'James' and salary > 1000
+ORDER BY name;</pre>	    
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 25 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Assume that we created an index on the attributes (name, department) in a relational table EMPLOYEE created over a relational schema Employee(enum, name, department, salary).
+</p>
+	<br/>
+	<p>The following queries can be processed through a horizontal traversal of an index on (name, department)</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE department = 'MI6;</p>
+	<br/>
+	<p>SELECT * FROM EMPLOYEE WHERE department > 'MI6;</p>
+	<br/>
+	<p>SELECT name, department FROM EMPLOYEE;</p>
+	<br/>
+	<p>SELECT name, department, count(*) FROM EMPLOYEE GROUP BY name, department</p>
+	<br/>
+	<p>The first query will be processed through horizontal traversal of leaf level of an index on (name, department). A suffix of each index key retrieved from leaf level will be compared with 'MI6'. If a comparison returns true then all row identifiers associated with an index key will be used to get the rows from a relational table. Otherwise, a comparison will move to the next key. It is so called "skip-scan" traversal of a leaf-level of an index.</p>
+	<br/>
+	<p>The second query will be processed through horizontal traversal of leaf level of an index on (name, department). A suffix of each index key retrieved from leaf level will be compared with 'MI6'. If a suffix is greater than 'MI6' then a comparison returns true then all row identifiers associated with an index key will be used to get the rows from a relational table. Otherwise, a comparison will move to the next key. It is so called "skip-scan" traversal of a leaf-level of an index.</p>
+	<br/>
+	<p>The third query will be processed through horizontal traversal of leaf level of an index on (name, department). Each key retrieved from the data blocks at leaf-level of an index is included into an answer.</p>
+	<br/>
+	<p>The fourth query will be processed in the same way as the third query. Each from leaf-level of a index will be included into an answer together with the total number of row identifiers associated with each key.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Traversals of B*-tree index</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Assume that we created an index on the attributes <br/><strong class="green prettyprint">(name, department)</strong><br/> in a relational table <strong class="green prettyprint">EMPLOYEE</strong> created over a relational schema <br>  <strong class="green prettyprint">Employee(enum, name, department, salary)</strong> </li>
+	<li>The following queries <strong class="red">can be processed</strong> through a <strong class="red">horizontal traversal</strong>  of an index on (<strong class="green prettyprint">name, department</strong>)
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE department = 'MI6;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM EMPLOYEE
+WHERE department > 'MI6;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT name, department
+FROM EMPLOYEE;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT name, department, count(*)
+FROM EMPLOYEE
+GROUP BY name, department;</pre>	    
+	  </ul>	    
+	  </ul>
+	</li>
+      </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 26 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">Introduction to Indexing</h2>
+      <h3 class="red">Outline</h3>
+    </hgroup>
+    <article>
+      <ul>
+        <li><a href="#2">Index ? What is it ?</a></li>
+	<li><a href="#4">Index versus indexed file organization</a></li>
+	<li><a href="#6">Primary (unique) index</a></li>
+	<li><a href="#9">Secondary (nonunique) index</a></li>
+	<li><a href="#12">Clustered index</a></li>
+	<li><a href="#15">B*-tree index implementation</a></li>
+	<li><a href="#17">Traversals of B*-tree index</a></li>
+	<li><a class="red" href="#26">Examples</a></li>			
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+<!-- slide 27 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>In this section we consider the following problem. Given SELECT statement, we want to find the best index to process the statement.</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query ?</p>
+	<br/>
+	<p>SELECT * FROM DEPARTMENT WHERE dname = 'MI6';</p>
+	<br/>
+	<p>There is no need for any new index because an attribute dname is a primary key and it is automatically indexed.</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query ?</p>
+	<br/>
+	<p>SELECT * FROM DEPARTMENT WHERE dname = 'MI6' AND  budget > 10000;</p>
+	<br/>
+	<p>There is no need for any new index because an attribute dname is a primary key and it is automatically indexed. A condition budget > 10000 can be evaluated after a row is retrieved from a relational table.</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Examples</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>What index should be created on a relational table <strong class="green prettyprint">DEPARTMENT</strong> created over a relational schema <br/><strong class="green prettyprint">Department(dname, chairperson, budget)</strong><br/> to speed up the following queries ?
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM DEPARTMENT
+WHERE dname = 'MI6';</pre>
+	  </ul>
+	</li>
+	<li>There is no need for any new index because an attribute <strong class="green prettyprint">dname</strong> is a <strong class="blue">primary key</strong> and it is automatically indexed
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM DEPARTMENT
+WHERE dname = 'MI6' AND  budget > 10000;</pre>
+	  </ul>
+	</li>
+	<li>There is no need for any new index because an attribute <strong class="green prettyprint">dname</strong> is a <strong class="blue">primary key</strong> and it is automatically indexed	
+       </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 28 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>Again, we consider the following problem. Given SELECT statement, we want to find the best index to process the statement.</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query ?</p>
+	<br/>
+	<p>SELECT * FROM DEPARTMENT WHERE budget = 10000;</p>
+	<br/>
+	<p>An index on an attribute budget allows fro a vertical traversal of an index and access to the rows in a relational table.</p>
+	<br/>
+	<p>CREATE INDEX DEPT_IDX_BUDGET ON DEPARTMENT(budget);</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query ?</p>
+	<br/>
+	<p>SELECT * FROM DEPARTMENT WHERE budget = 10000 and chairperson = 'James';</p>
+	<br/>
+	<p>An index with a composite key on the attributes (budget,chairperson) allows for a vertical traversal of an index and access to the rows in a relational table.</p>
+	<br/>
+	<p>CREATE INDEX DEPT_IDX_BC ON DEPARTMENT(budget,chairperson);</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query ?</p>
+	<br/>
+	<p>SELECT DISTINCT chairpersonFROM DEPARTMENT;</p>
+	<br/>
+	<p>An index on an attribute (chairperson) allows to horizontal traversal of leaf level of the index and selection of all names of chairpeople.</p>
+	<br/>
+	<p>CREATE INDEX DEPT_IDX_CHAIR ON DEPARTMENT(chairperson);</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Examples</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>What index should be created on a relational table <strong class="green prettyprint">DEPARTMENT</strong> created over a relational schema <br/><strong class="green prettyprint">Department(dname, chairperson, budget)</strong><br/> to speed up the following queries ?
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM DEPARTMENT
+WHERE budget = 10000;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+CREATE INDEX DEPT_IDX_BUDGET ON DEPARTMENT(budget);</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM DEPARTMENT
+WHERE budget = 10000 and chairperson = 'James';</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+CREATE INDEX DEPT_IDX_BC ON DEPARTMENT(budget,chairperson);</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT DISTINCT chairperson
+FROM DEPARTMENT;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+CREATE INDEX DEPT_IDX_CHAIR ON DEPARTMENT(chairperson);</pre>
+	  </ul>
+	</li>	
+       </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 29 ================================================================================= -->
+<slide>
+ <aside class="note">
+      <section>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query ?</p>
+	<br/>
+	<p>SELECT * FROM DEPARTMENT ORDER BY budget;</p>
+	<br/>
+	<p>An index on an attribute (budget) allows for horizontal traversal of leaf level of an index, accessing a relational table in the ascending order of the values of an attribute budget and avoids sorting a relational table over budget.</p>
+	<br/>
+	<p>CREATE INDEX DEPT_IDX_BUDGET ON DEPARTMENT(budget);</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query </p>
+	<br/>
+	<p>SELECT chairperson, budget, count(*) FROM DEPARTMENT GROUP BY  budget, chairperson;</p>
+	<br/>
+	<p>An composite key index on the attributes (budget,chairperson) allows for horizontal traversal of leaf level of an index, counting the total number of row identifiers associated with each key and it avoids grouping of a relational table over the values of (budget,chairperson)</p>
+	<br/>
+	<p>CREATE INDEX DEPT_IDX_BC ON DEPARTMENT(budget,chairperson);</p>
+	<br/>
+	<p>What index should be created on a relational table DEPARTMENT created over a relational schema Department(dname, chairperson, budget)</p>
+	<br/>
+	<p>to speed up the following query </p>
+	<br/>
+	<p>SELECT chairperson, budget, count(*) FROM DEPARTMENT GROUP BY  chairperson, budget;</p>
+	<br/>
+	<p>An composite key index on the attributes (chairperson,budget) allows for horizontal traversal of leaf level of an index, counting the total number of row identifiers associated with each kyy and it avoids grouping of a relational table over the values of (chairperson,budget)</p>
+	<br/>
+	<p>CREATE INDEX DEPT_IDX_BC ON DEPARTMENT(budget,chairperson);</p>
+	<br/>
+      </section>
+    </aside>  
+    <hgroup>
+      <h2 class="blue">Examples</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>What index should be created on a relational table <strong class="green prettyprint">DEPARTMENT</strong> created over a relational schema  <br/><strong class="green prettyprint">Department(dname, chairperson, budget)</strong><br/> to speed up the following queries ?
+	  <ul class="build">
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT *
+FROM DEPARTMENT
+ORDER BY budget;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+CREATE INDEX DEPT_IDX_BUDGET ON DEPARTMENT(budget);</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT chairperson, budget, count(*)
+FROM DEPARTMENT
+GROUP BY  budget, chairperson;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+CREATE INDEX DEPT_IDX_BC ON DEPARTMENT(budget,chairperson);</pre></strong>
+	    <pre class="prettyprint" data-lang="SQL">
+SELECT chairperson, budget, count(*)
+FROM DEPARTMENT
+GROUP BY  chairperson, budget;</pre>
+	    <pre class="prettyprint" data-lang="SQL">
+CREATE INDEX DEPT_IDX_CB ON DEPARTMENT(chairperson,budget);</pre>
+	  </ul>
+	</li>	
+       </ul>
+<footer class="source"><strong class="blue">In HTML view press 'p' to see the lecture notes</strong><br/>
+<a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+</slide>
+<!-- slide 30 ================================================================================= -->
+  <slide>
+    <hgroup>
+      <h2 class="blue">References</h2>
+    </hgroup>
+    <article>
+      <ul class="build">
+	<li>Elmasri R. and Navathe S. B., Fundamentals of Database Systems,  Chapter 17 Indexing Structures for Files and Physical Database Design, 7th ed., The Person Education Ltd, 2017</li>
+      </ul>
+<footer class="source"><a href="#2">TOP</a>
+&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;
+2023</footer>
+    </article>
+  </slide>
+
+  <slide class="backdrop"></slide>
+
+
+</slides>
+
+<script>
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-XXXXXXXX-1']);
+_gaq.push(['_trackPageview']);
+
+(function() {
+  var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+  ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + 'https://protect-au.mimecast.com/s/cK9yCMwG88tjx1BPsJW-sr?domain=google-analytics.com';
+  var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+})();
+</script>
+
+<!--[if IE]>
+  <script src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js"></script>
+  <script>CFInstall.check({mode: 'overlay'});</script>
+<![endif]-->
+</body>
+</html>
+
