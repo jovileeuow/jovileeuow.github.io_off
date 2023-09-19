@@ -1,0 +1,22 @@
+mysql> source warehouse.sql
+ERROR 1051 (42S02): Unknown table 'csit115.warehouse'
+Query OK, 0 rows affected (0.26 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
++--------------+-----------------+-------+----------+
+| name         | address         | part  | quantity |
++--------------+-----------------+-------+----------+
+| Golden Bolts | Northfields Ave | bolt  |      210 |
+| Golden Bolts | Northfields Ave | lock  |       20 |
+| Golden Bolts | Northfileds Ave | screw |      211 |
++--------------+-----------------+-------+----------+
+3 rows in set (0.02 sec)
+
+mysql> exit

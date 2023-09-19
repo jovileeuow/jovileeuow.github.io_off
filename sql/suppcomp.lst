@@ -1,0 +1,87 @@
+mysql> source suppcomp.sql;
+ERROR 1051 (42S02): Unknown table 'csit115.supplier'
+ERROR 1051 (42S02): Unknown table 'csit115.company'
+Query OK, 0 rows affected (0.27 sec)
+
+Query OK, 0 rows affected (0.21 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
++-------+-------+
+| sname | city  |
++-------+-------+
+| Harry | Paris |
+| James | Paris |
+| Robin | Rome  |
++-------+-------+
+3 rows in set (0.02 sec)
+
++--------------+-------+
+| cname        | city  |
++--------------+-------+
+| Golden Bolts | Paris |
+| Golden Bolts | Rome  |
+| Lazy Lobster | Rome  |
++--------------+-------+
+3 rows in set (0.00 sec)
+
++-------+-------+--------------+-------+
+| sname | city  | cname        | city  |
++-------+-------+--------------+-------+
+| Harry | Paris | Golden Bolts | Paris |
+| James | Paris | Golden Bolts | Paris |
+| Robin | Rome  | Golden Bolts | Rome  |
+| Robin | Rome  | Lazy Lobster | Rome  |
++-------+-------+--------------+-------+
+4 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.13 sec)
+
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> .\ shipment;
+ERROR: 
+Unknown command '\ '.
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '.\ shipment' at line 1
+mysql> source shipment.sql;
+ERROR 1051 (42S02): Unknown table 'csit115.shipment'
+Query OK, 0 rows affected (0.23 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 0 rows affected (0.00 sec)
+
++-------+--------------+-----------+
+| sname | product      | part      |
++-------+--------------+-----------+
+| James | audio system | amplifier |
+| James | audio system | speakers  |
+| James | computer     | hard disk |
+| James | computer     | mainboard |
+| James | computer     | processor |
++-------+--------------+-----------+
+5 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> tee shipment.lst

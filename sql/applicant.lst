@@ -1,0 +1,287 @@
+mysql> .\ applicant.sql
+ERROR: 
+Unknown command '\ '.
+    -> ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '.\ applicant.sql' at line 1
+mysql> source applicant.sql
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+mysql> use csit115
+Database changed
+mysql> source applicant.sql
+Query OK, 0 rows affected (0.19 sec)
+
+Query OK, 0 rows affected (0.19 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
++------+----------+--------------+------------+------------+-------------------+------------+----------+---------------------+
+| anum | fname    | lname        | dob        | city       | state             | phone      | fax      | email               |
++------+----------+--------------+------------+------------+-------------------+------------+----------+---------------------+
+|    1 | Harry    | Potter       | 1980-12-12 | Perth      | Western Australia |  645278453 |     NULL | jones@gmail.com     |
+|    2 | Johnny   | Walker       | 1990-01-13 | Geelong    | Victoria          |   63569784 | 63569785 | blunder@hotmail.com |
+|    3 | Mary     | Poppins      | 1950-01-01 | Melbourne  | Victoria          |   62389541 |     NULL | NULL                |
+|    4 | Michael  | Collins      | 1960-05-25 | Brisbane   | Queensland        |   63336666 |     NULL | mike@hotmail.com    |
+|    5 | Margaret | Finch        | 1953-12-07 | Sydney     | New South Wales   |   64573489 |     NULL | mf@163.com          |
+|    6 | Claudia  | Kowalewski   | 1959-05-03 | Hobart     | Tasmania          |   64577744 |     NULL | cch@cs.odmg.org     |
+|    7 | James    | Bond         | 1960-01-01 | Perth      | Western Australia |  645278434 |     NULL | james@bigpond.com   |
+|    8 | Stephen  | Staunton     | 1977-10-23 | Freemantle | Western Australia |    6278453 |     NULL | stephen@gmail.com   |
+|    9 | Joseph   | Staunton     | 1977-10-23 | Newcastle  | New South Wales   |  623778453 |     NULL | joseph@gmail.com    |
+|   10 | John     | Spiderman    | 1990-06-21 | Sydney     | New South Wales   |   24256789 | 12345679 | spider@yahoo.com    |
+|   11 | George   | TheFirst     | 1991-10-12 | Melbourne  | Victoria          |    2345987 |     NULL | g1st@hotmail.com    |
+|   12 | Homer    | Simpson      | 1957-05-24 | Adelaide   | South Australia   |   61369876 |     NULL | homer@gmail.com     |
+|   13 | Neil     | Superman     | 1960-07-20 | Perth      | Western Australia |   45672345 | 61343568 | superneil@gmail.com |
+|   14 | Ivan     | TheTerrible  | 1969-05-11 | Brisbane   | Queensland        | 1234567898 |     NULL | ivan@yahoo.com      |
+|   15 | Penelope | Princess     | 1977-10-23 | Hobart     | Tasmania          |   40076711 |     NULL | pprincess@163.com   |
+|   16 | Zhi Chao | Zhong        | 1971-07-21 | Horsley    | New South Wales   |   86150189 |     NULL | suezhong@163.com    |
+|   17 | Richard  | TheLionheart | 1981-06-02 | Waga Waga  | New South Wales   |   61234567 |     NULL | rlion@hotmail.com   |
+|   18 | Sherlock | Holmes       | 1935-06-13 | Bundaberg  | Queensland        |   46676601 |     NULL | holmes@162.com      |
+|   19 | Robin    | Hood         | 1951-08-21 | Horsley    | New South Wales   |   86150329 |     NULL | robinhood@163.com   |
+|   20 | Janusz   | Getta        | 1953-10-03 | Horsley    | New South Wales   |   12345678 | 12345679 | jrg@uow.edu.au      |
++------+----------+--------------+------------+------------+-------------------+------------+----------+---------------------+
+20 rows in set (0.00 sec)
+
+mysql> exit
+mysql> \. applicant.sql
+--------------
+DROP TABLE APPLICANT
+--------------
+
+Query OK, 0 rows affected (0.10 sec)
+
+--------------
+CREATE TABLE APPLICANT(			  
+anum        INTEGER     NOT NULL, 
+fname       VARCHAR(20) NOT NULL, 
+lname		VARCHAR(30)	NOT NULL, 
+dob         DATE     	NOT NULL, 
+city		VARCHAR(30)	NOT NULL, 
+state		VARCHAR(20)	NOT NULL, 
+phone		INTEGER  	NOT NULL, 
+fax		    INTEGER  		    , 
+email		VARCHAR(50)		    , 
+	CONSTRAINT APPLICANT_pkey PRIMARY KEY ( anum ) )
+--------------
+
+Query OK, 0 rows affected (0.20 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000001, 'Harry', 'Potter', '1980-12-12', 'Perth', 'Western Australia', 645278453, NULL, 'jones@gmail.com' )
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000002, 'Johnny', 'Walker', '1990-01-13', 'Geelong', 'Victoria', 63569784, 63569785, 'blunder@hotmail.com' )
+--------------
+
+Query OK, 1 row affected (0.03 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000003, 'Mary', 'Poppins', '1950-01-01', 'Melbourne', 'Victoria', 62389541, NULL, NULL )
+--------------
+
+Query OK, 1 row affected (0.05 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000004, 'Michael', 'Collins', '1960-05-25', 'Brisbane', 'Queensland', 63336666, NULL, 'mike@hotmail.com')
+--------------
+
+Query OK, 1 row affected (0.05 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000005, 'Margaret', 'Finch', '1953-12-07', 'Sydney','New South Wales', 64573489, NULL, 'mf@163.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000006, 'Claudia', 'Kowalewski', '1959-05-03', 'Hobart', 'Tasmania', 64577744, NULL, 'cch@cs.odmg.org')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000007, 'James', 'Bond', '1960-01-01','Perth', 'Western Australia', 645278434, NULL, 'james@bigpond.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000008, 'Stephen', 'Staunton', '1977-10-23', 'Freemantle', 'Western Australia', 6278453, NULL, 'stephen@gmail.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 000009, 'Joseph', 'Staunton', '1977-10-23', 'Newcastle', 'New South Wales', 623778453, NULL, 'joseph@gmail.com' )
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000010, 'John', 'Spiderman', '1990-06-21', 'Sydney', 'New South Wales', 24256789, 12345679, 'spider@yahoo.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000011, 'George', 'TheFirst', '1991-10-12', 'Melbourne', 'Victoria', 2345987, NULL, 'g1st@hotmail.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000012, 'Homer', 'Simpson', '1957-05-24', 'Adelaide', 'South Australia', 61369876, NULL, 'homer@gmail.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000013, 'Neil', 'Superman', '1960-07-20', 'Perth', 'Western Australia', 45672345, 61343568, 'superneil@gmail.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000014, 'Ivan', 'TheTerrible', '1969-05-11', 'Brisbane', 'Queensland', 1234567898, NULL, 'ivan@yahoo.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000015, 'Penelope', 'Princess', '1977-10-23', 'Hobart', 'Tasmania', 40076711, NULL, 'pprincess@163.com')
+--------------
+
+Query OK, 1 row affected (0.01 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000016, 'Zhi Chao', 'Zhong', '1971-07-21', 'Horsley', 'New South Wales', 86150189, NULL, 'suezhong@163.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000017, 'Richard', 'TheLionheart', '1981-06-02', 'Waga Waga', 'New South Wales', 61234567, NULL, 'rlion@hotmail.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000018, 'Sherlock', 'Holmes', '1935-06-13', 'Bundaberg', 'Queensland', 46676601, NULL, 'holmes@162.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000019, 'Robin', 'Hood', '1951-08-21', 'Horsley', 'New South Wales', 86150329, NULL, 'robinhood@163.com')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+INSERT INTO APPLICANT VALUES ( 0000020, 'Janusz', 'Getta', '1953-10-03', 'Horsley', 'New South Wales', 12345678, 12345679, 'jrg@uow.edu.au')
+--------------
+
+Query OK, 1 row affected (0.02 sec)
+
+--------------
+SELECT 	anum,
+       	fname, 
+       	lname, 
+       	dob, 
+       	city,
+		state,
+		phone,
+		fax,
+		email
+FROM APPLICANT
+ORDER BY anum ASC
+--------------
+
++------+----------+--------------+------------+------------+-------------------+------------+----------+---------------------+
+| anum | fname    | lname        | dob        | city       | state             | phone      | fax      | email               |
++------+----------+--------------+------------+------------+-------------------+------------+----------+---------------------+
+|    1 | Harry    | Potter       | 1980-12-12 | Perth      | Western Australia |  645278453 |     NULL | jones@gmail.com     |
+|    2 | Johnny   | Walker       | 1990-01-13 | Geelong    | Victoria          |   63569784 | 63569785 | blunder@hotmail.com |
+|    3 | Mary     | Poppins      | 1950-01-01 | Melbourne  | Victoria          |   62389541 |     NULL | NULL                |
+|    4 | Michael  | Collins      | 1960-05-25 | Brisbane   | Queensland        |   63336666 |     NULL | mike@hotmail.com    |
+|    5 | Margaret | Finch        | 1953-12-07 | Sydney     | New South Wales   |   64573489 |     NULL | mf@163.com          |
+|    6 | Claudia  | Kowalewski   | 1959-05-03 | Hobart     | Tasmania          |   64577744 |     NULL | cch@cs.odmg.org     |
+|    7 | James    | Bond         | 1960-01-01 | Perth      | Western Australia |  645278434 |     NULL | james@bigpond.com   |
+|    8 | Stephen  | Staunton     | 1977-10-23 | Freemantle | Western Australia |    6278453 |     NULL | stephen@gmail.com   |
+|    9 | Joseph   | Staunton     | 1977-10-23 | Newcastle  | New South Wales   |  623778453 |     NULL | joseph@gmail.com    |
+|   10 | John     | Spiderman    | 1990-06-21 | Sydney     | New South Wales   |   24256789 | 12345679 | spider@yahoo.com    |
+|   11 | George   | TheFirst     | 1991-10-12 | Melbourne  | Victoria          |    2345987 |     NULL | g1st@hotmail.com    |
+|   12 | Homer    | Simpson      | 1957-05-24 | Adelaide   | South Australia   |   61369876 |     NULL | homer@gmail.com     |
+|   13 | Neil     | Superman     | 1960-07-20 | Perth      | Western Australia |   45672345 | 61343568 | superneil@gmail.com |
+|   14 | Ivan     | TheTerrible  | 1969-05-11 | Brisbane   | Queensland        | 1234567898 |     NULL | ivan@yahoo.com      |
+|   15 | Penelope | Princess     | 1977-10-23 | Hobart     | Tasmania          |   40076711 |     NULL | pprincess@163.com   |
+|   16 | Zhi Chao | Zhong        | 1971-07-21 | Horsley    | New South Wales   |   86150189 |     NULL | suezhong@163.com    |
+|   17 | Richard  | TheLionheart | 1981-06-02 | Waga Waga  | New South Wales   |   61234567 |     NULL | rlion@hotmail.com   |
+|   18 | Sherlock | Holmes       | 1935-06-13 | Bundaberg  | Queensland        |   46676601 |     NULL | holmes@162.com      |
+|   19 | Robin    | Hood         | 1951-08-21 | Horsley    | New South Wales   |   86150329 |     NULL | robinhood@163.com   |
+|   20 | Janusz   | Getta        | 1953-10-03 | Horsley    | New South Wales   |   12345678 | 12345679 | jrg@uow.edu.au      |
++------+----------+--------------+------------+------------+-------------------+------------+----------+---------------------+
+20 rows in set (0.00 sec)
+
+mysql> notee

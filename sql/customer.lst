@@ -1,0 +1,127 @@
+mysql> source customer.sql
+ERROR 1051 (42S02): Unknown table 'csit115.customer'
+Query OK, 0 rows affected (0.36 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.07 sec)
+
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
++---------+-------+-------+---------+------------+---------+-------+-------+-------+
+| cnumber | fname | lname | onumber | odate      | lnumber | item  | price | total |
++---------+-------+-------+---------+------------+---------+-------+-------+-------+
+|       7 | James | Bond  |       7 | 2016-01-01 |       1 | bolt  | 23.04 |     5 |
+|       7 | James | Bond  |       7 | 2016-01-01 |       2 | screw | 29.01 |     3 |
+|       7 | James | Bond  |       7 | 2016-01-01 |       3 | nut   |  4.55 |     2 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       1 | bolt  | 23.04 |     1 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       2 | screw | 23.04 |     1 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       3 | nut   | 23.04 |     2 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       4 | lock  | 23.04 |     1 |
++---------+-------+-------+---------+------------+---------+-------+-------+-------+
+7 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.23 sec)
+
+mysql> source customer.sql
+ERROR 1051 (42S02): Unknown table 'csit115.customer'
+Query OK, 0 rows affected (0.24 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.05 sec)
+
+Query OK, 1 row affected (0.04 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
++---------+-------+-------+---------+------------+---------+-------+-------+-------+
+| cnumber | fname | lname | onumber | odate      | lnumber | item  | price | total |
++---------+-------+-------+---------+------------+---------+-------+-------+-------+
+|       7 | James | Bond  |       7 | 2016-01-01 |       1 | bolt  | 23.04 |     5 |
+|       7 | James | Bond  |       7 | 2016-01-01 |       2 | screw | 29.01 |     3 |
+|       7 | James | Bond  |       7 | 2016-01-01 |       3 | nut   |  4.55 |     2 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       1 | bolt  | 23.04 |     1 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       2 | screw | 23.04 |     1 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       3 | nut   | 23.04 |     2 |
+|       7 | James | Bond  |       8 | 2016-01-01 |       4 | lock  | 23.04 |     1 |
++---------+-------+-------+---------+------------+---------+-------+-------+-------+
+7 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.12 sec)
+
+Query OK, 0 rows affected (0.28 sec)
+
+Query OK, 0 rows affected (0.34 sec)
+
+Query OK, 0 rows affected (0.25 sec)
+
+Query OK, 1 row affected (0.02 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.09 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.08 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
+Query OK, 1 row affected (0.03 sec)
+
++---------+-------+-------+
+| cnumber | fname | lname |
++---------+-------+-------+
+|       7 | James | Bond  |
++---------+-------+-------+
+1 row in set (0.00 sec)
+
++---------+------------+---------+
+| onumber | odate      | cnumber |
++---------+------------+---------+
+|       7 | 2016-01-01 |       7 |
+|       8 | 2016-01-01 |       7 |
++---------+------------+---------+
+2 rows in set (0.00 sec)
+
++---------+---------+-------+-------+-------+
+| onumber | lnumber | item  | price | total |
++---------+---------+-------+-------+-------+
+|       7 |       1 | bolt  | 23.04 |     5 |
+|       7 |       2 | screw | 29.01 |     3 |
+|       7 |       3 | nut   |  4.55 |     2 |
+|       8 |       1 | bolt  | 23.04 |     1 |
+|       8 |       2 | screw | 23.04 |     1 |
+|       8 |       3 | nut   | 23.04 |     2 |
+|       8 |       4 | lock  | 23.04 |     1 |
++---------+---------+-------+-------+-------+
+7 rows in set (0.00 sec)
+
+Query OK, 0 rows affected (0.13 sec)
+
+Query OK, 0 rows affected (0.11 sec)
+
+Query OK, 0 rows affected (0.13 sec)
+
+mysql> tee room.lst
