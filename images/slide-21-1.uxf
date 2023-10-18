@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>540</x>
+      <y>50</y>
+      <w>160</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>STUDENT
+--
+s#           ID1
+first-name
+last-name
+dob
+project[0..1]
+thesis[0..1]
+student-type
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>200</x>
+      <y>70</y>
+      <w>160</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>SUPERVISOR
+--
+e#	          ID1
+first-name
+last-name
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>350</x>
+      <y>100</y>
+      <w>210</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..1
+m2=1..*
+&lt; Has-supervisor</panel_attributes>
+    <additional_attributes>10.0;20.0;190.0;20.0</additional_attributes>
+  </element>
+</diagram>
