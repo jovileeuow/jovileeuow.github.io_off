@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>70</x>
+      <y>70</y>
+      <w>460</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>"CLASS B"
+--
+"_id": value("attribute 1")+...+value("attribute m")
+"attribute 1"
+   ...      
+"attribute m"
+"attribute n"   
+   ...      
+"attribute np"  
+"Related-to"
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>670</x>
+      <y>250</y>
+      <w>450</w>
+      <h>150</h>
+    </coordinates>
+    <panel_attributes>"CLASS A"
+--
+"_id": value("attribute 1")+...+value("attribute k")  
+"attribute 1"
+   ...       
+"attribute k"
+"attribute m"    
+   ...
+"attribute n"   
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>220</x>
+      <y>310</y>
+      <w>150</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>"CLASS BA"
+--
+"attribute-a 1" 
+   ...        
+"attribute-a k"
+"ref A"  
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>280</x>
+      <y>230</y>
+      <w>40</w>
+      <h>100</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;80.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>280</x>
+      <y>270</y>
+      <w>410</w>
+      <h>140</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;.</panel_attributes>
+    <additional_attributes>390.0;10.0;320.0;10.0;320.0;120.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>50</x>
+      <y>50</y>
+      <w>500</w>
+      <h>380</h>
+    </coordinates>
+    <panel_attributes>
+    </panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>650</x>
+      <y>230</y>
+      <w>490</w>
+      <h>190</h>
+    </coordinates>
+    <panel_attributes>
+    </panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

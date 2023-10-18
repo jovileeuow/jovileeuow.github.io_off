@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>30</x>
+      <y>60</y>
+      <w>160</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>CLASS A
+--
+attribute 1    ID
+   ...         ...
+attribute k    ID
+attribute m    
+   ...      
+attribute n   
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>620</x>
+      <y>60</y>
+      <w>160</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>CLASS B
+--
+attribute 1    ID
+   ...         ...
+attribute m    ID
+attribute n    
+   ...         ...
+attribute p    
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>180</x>
+      <y>100</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=
+r1=
+m2=0..*
+Related to &gt;</panel_attributes>
+    <additional_attributes>10.0;20.0;130.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>310</x>
+      <y>60</y>
+      <w>190</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>CLASS AB
+--
+attribute-a 1    ID
+   ...           ...
+attribute-a k    ID
+attribute-b 1    ID
+   ...           ...
+attribute-b m    ID  
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>490</x>
+      <y>100</y>
+      <w>150</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=0..*
+r1=
+m2=
+&lt; Related to</panel_attributes>
+    <additional_attributes>10.0;20.0;130.0;20.0</additional_attributes>
+  </element>
+</diagram>

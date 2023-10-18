@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>70</x>
+      <y>70</y>
+      <w>520</w>
+      <h>170</h>
+    </coordinates>
+    <panel_attributes>"CLASS A"
+--
+"_id": value("attribute 1")+...+value("attribute k")
+"attribute 1"      
+   ...      
+"attribute k"
+"attribute m"      
+   ...      
+"attribute n"    
+"Related-to": </panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>140</x>
+      <y>330</y>
+      <w>320</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>"CLASS B" 
+--
+"attribute 1"      
+   ...      
+"attribute m"
+"attribute n"      
+   ...      
+"attribute p"    
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>300</x>
+      <y>230</y>
+      <w>40</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+r1=
+m2=*</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLState</id>
+    <coordinates>
+      <x>50</x>
+      <y>50</y>
+      <w>560</w>
+      <h>430</h>
+    </coordinates>
+    <panel_attributes>
+    </panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

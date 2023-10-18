@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>40</x>
+      <y>30</y>
+      <w>160</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>CLASS A
+--
+attribute 1    ID
+   ...         ID
+attribute k    ID
+attribute m    
+   ...      
+attribute n   
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>440</x>
+      <y>50</y>
+      <w>160</w>
+      <h>80</h>
+    </coordinates>
+    <panel_attributes>CLASS B
+--
+attribute s
+   ...   
+attribute t 
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>290</x>
+      <y>70</y>
+      <w>170</w>
+      <h>50</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=
+r1=
+m2=0..1
+Related to &gt;</panel_attributes>
+    <additional_attributes>10.0;20.0;150.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>200</x>
+      <y>60</y>
+      <w>100</w>
+      <h>60</h>
+    </coordinates>
+    <panel_attributes>attribute p
+... 
+attribute r 
+bg=#dddddd</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

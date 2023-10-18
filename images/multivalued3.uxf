@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>40</x>
+      <y>30</y>
+      <w>160</w>
+      <h>120</h>
+    </coordinates>
+    <panel_attributes>STUDENT
+--
+snumber         ID
+first name
+last name      
+mphone [0..*]
+skill [1..*]  
+bg=#dddddd
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
