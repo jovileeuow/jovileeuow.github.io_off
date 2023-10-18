@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>10</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>30</x>
+      <y>50</y>
+      <w>220</w>
+      <h>300</h>
+    </coordinates>
+    <panel_attributes>CLASS A
+--
+attribute 1        ID
+   ...             ...
+attribute k        ID
+attribute m    
+   ...      
+attribute n   
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>60</x>
+      <y>190</y>
+      <w>160</w>
+      <h>130</h>
+    </coordinates>
+    <panel_attributes>CLASS B [0..*]
+--
+attribute 1    ID
+   ...         ...
+attribute m    ID
+attribute n    
+   ...         ...
+attribute p    
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>
